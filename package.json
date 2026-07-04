@@ -1,0 +1,24 @@
+{
+  "name": "croocred",
+  "version": "0.1.0",
+  "description": "CrooCred — the underwriter of the agent economy. Test-buys CROO agents for real, scores them with on-chain evidence, and issues live trust badges.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "provider": "tsx src/provider.ts",
+    "cli": "tsx src/cli.ts",
+    "site": "tsx src/site/build.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@croo-network/sdk": "^0.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
