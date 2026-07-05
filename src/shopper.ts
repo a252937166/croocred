@@ -281,7 +281,8 @@ export async function runTestPurchase(
   try {
     const payRes = await withPaymentLock(() => client.payOrder(order!.orderId));
     run.txHashes.pay = payRes.txHash || payRes.order?.payTxHash || undefined;
-    run.pricePaidUsdc = usdc(payRes.order?.price ?? service.price);
+    // the returned order's price can be an empty string — fall back to the listing
+    run.pricePaidUsdc = usdc(payRes.order?.price || service.price);
     log.info(`run#${runIndex} paid`, run.txHashes.pay ?? "(tx pending)");
   } catch (err) {
     run.failureStage = "pay";
