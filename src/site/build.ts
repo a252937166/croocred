@@ -1,10 +1,11 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, existsSync, cpSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { cfg } from "../config.js";
 import { loadAllRecords, latestPerAgent, type CertRecord } from "../report.js";
 import { renderBadge } from "../badge.js";
 import { getUsdcBalance } from "../balance.js";
+import { listPublicServices } from "../publicApi.js";
 import type { TestRun } from "../shopper.js";
 
 /**
@@ -43,6 +44,17 @@ function pageShell(title: string, body: string, generatedAt: string): string {
 <html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>${esc(title)}</title>
 <meta name="description" content="CrooCred test-buys CROO agents with real CAP orders and publishes graded, tx-hash-backed certification reports."/>
+<link rel="icon" type="image/png" sizes="32x32" href="${cfg.publicBaseURL}/favicon-32.png"/>
+<link rel="icon" type="image/png" sizes="64x64" href="${cfg.publicBaseURL}/favicon-64.png"/>
+<link rel="apple-touch-icon" href="${cfg.publicBaseURL}/apple-touch-icon.png"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="CrooCred"/>
+<meta property="og:title" content="${esc(title)}"/>
+<meta property="og:description" content="Live purchase certification for the agent economy — real CAP probe orders, graded reports, tx-hash evidence on Base."/>
+<meta property="og:image" content="${cfg.publicBaseURL}/og-image.png"/>
+<meta property="og:url" content="${cfg.publicBaseURL}/"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="${cfg.publicBaseURL}/og-image.png"/>
 <style>
 :root{
   --ink:#0c0e0b;--panel:#13160f;--panel2:#181c12;--line:#272b1f;
@@ -429,11 +441,11 @@ function emptyLeaderboard(): string {
 
 const SAMPLE_BADGE = `<svg xmlns="http://www.w3.org/2000/svg" width="360" height="84" role="img" aria-label="sample badge — design preview">
 <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#171717"/><stop offset="1" stop-color="#0d0d0d"/></linearGradient></defs>
-<rect width="360" height="84" rx="14" fill="url(#g)" stroke="#6EE646" stroke-opacity="0.55" stroke-width="1.5"/>
-<circle cx="42" cy="42" r="24" fill="#1a2e16" stroke="#6EE646" stroke-width="2"/>
-<text x="42" y="52" font-family="Menlo,monospace" font-size="28" font-weight="700" fill="#6EE646" text-anchor="middle">A</text>
-<text x="80" y="30" font-family="sans-serif" font-size="13" font-weight="700" fill="#f2f2f2">YourAgent</text>
-<text x="80" y="48" font-family="sans-serif" font-size="11" fill="#6EE646">CrooCred CERTIFIED · score 91/100</text>
+<rect width="360" height="84" rx="14" fill="url(#g)" stroke="#9be15d" stroke-opacity="0.55" stroke-width="1.5"/>
+<circle cx="42" cy="42" r="24" fill="#1a2e16" stroke="#9be15d" stroke-width="2"/>
+<text x="42" y="52" font-family="Menlo,monospace" font-size="28" font-weight="700" fill="#9be15d" text-anchor="middle">B</text>
+<text x="80" y="30" font-family="sans-serif" font-size="13" font-weight="700" fill="#f2f2f2">ExampleAgent</text>
+<text x="80" y="48" font-family="sans-serif" font-size="11" fill="#9be15d">CrooCred CERTIFIED · score 78/100</text>
 <text x="80" y="65" font-family="sans-serif" font-size="10" fill="#8a8a8a">2 paid on-chain probes · SAMPLE — design preview</text>
 <text x="348" y="65" font-family="Menlo,monospace" font-size="9" fill="#5a5a5a" text-anchor="end">CAP·Base</text></svg>`;
 
@@ -465,6 +477,10 @@ function indexPage(all: CertRecord[], latest: Map<string, CertRecord>, generated
     <div class="row">
       <span class="mut">Step 2 · probe runs</span>
       <span class="seg" id="runs-seg"><button data-r="1">1</button><button data-r="2" class="on">2</button><button data-r="3">3</button></span>
+      <span class="mut">mode</span>
+      <span class="seg" id="mode-seg"><button data-m="auto" class="on">auto</button><button data-m="liveness">liveness only</button></span>
+    </div>
+    <div class="row">
       <button class="copybtn" id="copy-payload">Step 3 · Copy CAP payload</button>
       <a class="mut" href="${STORE_AGENT_URL}" style="margin-left:auto">Step 4 · order on the Store →</a>
     </div>
@@ -500,6 +516,8 @@ ${metricCard(String(m.flaggedAgents), "risky agents found", m.flaggedAgents === 
 <div class="builder" style="margin-top:0">
 <label for="insp-in">Paste an Agent Store URL, agentId or serviceId — reads CROO's public metadata live</label>
 <input type="text" id="insp-in" placeholder="e.g. f57a40f6-be70-4074-8f09-db46cdf51fed" spellcheck="false"/>
+<div class="row"><span class="mut">or pick a live service (cheapest first)</span>
+<select id="insp-pick" style="background:#0f120b;border:1px solid var(--line);border-radius:8px;color:var(--txt);font:12.5px var(--mono);padding:7px 10px;max-width:100%"><option value="">— live store services —</option></select></div>
 <div class="hint" id="insp-hint">The same lookup CrooCred runs before every probe.</div>
 <div id="insp-out" style="margin-top:10px"></div>
 </div></div>
@@ -513,22 +531,6 @@ ${rows ? `<div class="filters" id="filters">
 </div>
 <div class="scroll"><table id="lb"><tr><th>#</th><th>agent / service</th><th>grade</th><th>evidence</th><th>sla</th><th>quality</th><th>flags</th><th>report</th></tr>${rows}</table></div>` : emptyLeaderboard()}
 </div>
-
-<div class="section"><h2><b>How CAP proof works</b> — every step leaves evidence</h2>
-<div class="pipe">
-<div class="st"><div class="n">1</div><div>Inbound CAP order — buyer → CrooCred, escrow locked<div class="ev">evidence: <b>parent order id · pay tx</b></div></div></div>
-<div class="st"><div class="n">2</div><div>Outbound probe order — CrooCred → target agent<div class="ev">evidence: <b>negotiation id · order id · create/pay tx</b></div></div></div>
-<div class="st"><div class="n">3</div><div>Delivery observed — target → CrooCred<div class="ev">evidence: <b>deliver tx · keccak256 content hash · delivery latency vs SLA</b></div></div></div>
-<div class="st"><div class="n">4</div><div>Quality judged — deterministic checks + LLM rubric vs the listing promise<div class="ev">evidence: <b>score components · flags</b></div></div></div>
-<div class="st"><div class="n">5</div><div>Report delivered back over CAP — escrow settles to CrooCred<div class="ev">evidence: <b>report url · badge url · parent deliver tx</b></div></div></div>
-</div></div>
-
-<div class="section"><h2><b>Probe tiers</b> — what the evidence means</h2>
-<div class="scroll"><table>
-<tr><th>tier</th><th>what runs</th><th>what it proves</th><th>grades</th></tr>
-<tr><td><span class="probe-type paid">paid</span></td><td>Real CAP order: negotiate → escrow lock → delivery → settlement on Base</td><td>Availability, SLA compliance, deliverable quality — with pay/deliver tx hashes</td><td>A–F</td></tr>
-<tr><td><span class="probe-type liveness">liveness</span></td><td>Negotiate → on-chain order creation → cancel before payment (no USDC moves)</td><td>Provider is alive, accepts orders, CAP integration works</td><td>max C</td></tr>
-</table></div></div>
 
 <div class="section"><h2><b>Badge</b> — proof in your README</h2>
 <div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap">
@@ -551,17 +553,35 @@ GET ${cfg.publicBaseURL}/api/stats.json
 
 GET ${cfg.publicBaseURL}/api/certs-full.json     — probe-level evidence: every order id + tx hash</pre></div>
 
+<div class="section"><h2><b>How CAP proof works</b> — every step leaves evidence</h2>
+<div class="pipe">
+<div class="st"><div class="n">1</div><div>Inbound CAP order — buyer → CrooCred, escrow locked<div class="ev">evidence: <b>parent order id · pay tx</b></div></div></div>
+<div class="st"><div class="n">2</div><div>Outbound probe order — CrooCred → target agent<div class="ev">evidence: <b>negotiation id · order id · create/pay tx</b></div></div></div>
+<div class="st"><div class="n">3</div><div>Delivery observed — target → CrooCred<div class="ev">evidence: <b>deliver tx · keccak256 content hash · delivery latency vs SLA</b></div></div></div>
+<div class="st"><div class="n">4</div><div>Quality judged — deterministic checks + LLM rubric vs the listing promise<div class="ev">evidence: <b>score components · flags</b></div></div></div>
+<div class="st"><div class="n">5</div><div>Report delivered back over CAP — escrow settles to CrooCred<div class="ev">evidence: <b>report url · badge url · parent deliver tx</b></div></div></div>
+</div></div>
+
+<div class="section"><h2><b>Probe tiers</b> — what the evidence means</h2>
+<div class="scroll"><table>
+<tr><th>tier</th><th>what runs</th><th>what it proves</th><th>grades</th></tr>
+<tr><td><span class="probe-type paid">paid</span></td><td>Real CAP order: negotiate → escrow lock → delivery → settlement on Base</td><td>Availability, SLA compliance, deliverable quality — with pay/deliver tx hashes</td><td>A–F</td></tr>
+<tr><td><span class="probe-type liveness">liveness</span></td><td>Negotiate → on-chain order creation → cancel before payment (no USDC moves)</td><td>Provider is alive, accepts orders, CAP integration works</td><td>max C</td></tr>
+</table></div></div>
+
 <div class="section"><h2><b>Why this needs CAP</b></h2>
 <p>On a normal API marketplace a reviewer can only read docs and star ratings. On CAP, CrooCred can <b>prove</b> its findings: escrow shows real money at stake, delivery hashes pin what was returned, settlement txs timestamp SLA compliance — and the certification itself is bought and delivered as a CAP order. The auditor is a paying customer of the market it audits.</p></div>
 
 <script>
 (function(){
   var UUID=/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
-  var runs=2, inp=document.getElementById('target-in'), out=document.getElementById('payload-out'), hint=document.getElementById('target-hint');
+  var runs=2, mode='auto', inp=document.getElementById('target-in'), out=document.getElementById('payload-out'), hint=document.getElementById('target-hint');
   function render(){
     var v=(inp.value||'').trim(), m=v.match(UUID);
     var t=m?m[0]:'<paste-your-serviceId>';
-    out.textContent=JSON.stringify({target:t,runs:runs});
+    var p={target:t,runs:runs};
+    if(mode==='liveness')p.mode='liveness';
+    out.textContent=JSON.stringify(p);
     if(!v){hint.textContent='Accepted: serviceId · agentId · Agent Store URL';hint.className='hint';}
     else if(m){hint.textContent='✅ UUID detected — payload ready to copy';hint.className='hint ok';}
     else{hint.textContent='⚠ No UUID found yet — paste an Agent Store URL, agentId, or serviceId';hint.className='hint warn';}
@@ -570,6 +590,12 @@ GET ${cfg.publicBaseURL}/api/certs-full.json     — probe-level evidence: every
   document.getElementById('runs-seg').addEventListener('click',function(e){
     var b=e.target.closest('button'); if(!b)return;
     runs=+b.dataset.r;
+    this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
+    render();
+  });
+  document.getElementById('mode-seg').addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b)return;
+    mode=b.dataset.m;
     this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
     render();
   });
@@ -628,6 +654,21 @@ GET ${cfg.publicBaseURL}/api/certs-full.json     — probe-level evidence: every
       });
   }
   if(ii){ii.addEventListener('input',function(){clearTimeout(debounce);debounce=setTimeout(inspect,450);});}
+  var pick=document.getElementById('insp-pick');
+  if(pick){
+    fetch('api/services.json').then(function(r){return r.json();}).then(function(list){
+      list.forEach(function(s){
+        var o=document.createElement('option');
+        o.value=s.serviceId;
+        o.textContent='$'+s.priceUsdc.toFixed(2)+' · '+s.name+' · SLA '+s.slaMinutes+'m · 7d '+s.orders7d;
+        pick.appendChild(o);
+      });
+    }).catch(function(){});
+    pick.addEventListener('change',function(){
+      if(!pick.value)return;
+      ii.value=pick.value;inspect();
+    });
+  }
   var f=document.getElementById('filters');
   if(f) f.addEventListener('click',function(e){
     var b=e.target.closest('button'); if(!b)return;
@@ -725,15 +766,18 @@ function apiPage(all: CertRecord[], latest: Map<string, CertRecord>, generatedAt
 <tr><td>paid probes</td><td>${m.paidProbes}</td></tr>
 <tr><td>last generated</td><td class="mono">${generatedAt}</td></tr>
 </table></div>
-${m.reports === 0 ? '<p class="mut" style="margin-top:8px">No certifications yet — once the first CAP probe runs, these feeds become the machine-readable trust registry.</p>' : ""}</div>
+${m.reports === 0 ? '<p class="mut" style="margin-top:8px">No certifications yet — once the first CAP probe runs, these feeds become the machine-readable trust registry.</p>' : ""}
+<p class="mut" style="margin-top:8px">Live feeds are generated only from persisted certification records. Sample responses and the sample report are never included in metrics or feeds.</p></div>
 <div class="section"><h2><b>GET /api/stats.json</b> — aggregate network stats</h2>
 <pre>curl -s ${cfg.publicBaseURL}/api/stats.json</pre>
+<button class="copybtn" data-copy="curl -s ${cfg.publicBaseURL}/api/stats.json">Copy curl</button>
 <pre>{ "certifiedAgents": ${m.certifiedAgents}, "reports": ${m.reports}, "paidProbes": ${m.paidProbes},
   "livenessProbes": ${m.livenessProbes}, "targetAgents": ${m.targetAgents}, "buyerAgents": ${m.buyerAgents},
   "a2aEdges": ${m.a2aEdges}, "usdcSpent": ${m.usdcSpent.toFixed(2)}, "generatedAt": "${generatedAt}" }</pre>
 <p><a href="api/stats.json">raw feed →</a></p></div>
 <div class="section"><h2><b>GET /api/certs.json</b> — compact leaderboard feed</h2>
 <pre>curl -s ${cfg.publicBaseURL}/api/certs.json</pre>
+<button class="copybtn" data-copy="curl -s ${cfg.publicBaseURL}/api/certs.json">Copy curl</button>
 <pre>${all.length ? esc(liveCerts) : `[]
 // empty until the first certification — shape per entry:
 // { "certId", "agent", "agentId", "service", "grade", "score", "verdict",
@@ -746,9 +790,21 @@ ${m.reports === 0 ? '<p class="mut" style="margin-top:8px">No certifications yet
   "runs": [ { "mode": "paid", "orderId": "…", "createTx": "0x…", "payTx": "0x…",
               "deliverTx": "0x…", "clearTx": "0x…", "acceptMs": 1481,
               "deliverMs": 41000, "slaMet": true, "contentHash": "0x…" } ] }</pre>
-<p><a href="api/certs-full.json">raw feed →</a></p></div>
+<p><a href="api/certs-full.json">raw feed →</a> · <button class="copybtn" data-copy="curl -s ${cfg.publicBaseURL}/api/certs-full.json">Copy curl</button></p></div>
+<div class="section"><h2><b>GET /api/services.json</b> — cheapest live store services (inspector cache)</h2>
+<p>Refreshed on every site build; feeds the target inspector's picker on the home page.</p>
+<p><a href="api/services.json">raw feed →</a></p></div>
 <div class="section"><h2><b>Badges</b> — GET /badge/&lt;agentId&gt;.svg</h2>
-<p>Stable per-agent SVG, regenerated on every certification and re-check. Embed it anywhere; it always shows the latest grade.</p></div>`;
+<p>Stable per-agent SVG, regenerated on every certification and re-check. Embed it anywhere; it always shows the latest grade.</p></div>
+<script>
+document.querySelectorAll('[data-copy]').forEach(function(b){
+  b.addEventListener('click',function(){
+    navigator.clipboard.writeText(b.getAttribute('data-copy')).then(function(){
+      var old=b.textContent;b.textContent='Copied ✓';setTimeout(function(){b.textContent=old;},1500);
+    });
+  });
+});
+</script>`;
   return pageShell("CrooCred — API", body, generatedAt);
 }
 
@@ -783,6 +839,30 @@ export async function buildSite(): Promise<string> {
   writeFileSync(resolve(out, "reports.html"), reportsPage(all, latest, generatedAt));
   writeFileSync(resolve(out, "api.html"), apiPage(all, latest, generatedAt));
   writeFileSync(resolve(out, "r", "sample.html"), sampleReportPage(generatedAt));
+
+  // Static assets (favicon, og-image) — copied verbatim if present.
+  const assetsDir = resolve(cfg.root, "site-assets");
+  if (existsSync(assetsDir)) cpSync(assetsDir, out, { recursive: true });
+
+  // Cheap-services cache for the inspector dropdown (best-effort, offline-safe).
+  try {
+    const svcs = await listPublicServices(1, 100);
+    const cheap = svcs
+      .filter((s) => !s.requireFundTransfer && s.agentId !== process.env.CROO_AGENT_ID)
+      .sort((a, b) => Number(a.price) - Number(b.price))
+      .slice(0, 20)
+      .map((s) => ({
+        serviceId: s.serviceId,
+        agentId: s.agentId,
+        name: s.name.slice(0, 40),
+        priceUsdc: Number(s.price) / 1e6,
+        slaMinutes: s.slaMinutes,
+        orders7d: s.orders7d,
+      }));
+    writeFileSync(resolve(out, "api", "services.json"), JSON.stringify(cheap, null, 2));
+  } catch {
+    /* keep any previous services.json */
+  }
   for (const rec of all) writeFileSync(resolve(out, "r", `${rec.certId}.html`), reportPage(rec, generatedAt));
   for (const [agentId, rec] of latest) writeFileSync(resolve(out, "badge", `${agentId}.svg`), renderBadge(rec));
 

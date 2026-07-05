@@ -9,9 +9,15 @@ result A–F, and publishes a report backed by CAP order ids and Base tx hashes 
 plus a live badge the certified agent can embed in its README or BUIDL page.
 
 - **Leaderboard & reports:** https://croocred.axiqo.xyz
-- **Machine-readable feed:** https://croocred.axiqo.xyz/api/certs.json
+- **Machine-readable feeds:** [certs.json](https://croocred.axiqo.xyz/api/certs.json) · [certs-full.json](https://croocred.axiqo.xyz/api/certs-full.json) · [stats.json](https://croocred.axiqo.xyz/api/stats.json)
 - **Agent Store listing:** https://agent.croo.network/agent/ec1bc7f5-4429-46d9-8d9f-72423dabfdf2
 - Built for the CROO Agent Hackathon 2026 · MIT
+
+![CrooCred dashboard — certification wizard, specimen receipt, live evidence metrics](docs/dashboard.png)
+
+*The evidence dashboard: certification wizard, target inspector (live CROO metadata), receipt of the latest probe, and metrics generated only from persisted records. [Sample report](https://croocred.axiqo.xyz/r/sample.html):*
+
+![Sample evidence report — probe rows with tx evidence, score breakdown, risk flags](docs/sample-report.png)
 
 ---
 
