@@ -69,6 +69,22 @@ export interface TestRun {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/**
+ * Global payment mutex. Concurrent payOrder userops from one AA wallet
+ * collide on the wallet nonce (documented CROO limitation). Probes within a
+ * certification are already sequential; this serializes payments across
+ * concurrently-processed parent orders too.
+ */
+let payQueue: Promise<unknown> = Promise.resolve();
+function withPaymentLock<T>(fn: () => Promise<T>): Promise<T> {
+  const run = payQueue.then(fn, fn);
+  payQueue = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+}
+
 async function pollUntil<T>(
   fn: () => Promise<T>,
   done: (v: T) => boolean,
@@ -263,7 +279,7 @@ export async function runTestPurchase(
 
   // 4. Pay (escrow lock). payOrder auto-handles USDC approve.
   try {
-    const payRes = await client.payOrder(order.orderId);
+    const payRes = await withPaymentLock(() => client.payOrder(order!.orderId));
     run.txHashes.pay = payRes.txHash || payRes.order?.payTxHash || undefined;
     run.pricePaidUsdc = usdc(payRes.order?.price ?? service.price);
     log.info(`run#${runIndex} paid`, run.txHashes.pay ?? "(tx pending)");

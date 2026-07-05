@@ -4,83 +4,167 @@ import { fileURLToPath } from "node:url";
 import { cfg } from "../config.js";
 import { loadAllRecords, latestPerAgent, type CertRecord } from "../report.js";
 import { renderBadge } from "../badge.js";
+import type { TestRun } from "../shopper.js";
 
 /**
  * Static site generator — an evidence dashboard, not a brochure.
- * Every screen carries verifiable artifacts: order ids, tx hashes, latencies,
- * grades, machine-readable feeds.
  *
- * Output layout:
- *   site-dist/index.html          — metrics + leaderboard + evidence
- *   site-dist/r/<certId>.html     — full per-certification evidence report
- *   site-dist/badge/<agentId>.svg — embeddable badge (latest cert wins)
- *   site-dist/api/certs.json      — machine-readable feed
+ * Design language: an audit ledger. Dark ink page, monospace data, and one
+ * signature element — the till receipt. Every certification probe is a real
+ * purchase, so the freshest evidence is rendered as a paper receipt: line
+ * items, tx hashes, a grade stamp, a torn edge. When no live data exists yet
+ * the receipt renders as a clearly-watermarked SPECIMEN — never fake numbers.
+ *
+ * Output:
+ *   site-dist/index.html          — dashboard (receipt, metrics, leaderboard)
+ *   site-dist/r/<certId>.html     — per-certification evidence report
+ *   site-dist/badge/<agentId>.svg — embeddable live badge
+ *   site-dist/api/certs.json      — machine-readable certifications feed
+ *   site-dist/api/stats.json      — aggregate network stats
  */
 
 const esc = (s: string): string =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const GRADE_COLOR: Record<string, string> = {
-  A: "#6EE646", B: "#9be15d", C: "#e6c646", D: "#e68a46", F: "#e64646",
+  A: "#6EE646", B: "#9be15d", C: "#e4c34a", D: "#e68a46", F: "#e65846",
 };
 
 const basescan = (tx: string): string => `https://basescan.org/tx/${tx}`;
 const STORE_AGENT_URL = `https://agent.croo.network/agent/${process.env.CROO_AGENT_ID ?? ""}`;
+const GITHUB_URL = "https://github.com/a252937166/croocred";
+const short = (s: string | undefined, n = 10): string => (s ? `${s.slice(0, n)}…` : "—");
 
-function pageShell(title: string, body: string): string {
+// ---------------------------------------------------------------- shell ----
+
+function pageShell(title: string, body: string, generatedAt: string): string {
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>${esc(title)}</title>
+<meta name="description" content="CrooCred test-buys CROO agents with real CAP orders and publishes graded, tx-hash-backed certification reports."/>
 <style>
-:root{--green:#6EE646;--bg:#0d0d0d;--card:#161616;--line:#262626;--mut:#8a8a8a;--amber:#e6c646}
+:root{
+  --ink:#0c0e0b;--panel:#13160f;--panel2:#181c12;--line:#272b1f;
+  --paper:#f4f1e6;--paper2:#e9e5d4;--paper-ink:#1b1e10;--paper-mut:#6d6a58;
+  --green:#6ee646;--amber:#e4c34a;--red:#e65846;--mut:#8b9085;--txt:#e8eae3;
+  --mono:"SF Mono",ui-monospace,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
 *{box-sizing:border-box;margin:0}
-body{background:var(--bg);color:#eee;font:15px/1.6 -apple-system,"Segoe UI",Roboto,sans-serif;padding:32px 16px}
-.wrap{max-width:1020px;margin:0 auto}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{background:var(--ink);color:var(--txt);font:15px/1.65 var(--sans);padding:0 16px 40px}
+.wrap{max-width:1060px;margin:0 auto}
 a{color:var(--green);text-decoration:none}a:hover{text-decoration:underline}
-h1{font-size:28px;letter-spacing:.5px}h2{font-size:18px;margin:0 0 12px}
-.tag{display:inline-block;border:1px solid var(--green);color:var(--green);border-radius:99px;padding:1px 10px;font-size:11px;letter-spacing:1px;text-transform:uppercase}
-.tag.amber{border-color:var(--amber);color:var(--amber)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:14px 0}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
-th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.6px}
-.grade{font:700 18px Menlo,monospace}
+h2{font:700 13px var(--mono);letter-spacing:2.5px;text-transform:uppercase;color:var(--mut);margin:0 0 14px}
+h2 b{color:var(--txt)}
+.mono{font-family:var(--mono);font-size:12.5px;word-break:break-all}
 .mut{color:var(--mut);font-size:12.5px}
-.mono{font-family:Menlo,Consolas,monospace;font-size:12.5px;word-break:break-all}
+nav{display:flex;align-items:center;gap:18px;padding:18px 0;border-bottom:1px solid var(--line);margin-bottom:34px;flex-wrap:wrap}
+.wordmark{font:800 15px var(--mono);letter-spacing:3px;color:var(--txt)}
+.wordmark i{font-style:normal;color:var(--green)}
+nav .links{margin-left:auto;display:flex;gap:16px;font:12px var(--mono);letter-spacing:.5px}
+nav .links a{color:var(--mut)}nav .links a:hover{color:var(--green);text-decoration:none}
+.section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mut);font:600 11px var(--mono);text-transform:uppercase;letter-spacing:1px}
+.grade{font:700 18px var(--mono)}
 .flag{color:var(--amber);font-size:13px}
-.hdr{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px}
-img.av{width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid var(--line)}
-.bar{height:8px;border-radius:4px;background:#222;overflow:hidden}.bar>i{display:block;height:100%;background:var(--green)}
-footer{margin-top:40px;color:#555;font-size:12px;line-height:1.7}
+.bar{height:8px;border-radius:4px;background:#20241a;overflow:hidden}.bar>i{display:block;height:100%;background:var(--green)}
 .scroll{overflow-x:auto}
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
-.metric{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-.metric b{display:block;font:700 22px Menlo,monospace;color:var(--green)}
-.metric span{font-size:11.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
-.cta{display:inline-block;background:var(--green);color:#0d0d0d;font-weight:700;border-radius:10px;padding:8px 16px;margin:4px 8px 4px 0}
-.cta.ghost{background:transparent;color:var(--green);border:1px solid var(--green)}
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
-.step{background:#111;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px}
-.step b{color:var(--green);font-family:Menlo,monospace}
-pre{background:#101010;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12.5px;overflow-x:auto;font-family:Menlo,Consolas,monospace;line-height:1.5}
-.probe-type{font-size:10.5px;border-radius:6px;padding:1px 7px;font-family:Menlo,monospace}
-.probe-type.paid{background:#1a2e16;color:var(--green);border:1px solid var(--green)}
-.probe-type.liveness{background:#2e2a12;color:var(--amber);border:1px solid var(--amber)}
-</style></head><body><div class="wrap">${body}
-<footer>CrooCred — live purchase certification for the agent economy. Paid probes are real CAP orders with escrow and settlement on Base mainnet (verify every tx on Basescan); liveness checks exercise negotiation + on-chain order creation without payment and cap grades at C.<br/>
-<a href="https://github.com/a252937166/croocred">GitHub (MIT)</a> · <a href="${STORE_AGENT_URL}">Agent Store listing</a> · <a href="${cfg.publicBaseURL}/api/certs.json">API feed</a> · Built for the CROO Agent Hackathon 2026.</footer>
+footer{margin-top:44px;color:#5c6156;font-size:12px;line-height:1.8;border-top:1px solid var(--line);padding-top:18px}
+.cta{display:inline-block;background:var(--green);color:#0c0e0b;font:700 13px var(--mono);border-radius:9px;padding:10px 16px;margin:4px 10px 4px 0;border:1px solid var(--green);cursor:pointer}
+.cta:hover{text-decoration:none;filter:brightness(1.08)}
+.cta.ghost{background:transparent;color:var(--green)}
+.probe-type{font:600 10.5px var(--mono);border-radius:6px;padding:1px 7px;white-space:nowrap}
+.probe-type.paid{background:#182b12;color:var(--green);border:1px solid #2c5220}
+.probe-type.liveness{background:#2b2612;color:var(--amber);border:1px solid #55491c}
+pre{background:#0f120b;border:1px solid var(--line);border-radius:10px;padding:13px;font:12.5px/1.55 var(--mono);overflow-x:auto;color:#cfd4c6}
+img.av{width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid var(--line)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:30px;align-items:start;margin:8px 0 6px}
+@media(max-width:860px){.hero{grid-template-columns:1fr}}
+.hero h1{font:800 clamp(30px,4.6vw,46px)/1.08 var(--mono);letter-spacing:-.5px;text-transform:uppercase}
+.hero h1 .r{color:var(--green)}
+.hero p.sub{margin:16px 0 6px;max-width:560px;color:#c9cec0}
+.eyebrow{font:600 11px var(--mono);letter-spacing:2.5px;color:var(--mut);text-transform:uppercase;margin-bottom:12px}
+
+/* the receipt — signature element */
+.receipt-wrap{display:flex;justify-content:center}
+.receipt{position:relative;width:min(360px,100%);background:linear-gradient(178deg,var(--paper) 0%,var(--paper2) 100%);color:var(--paper-ink);font:12.5px/1.7 var(--mono);padding:20px 20px 30px;border-radius:3px 3px 0 0;box-shadow:0 18px 40px rgba(0,0,0,.5),0 2px 0 rgba(255,255,255,.06) inset;
+clip-path:polygon(0 0,100% 0,100% calc(100% - 9px),97.5% 100%,95% calc(100% - 9px),92.5% 100%,90% calc(100% - 9px),87.5% 100%,85% calc(100% - 9px),82.5% 100%,80% calc(100% - 9px),77.5% 100%,75% calc(100% - 9px),72.5% 100%,70% calc(100% - 9px),67.5% 100%,65% calc(100% - 9px),62.5% 100%,60% calc(100% - 9px),57.5% 100%,55% calc(100% - 9px),52.5% 100%,50% calc(100% - 9px),47.5% 100%,45% calc(100% - 9px),42.5% 100%,40% calc(100% - 9px),37.5% 100%,35% calc(100% - 9px),32.5% 100%,30% calc(100% - 9px),27.5% 100%,25% calc(100% - 9px),22.5% 100%,20% calc(100% - 9px),17.5% 100%,15% calc(100% - 9px),12.5% 100%,10% calc(100% - 9px),7.5% 100%,5% calc(100% - 9px),2.5% 100%,0 calc(100% - 9px))}
+.receipt .rc-head{text-align:center;letter-spacing:1.5px;font-weight:700}
+.receipt .rc-sub{text-align:center;color:var(--paper-mut);font-size:10.5px;letter-spacing:1px}
+.receipt hr{border:0;border-top:1.5px dashed #b4af97;margin:10px 0}
+.receipt .li{display:flex;justify-content:space-between;gap:10px}
+.receipt .li span:first-child{color:var(--paper-mut)}
+.receipt .li span:last-child{text-align:right;font-weight:600;max-width:60%;word-break:break-all}
+.receipt .li a{color:#245c14;text-decoration:underline}
+.receipt .total{font-weight:800;font-size:14px}
+.receipt .stamp{position:absolute;top:86px;right:14px;border:3px double;border-radius:50%;width:74px;height:74px;display:flex;align-items:center;justify-content:center;font:800 21px var(--mono);transform:rotate(-14deg);opacity:.85;background:rgba(255,255,255,.25)}
+.receipt .barcode{margin:12px auto 0;height:30px;width:82%;background:repeating-linear-gradient(90deg,var(--paper-ink) 0 2px,transparent 2px 4px,var(--paper-ink) 4px 7px,transparent 7px 9px,var(--paper-ink) 9px 10px,transparent 10px 13px)}
+.receipt.specimen::before{content:"SPECIMEN";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:800 44px var(--mono);letter-spacing:6px;color:rgba(27,30,16,.10);transform:rotate(-18deg);pointer-events:none}
+.rc-caption{text-align:center;margin-top:12px}
+
+/* metrics */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin:14px 0}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.metric b{display:block;font:700 22px var(--mono)}
+.metric span{font:600 10.5px var(--mono);color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+.metric.zero b{color:#565b50}
+.metric.pos b{color:var(--green)}
+.metric.warn b{color:var(--amber)}
+
+/* request builder */
+.builder{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:20px}
+.builder label{font:600 10.5px var(--mono);color:var(--mut);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px}
+.builder input[type=text]{width:100%;background:#0f120b;border:1px solid var(--line);border-radius:8px;color:var(--txt);font:13px var(--mono);padding:10px 12px;outline:none}
+.builder input[type=text]:focus{border-color:var(--green)}
+.builder .row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.builder .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.builder .seg button{background:transparent;border:0;color:var(--mut);font:600 12px var(--mono);padding:7px 12px;cursor:pointer}
+.builder .seg button.on{background:var(--green);color:#0c0e0b}
+.builder pre{margin-top:10px}
+.copybtn{background:transparent;border:1px solid var(--green);color:var(--green);font:600 12px var(--mono);border-radius:8px;padding:7px 12px;cursor:pointer}
+.copybtn:hover{background:var(--green);color:#0c0e0b}
+
+/* pipeline */
+.pipe{display:flex;flex-direction:column;gap:0}
+.pipe .st{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:13px 4px;border-bottom:1px dashed var(--line)}
+.pipe .st:last-child{border-bottom:0}
+.pipe .n{font:800 15px var(--mono);color:var(--green);border:1px solid var(--line);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--panel2)}
+.pipe .ev{font:11.5px var(--mono);color:var(--mut);margin-top:3px}
+.pipe .ev b{color:#aab0a2;font-weight:600}
+
+/* leaderboard filters */
+.filters{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.filters button{background:transparent;border:1px solid var(--line);color:var(--mut);font:600 11.5px var(--mono);border-radius:99px;padding:5px 13px;cursor:pointer}
+.filters button.on{border-color:var(--green);color:var(--green)}
+tr.hidden{display:none}
+.empty-steps{font-size:14px;line-height:2}
+.empty-steps .mono{color:var(--green)}
+</style></head><body><div class="wrap">
+<nav><span class="wordmark">CROO<i>CRED</i></span>
+<div class="links"><a href="${cfg.publicBaseURL}/#leaderboard">REPORTS</a><a href="${cfg.publicBaseURL}/api/certs.json">API</a><a href="${GITHUB_URL}">GITHUB</a><a href="${STORE_AGENT_URL}">AGENT&nbsp;STORE</a></div></nav>
+${body}
+<footer>CrooCred — live purchase certification for the agent economy. Paid probes are real CAP orders with escrow and settlement on Base mainnet; liveness checks exercise negotiation + on-chain order creation without payment and cap grades at C. Every tx hash links to Basescan.<br/>
+<a href="${GITHUB_URL}">GitHub (MIT)</a> · <a href="${STORE_AGENT_URL}">croocred on the Agent Store</a> · <a href="${cfg.publicBaseURL}/api/certs.json">certs feed</a> · <a href="${cfg.publicBaseURL}/api/stats.json">stats feed</a><br/>
+Built for the CROO Agent Hackathon 2026 · page generated ${generatedAt} by the provider daemon.</footer>
 </div></body></html>`;
 }
 
-// ---------- aggregate metrics --------------------------------------------
+// ------------------------------------------------------------- metrics ----
 
 interface Metrics {
   certifiedAgents: number;
   reports: number;
   paidProbes: number;
   livenessProbes: number;
-  counterparties: number;
-  buyerWallets: number;
+  targetAgents: number;
+  buyerAgents: number;
+  a2aEdges: number;
   usdcSpent: number;
   medianAcceptS: number | null;
   medianDeliverS: number | null;
@@ -95,14 +179,16 @@ function median(xs: number[]): number | null {
 
 function computeMetrics(all: CertRecord[], latest: Map<string, CertRecord>): Metrics {
   const runs = all.flatMap((r) => r.runs);
-  const buyers = new Set(all.map((r) => r.soldVia?.requesterAgentId).filter(Boolean));
+  const targets = new Set(all.map((r) => r.target.agentId));
+  const buyers = new Set(all.map((r) => r.soldVia?.requesterAgentId).filter(Boolean) as string[]);
   return {
     certifiedAgents: latest.size,
     reports: all.length,
     paidProbes: runs.filter((r) => r.mode === "paid" && r.txHashes.pay).length,
     livenessProbes: runs.filter((r) => r.mode === "liveness").length,
-    counterparties: new Set(all.map((r) => r.target.agentId)).size + buyers.size,
-    buyerWallets: buyers.size,
+    targetAgents: targets.size,
+    buyerAgents: buyers.size,
+    a2aEdges: targets.size + buyers.size,
     usdcSpent: all.reduce((a, r) => a + r.spentUsdc, 0),
     medianAcceptS: median(runs.map((r) => r.tAcceptMs).filter((x): x is number => x !== undefined).map((x) => x / 1000)),
     medianDeliverS: median(runs.map((r) => r.tDeliverMs).filter((x): x is number => x !== undefined).map((x) => x / 1000)),
@@ -111,9 +197,75 @@ function computeMetrics(all: CertRecord[], latest: Map<string, CertRecord>): Met
 }
 
 const fmtS = (s: number | null): string =>
-  s === null ? "—" : s >= 90 ? `${Math.round(s / 60)}m ${Math.round(s % 60)}s` : `${Math.round(s)}s`;
+  s === null ? "—" : s >= 90 ? `${Math.floor(s / 60)}m ${Math.round(s % 60)}s` : `${Math.round(s)}s`;
 
-// ---------- report page ----------------------------------------------------
+// ------------------------------------------------------------- receipt ----
+
+function receiptLine(k: string, v: string): string {
+  return `<div class="li"><span>${k}</span><span>${v}</span></div>`;
+}
+
+/** The signature element: the latest probe rendered as a till receipt. */
+function latestReceipt(all: CertRecord[]): string {
+  const rec = all.find((r) => r.runs.some((x) => x.txHashes.create || x.txHashes.pay)) ?? all[0];
+  const run: TestRun | undefined = rec?.runs.find((x) => x.txHashes.pay) ?? rec?.runs[0];
+
+  if (!rec || !run) {
+    return `<div class="receipt-wrap"><div>
+<div class="receipt specimen" aria-label="specimen receipt — no live data yet">
+  <div class="rc-head">CROOCRED * PURCHASE AUDIT</div>
+  <div class="rc-sub">CAP · BASE MAINNET · ESCROWED</div>
+  <hr/>
+  ${receiptLine("TARGET", "your agent here")}
+  ${receiptLine("SERVICE", "—")}
+  ${receiptLine("PROBE", "paid")}
+  ${receiptLine("ORDER", "—")}
+  ${receiptLine("PAY TX", "0x…")}
+  ${receiptLine("DELIVER TX", "0x…")}
+  ${receiptLine("ACCEPT", "—")}
+  ${receiptLine("DELIVERY", "—")}
+  ${receiptLine("SLA", "—")}
+  <hr/>
+  <div class="li total"><span>PROBE SPEND</span><span>$0.00</span></div>
+  <div class="barcode"></div>
+</div>
+<p class="mut rc-caption">Design specimen — not a live certification.<br/>The first real probe prints its receipt here.</p>
+</div></div>`;
+  }
+
+  const grade = rec.score.grade;
+  const c = GRADE_COLOR[grade];
+  const result = run.ok ? (run.mode === "paid" ? "PASS" : "ALIVE") : "FAIL";
+  const payTx = run.txHashes.pay ? `<a href="${basescan(run.txHashes.pay)}">${short(run.txHashes.pay, 12)}</a>` : "—";
+  const delTx = run.txHashes.deliver ? `<a href="${basescan(run.txHashes.deliver)}">${short(run.txHashes.deliver, 12)}</a>` : "—";
+  const createTx = run.txHashes.create ? `<a href="${basescan(run.txHashes.create)}">${short(run.txHashes.create, 12)}</a>` : "—";
+  return `<div class="receipt-wrap"><div>
+<div class="receipt" aria-label="latest certification receipt">
+  <div class="rc-head">CROOCRED * PURCHASE AUDIT</div>
+  <div class="rc-sub">CAP · BASE MAINNET · ${rec.createdAt.slice(0, 10)}</div>
+  <div class="stamp" style="color:${c};border-color:${c}">${grade}</div>
+  <hr/>
+  ${receiptLine("TARGET", esc(rec.target.agentName.slice(0, 22)))}
+  ${receiptLine("SERVICE", esc(rec.target.serviceName.slice(0, 22)))}
+  ${receiptLine("PROBE", run.mode.toUpperCase())}
+  ${receiptLine("ORDER", short(run.orderId, 12))}
+  ${receiptLine("CREATE TX", createTx)}
+  ${run.mode === "paid" ? receiptLine("PAY TX", payTx) : ""}
+  ${run.mode === "paid" ? receiptLine("DELIVER TX", delTx) : ""}
+  ${receiptLine("ACCEPT", fmtS((run.tAcceptMs ?? 0) / 1000))}
+  ${run.tDeliverMs !== undefined ? receiptLine("DELIVERY", fmtS(run.tDeliverMs / 1000)) : ""}
+  ${receiptLine("SLA", run.slaMet === undefined ? "—" : run.slaMet ? "MET" : "MISSED")}
+  ${receiptLine("RESULT", result)}
+  <hr/>
+  <div class="li total"><span>PROBE SPEND</span><span>$${(run.pricePaidUsdc ?? 0).toFixed(2)}</span></div>
+  <div class="barcode"></div>
+  <div class="rc-sub" style="margin-top:6px">${esc(rec.certId)}</div>
+</div>
+<p class="mut rc-caption"><a href="r/${rec.certId}.html">Full evidence report →</a></p>
+</div></div>`;
+}
+
+// ------------------------------------------------------------ report page --
 
 function runRows(rec: CertRecord): string {
   return rec.runs
@@ -123,6 +275,7 @@ function runRows(rec: CertRecord): string {
         r.txHashes.create ? `<a href="${basescan(r.txHashes.create)}">create</a>` : "",
         r.txHashes.pay ? `<a href="${basescan(r.txHashes.pay)}">pay</a>` : "",
         r.txHashes.deliver ? `<a href="${basescan(r.txHashes.deliver)}">deliver</a>` : "",
+        r.txHashes.clear ? `<a href="${basescan(r.txHashes.clear)}">clear</a>` : "",
       ].filter(Boolean).join(" · ") || '<span class="mut">—</span>';
       const outcome = r.ok
         ? r.mode === "paid"
@@ -131,19 +284,20 @@ function runRows(rec: CertRecord): string {
         : `❌ ${esc(r.failureStage ?? "failed")}${r.failureDetail ? ` — <span class="mut">${esc(r.failureDetail.slice(0, 140))}</span>` : ""}`;
       const quality = v?.assessed ? `${v.score}/10` : '<span class="mut">n/a</span>';
       const ids = [
-        r.orderId ? `order <span class="mono">${r.orderId.slice(0, 8)}…</span>` : "",
-        r.negotiationId ? `neg <span class="mono">${r.negotiationId.slice(0, 8)}…</span>` : "",
+        r.orderId ? `order <span class="mono">${r.orderId}</span>` : "",
+        r.negotiationId ? `neg <span class="mono">${r.negotiationId}</span>` : "",
+        r.contentHash ? `content hash <span class="mono">${short(r.contentHash, 14)}</span>` : "",
       ].filter(Boolean).join(" · ");
       return `<tr>
 <td>#${r.runIndex}<br/><span class="probe-type ${r.mode}">${r.mode}</span></td>
-<td>${outcome}${ids ? `<div class="mut">${ids}</div>` : ""}</td>
+<td>${outcome}${ids ? `<div class="mut" style="margin-top:4px">${ids}</div>` : ""}</td>
 <td>${quality}</td>
 <td class="mono">${txs}</td></tr>`;
     })
     .join("\n");
 }
 
-function reportPage(rec: CertRecord): string {
+function reportPage(rec: CertRecord, generatedAt: string): string {
   const c = GRADE_COLOR[rec.score.grade];
   const paidCount = rec.runs.filter((r) => r.mode === "paid" && r.txHashes.pay).length;
   const liveCount = rec.runs.filter((r) => r.mode === "liveness").length;
@@ -153,15 +307,19 @@ function reportPage(rec: CertRecord): string {
       : `CrooCred ran <b>${rec.runs.length} unpaid liveness probe(s)</b> against this service (CAP negotiation + on-chain order creation, cancelled before payment — no funds moved). Grades from liveness alone are capped at C.`;
   const livenessOnly = rec.runs.every((r) => r.mode === "liveness");
   const weightScale: Record<string, number> = livenessOnly
-    ? { availability: 60, latency: 40, reliability: 1, conformance: 1, quality: 1 }
+    ? { availability: 60, latency: 40 }
     : { availability: 32, reliability: 28, latency: 17, conformance: 23, quality: 15 };
   const comp = Object.entries(rec.score.components)
-    .filter(([k]) => !livenessOnly || k === "availability" || k === "latency")
+    .filter(([k]) => weightScale[k] !== undefined)
     .map(([k, v]) => {
-      const max = weightScale[k] ?? 30;
+      const max = weightScale[k];
       return `<tr><td style="width:130px">${k}</td><td style="width:60px">${v}</td><td><div class="bar"><i style="width:${Math.min(100, (v / max) * 100)}%"></i></div></td></tr>`;
     })
     .join("");
+  const qualityAssessed = rec.verdicts.some((v) => v.assessed);
+  const qualityNote = !livenessOnly && !qualityAssessed
+    ? `<p class="mut" style="margin-top:8px">Quality assessment: not assessed (LLM judge not configured for this run). Deterministic checks still ran: non-empty deliverable, JSON shape vs listing, filler detection — weights were redistributed accordingly.</p>`
+    : "";
   const flags = rec.score.flags.length
     ? rec.score.flags.map((f) => `<div class="flag">⚑ ${esc(f)}</div>`).join("")
     : '<div class="mut">no flags raised</div>';
@@ -170,143 +328,219 @@ function reportPage(rec: CertRecord): string {
     : rec.score.verdict === "conditional" ? "CAUTION — partial evidence, see flags"
     : "AVOID — failed live testing";
   const body = `
-<div class="hdr">
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px">
   ${rec.target.avatar ? `<img class="av" src="${esc(rec.target.avatar)}" alt=""/>` : ""}
-  <div><h1>${esc(rec.target.agentName)}</h1>
+  <div><h1 style="font:800 24px var(--mono)">${esc(rec.target.agentName)}</h1>
   <div class="mut">service: ${esc(rec.target.serviceName)} · $${rec.target.priceUsdc.toFixed(2)}/call · SLA ${rec.target.slaMinutes}min</div></div>
   <div style="margin-left:auto;text-align:right">
     <div class="grade" style="color:${c};font-size:34px">${rec.score.grade}</div>
     <div class="mut">${rec.score.score}/100 · ${esc(rec.score.verdict)}</div>
   </div>
 </div>
-<div class="card"><span class="tag ${paidCount ? "" : "amber"}">${paidCount ? "Live test evidence" : "Liveness check"}</span>
-<p style="margin:10px 0 4px">${evidenceLine}</p>
+<div class="section"><h2>${paidCount ? "Live test evidence" : "Liveness check"}</h2>
+<p style="margin:0 0 10px">${evidenceLine}</p>
 <div class="scroll"><table><tr><th>probe</th><th>outcome</th><th>quality</th><th>on-chain evidence</th></tr>${runRows(rec)}</table></div></div>
-<div class="card"><h2>Recommendation</h2><p style="font-weight:700;color:${c}">${recommendation}</p></div>
-<div class="card"><h2>Score breakdown</h2><table>${comp}</table></div>
-<div class="card"><h2>Risk flags</h2>${flags}</div>
-<div class="card"><h2>Listing snapshot at certification time</h2>
+<div class="section"><h2>Recommendation</h2><p style="font:700 15px var(--mono);color:${c}">${recommendation}</p></div>
+<div class="section"><h2>Score breakdown</h2><table>${comp}</table>${qualityNote}</div>
+<div class="section"><h2>Risk flags</h2>${flags}</div>
+<div class="section"><h2>Certification record</h2>
 <table>
-<tr><td>online status</td><td>${esc(rec.target.onlineStatus)}</td></tr>
-<tr><td>completed orders (self-reported)</td><td>${esc(rec.target.completedOrders)}</td></tr>
-<tr><td>completion rate (self-reported)</td><td>${rec.target.completionRate}%</td></tr>
+<tr><td>cert id</td><td class="mono">${rec.certId}</td></tr>
+<tr><td>certified at</td><td>${rec.createdAt}</td></tr>
+<tr><td>sold via CAP order</td><td class="mono">${rec.soldVia ? `${rec.soldVia.orderId} (buyer agent ${rec.soldVia.requesterAgentId})` : "operator-run seed certification (not sold via CAP)"}</td></tr>
 <tr><td>agent id</td><td class="mono">${rec.target.agentId}</td></tr>
 <tr><td>service id</td><td class="mono">${rec.target.serviceId}</td></tr>
-<tr><td>certified at</td><td>${rec.createdAt}</td></tr>
-<tr><td>cert id</td><td class="mono">${rec.certId}</td></tr>
-${rec.soldVia ? `<tr><td>sold via CAP order</td><td class="mono">${rec.soldVia.orderId}</td></tr>` : ""}
+<tr><td>online status at cert time</td><td>${esc(rec.target.onlineStatus)}</td></tr>
+<tr><td>completed orders (self-reported)</td><td>${esc(rec.target.completedOrders)} · ${rec.target.completionRate}% completion</td></tr>
 </table></div>
-<div class="card"><h2>Badge</h2>
-<img src="../badge/${rec.target.agentId}.svg" width="360" height="84" alt="badge"/>
+<div class="section"><h2>Badge</h2>
+<img src="../badge/${rec.target.agentId}.svg" width="360" height="84" alt="CrooCred badge"/>
 <p class="mut" style="margin-top:8px">Embed: <span class="mono">&lt;img src="${cfg.publicBaseURL}/badge/${rec.target.agentId}.svg"/&gt;</span></p></div>
 <p><a href="../index.html">← all certified agents</a></p>`;
-  return pageShell(`CrooCred report — ${rec.target.agentName}`, body);
+  return pageShell(`CrooCred report — ${rec.target.agentName}`, body, generatedAt);
 }
 
-// ---------- index page -------------------------------------------------------
+// ------------------------------------------------------------- index -------
 
-function leaderboard(latest: Map<string, CertRecord>): string {
-  const rows = [...latest.values()]
+function metricCard(value: string, label: string, tone: "zero" | "pos" | "warn" | "plain"): string {
+  return `<div class="metric ${tone}"><b>${value}</b><span>${label}</span></div>`;
+}
+
+function leaderboardRows(latest: Map<string, CertRecord>): string {
+  return [...latest.values()]
     .sort((a, b) => b.score.score - a.score.score)
     .map((r, i) => {
       const c = GRADE_COLOR[r.score.grade];
       const paid = r.runs.filter((x) => x.mode === "paid" && x.txHashes.pay).length;
       const live = r.runs.filter((x) => x.mode === "liveness").length;
-      const evidence = [paid ? `${paid} paid` : "", live ? `${live} liveness` : ""].filter(Boolean).join(" + ");
-      return `<tr>
+      const risky = r.score.grade === "D" || r.score.grade === "F";
+      const delivered = r.runs.filter((x) => x.ok && x.mode === "paid");
+      const sla = delivered.length
+        ? `${fmtS((delivered[0].tDeliverMs ?? 0) / 1000)} / ${r.target.slaMinutes}m`
+        : r.runs.some((x) => x.tAcceptMs !== undefined) ? `accepted ${fmtS((r.runs[0].tAcceptMs ?? 0) / 1000)}` : "—";
+      const q = r.verdicts.find((v) => v.assessed);
+      return `<tr data-paid="${paid}" data-live="${live}" data-risky="${risky ? 1 : 0}">
 <td>${i + 1}</td>
 <td><b>${esc(r.target.agentName)}</b><div class="mut">${esc(r.target.serviceName)}</div></td>
-<td><span class="grade" style="color:${c}">${r.score.grade}</span> <span class="mut">${r.score.score}/100</span></td>
-<td>${evidence || "—"}</td>
-<td>${r.score.flags.length ? `${r.score.flags.length} ⚑` : "—"}</td>
-<td class="mut">${r.createdAt.slice(0, 10)}</td>
+<td><span class="grade" style="color:${c}">${r.score.grade}</span> <span class="mut">${r.score.score}</span></td>
+<td>${[paid ? `<span class="probe-type paid">${paid} paid</span>` : "", live ? `<span class="probe-type liveness">${live} liveness</span>` : ""].filter(Boolean).join(" ") || "—"}</td>
+<td class="mono">${sla}</td>
+<td>${q ? `${q.score}/10` : '<span class="mut">n/a</span>'}</td>
+<td>${r.score.flags.length ? `<span class="flag">${r.score.flags.length} ⚑</span>` : "—"}</td>
 <td><a href="r/${r.certId}.html">report</a></td></tr>`;
     })
     .join("\n");
-
-  if (!rows) {
-    return `<div class="mut" style="padding:16px">
-No certifications published yet — the pipeline is live and the first graded reports land here as soon as probe orders run.
-Want to be first? <a href="${STORE_AGENT_URL}">Order a certification on the Agent Store</a>.</div>`;
-  }
-  return `<div class="scroll"><table><tr><th>#</th><th>agent / service</th><th>grade</th><th>probe evidence</th><th>flags</th><th>date</th><th></th></tr>${rows}</table></div>`;
 }
 
-function featuredReport(all: CertRecord[]): string {
-  const withPaid = all.find((r) => r.runs.some((x) => x.mode === "paid" && x.txHashes.pay)) ?? all[0];
-  if (!withPaid) return "";
-  const r0 = withPaid.runs[0];
-  return `<div class="card"><h2>Featured evidence report</h2>
-<p><b>${esc(withPaid.target.agentName)}</b> — grade <b style="color:${GRADE_COLOR[withPaid.score.grade]}">${withPaid.score.grade}</b> (${withPaid.score.score}/100), ${withPaid.runs.length} probe(s), $${withPaid.spentUsdc.toFixed(2)} spent.
-${r0?.txHashes.pay ? `Pay tx: <a class="mono" href="${basescan(r0.txHashes.pay)}">${r0.txHashes.pay.slice(0, 18)}…</a>` : ""}
-<a href="r/${withPaid.certId}.html">Full report →</a></p></div>`;
+function emptyLeaderboard(): string {
+  return `<div class="empty-steps">
+<p style="margin-bottom:8px"><b>No live certifications yet.</b> Be the first certified agent:</p>
+<p>1 · Copy your serviceId from your <a href="https://agent.croo.network/">Agent Store</a> listing<br/>
+2 · Paste it into the payload builder above — it gives you <span class="mono">{"target":"&lt;serviceId&gt;","runs":2}</span><br/>
+3 · Order <b>Certify Agent — Live Test-Buy</b> from <a href="${STORE_AGENT_URL}">croocred on the Agent Store</a><br/>
+4 · CrooCred test-buys your service and your graded, tx-hash-backed report lands here</p></div>`;
 }
 
-function indexPage(all: CertRecord[], latest: Map<string, CertRecord>): string {
+const SAMPLE_BADGE = `<svg xmlns="http://www.w3.org/2000/svg" width="360" height="84" role="img" aria-label="sample badge — design preview">
+<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#171717"/><stop offset="1" stop-color="#0d0d0d"/></linearGradient></defs>
+<rect width="360" height="84" rx="14" fill="url(#g)" stroke="#6EE646" stroke-opacity="0.55" stroke-width="1.5"/>
+<circle cx="42" cy="42" r="24" fill="#1a2e16" stroke="#6EE646" stroke-width="2"/>
+<text x="42" y="52" font-family="Menlo,monospace" font-size="28" font-weight="700" fill="#6EE646" text-anchor="middle">A</text>
+<text x="80" y="30" font-family="sans-serif" font-size="13" font-weight="700" fill="#f2f2f2">YourAgent</text>
+<text x="80" y="48" font-family="sans-serif" font-size="11" fill="#6EE646">CrooCred CERTIFIED · score 91/100</text>
+<text x="80" y="65" font-family="sans-serif" font-size="10" fill="#8a8a8a">2 paid on-chain probes · SAMPLE — design preview</text>
+<text x="348" y="65" font-family="Menlo,monospace" font-size="9" fill="#5a5a5a" text-anchor="end">CAP·Base</text></svg>`;
+
+function indexPage(all: CertRecord[], latest: Map<string, CertRecord>, generatedAt: string): string {
   const m = computeMetrics(all, latest);
+  const rows = leaderboardRows(latest);
+  const tone = (n: number, warn = false): "zero" | "pos" | "warn" => (n === 0 ? "zero" : warn ? "warn" : "pos");
   const body = `
-<div class="hdr"><div style="max-width:720px">
-<h1>CrooCred <span class="tag">live purchase certification</span></h1>
-<p style="margin:10px 0">CrooCred is a paid CROO CAP agent that audits other agents <b>by buying them</b>. It sends probe orders, waits for delivery, measures SLA, verifies output against the listing promise, grades quality, and publishes a report backed by CAP order ids and Base tx hashes.</p>
-<p class="mut">Don't trust the listing. Trust the receipts.</p>
-<p style="margin-top:12px">
-<a class="cta" href="${STORE_AGENT_URL}">Order a certification</a>
-<a class="cta ghost" href="#leaderboard">View reports</a>
-<a class="cta ghost" href="api/certs.json">API feed</a>
-</p>
-</div></div>
+<div class="hero">
+<div>
+  <div class="eyebrow">LIVE PURCHASE CERTIFICATION · CROO CAP · BASE</div>
+  <h1>Don't trust the listing.<br/><span class="r">Trust the receipts.</span></h1>
+  <p class="sub">CrooCred is a paid CAP agent that audits other agents <b>by buying them</b>: real probe orders, measured SLAs, judged deliverables — published as graded reports where every claim links to an on-chain tx.</p>
+  <p style="margin-top:14px">
+  <a class="cta" href="${STORE_AGENT_URL}">Order a certification</a>
+  <a class="cta ghost" href="#leaderboard">View reports</a>
+  </p>
 
-<h2 style="margin-top:20px">Live certification network</h2>
-<div class="metrics">
-<div class="metric"><b>${m.certifiedAgents}</b><span>certified agents</span></div>
-<div class="metric"><b>${m.paidProbes}</b><span>paid probes</span></div>
-<div class="metric"><b>${m.livenessProbes}</b><span>liveness probes</span></div>
-<div class="metric"><b>${m.counterparties}</b><span>unique counterparties</span></div>
-<div class="metric"><b>$${m.usdcSpent.toFixed(2)}</b><span>USDC spent on probes</span></div>
-<div class="metric"><b>${fmtS(m.medianAcceptS)}</b><span>median accept time</span></div>
-<div class="metric"><b>${fmtS(m.medianDeliverS)}</b><span>median delivery time</span></div>
-<div class="metric"><b>${m.flaggedAgents}</b><span>risky agents found</span></div>
+  <div class="builder" id="builder">
+    <label for="target-in">Certify an agent — paste an Agent Store URL, agentId or serviceId</label>
+    <input type="text" id="target-in" placeholder="https://agent.croo.network/agent/… or a UUID" spellcheck="false"/>
+    <div class="row">
+      <span class="mut">runs</span>
+      <span class="seg" id="runs-seg"><button data-r="1">1</button><button data-r="2" class="on">2</button><button data-r="3">3</button></span>
+      <button class="copybtn" id="copy-payload">Copy CAP payload</button>
+      <a class="mut" href="${STORE_AGENT_URL}" style="margin-left:auto">open croocred on the Store →</a>
+    </div>
+    <pre id="payload-out">{"target":"&lt;paste-your-serviceId&gt;","runs":2}</pre>
+  </div>
+</div>
+${latestReceipt(all)}
 </div>
 
-<div class="card"><h2>How it works</h2>
-<div class="steps">
-<div class="step"><b>1 · order</b><br/>A human or agent hires CrooCred via CAP: <span class="mono">{"target":"&lt;serviceId&gt;"}</span></div>
-<div class="step"><b>2 · test-buy</b><br/>CrooCred places probe orders against the target agent — negotiation, escrow, delivery</div>
-<div class="step"><b>3 · measure</b><br/>Accept latency, on-chain order creation, SLA compliance, deliverable shape — all recorded with tx hashes</div>
-<div class="step"><b>4 · judge</b><br/>Deliverable content is graded against what the listing promises</div>
-<div class="step"><b>5 · publish</b><br/>Graded A–F report + live badge + leaderboard entry, delivered back over CAP</div>
+<h2 style="margin-top:26px"><b>Live evidence</b> — generated from persisted certification records only</h2>
+<div class="metrics">
+${metricCard(String(m.certifiedAgents), "certified agents", tone(m.certifiedAgents))}
+${metricCard(String(m.paidProbes), "paid probes", tone(m.paidProbes))}
+${metricCard(String(m.livenessProbes), "liveness checks", m.livenessProbes === 0 ? "zero" : "warn")}
+${metricCard(String(m.targetAgents), "target agents tested", tone(m.targetAgents))}
+${metricCard(String(m.buyerAgents), "buyer agents", tone(m.buyerAgents))}
+${metricCard(`$${m.usdcSpent.toFixed(2)}`, "USDC spent on probes", tone(m.usdcSpent > 0 ? 1 : 0))}
+${metricCard(fmtS(m.medianAcceptS), "median accept", m.medianAcceptS === null ? "zero" : "pos")}
+${metricCard(String(m.flaggedAgents), "risky agents found", m.flaggedAgents === 0 ? "zero" : "warn")}
+</div>
+
+<div class="section" id="leaderboard"><h2><b>Certified agents</b> (${m.certifiedAgents})</h2>
+${rows ? `<div class="filters" id="filters">
+<button class="on" data-f="all">All</button>
+<button data-f="paid">Paid only</button>
+<button data-f="live">Liveness</button>
+<button data-f="risky">Flagged</button>
+</div>
+<div class="scroll"><table id="lb"><tr><th>#</th><th>agent / service</th><th>grade</th><th>evidence</th><th>sla</th><th>quality</th><th>flags</th><th>report</th></tr>${rows}</table></div>` : emptyLeaderboard()}
+</div>
+
+<div class="section"><h2><b>How CAP proof works</b> — every step leaves evidence</h2>
+<div class="pipe">
+<div class="st"><div class="n">1</div><div>Inbound CAP order — buyer → CrooCred, escrow locked<div class="ev">evidence: <b>parent order id · pay tx</b></div></div></div>
+<div class="st"><div class="n">2</div><div>Outbound probe order — CrooCred → target agent<div class="ev">evidence: <b>negotiation id · order id · create/pay tx</b></div></div></div>
+<div class="st"><div class="n">3</div><div>Delivery observed — target → CrooCred<div class="ev">evidence: <b>deliver tx · keccak256 content hash · delivery latency vs SLA</b></div></div></div>
+<div class="st"><div class="n">4</div><div>Quality judged — deterministic checks + LLM rubric vs the listing promise<div class="ev">evidence: <b>score components · flags</b></div></div></div>
+<div class="st"><div class="n">5</div><div>Report delivered back over CAP — escrow settles to CrooCred<div class="ev">evidence: <b>report url · badge url · parent deliver tx</b></div></div></div>
 </div></div>
 
-<div class="card" id="leaderboard"><h2>Certified agents (${m.certifiedAgents})</h2>${leaderboard(latest)}</div>
+<div class="section"><h2><b>Probe tiers</b> — what the evidence means</h2>
+<div class="scroll"><table>
+<tr><th>tier</th><th>what runs</th><th>what it proves</th><th>grades</th></tr>
+<tr><td><span class="probe-type paid">paid</span></td><td>Real CAP order: negotiate → escrow lock → delivery → settlement on Base</td><td>Availability, SLA compliance, deliverable quality — with pay/deliver tx hashes</td><td>A–F</td></tr>
+<tr><td><span class="probe-type liveness">liveness</span></td><td>Negotiate → on-chain order creation → cancel before payment (no USDC moves)</td><td>Provider is alive, accepts orders, CAP integration works</td><td>max C</td></tr>
+</table></div></div>
 
-${featuredReport(all)}
+<div class="section"><h2><b>Badge</b> — proof in your README</h2>
+<div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap">
+<div>${SAMPLE_BADGE}<div class="mut" style="margin-top:6px">Sample — design preview, not a live certification.</div></div>
+<div style="flex:1;min-width:260px">
+<p>After certification, your badge is live at a stable URL and updates on every re-check:</p>
+<pre id="badge-snippet">&lt;img src="${cfg.publicBaseURL}/badge/&lt;your-agentId&gt;.svg"/&gt;</pre>
+<button class="copybtn" id="copy-badge">Copy snippet</button>
+</div></div></div>
 
-<div class="card"><h2>Probe tiers — what the evidence means</h2>
-<table>
-<tr><th>tier</th><th>what runs</th><th>what it proves</th><th>grade range</th></tr>
-<tr><td><span class="probe-type paid">paid</span></td><td>Real CAP order: negotiate → escrow lock → delivery → settlement, all on Base</td><td>Availability, SLA compliance, deliverable quality — with pay/deliver tx hashes</td><td>A–F</td></tr>
-<tr><td><span class="probe-type liveness">liveness</span></td><td>Negotiate → on-chain order creation → cancel before payment (no funds move)</td><td>Provider is alive, accepts orders, CAP integration works</td><td>capped at C</td></tr>
-</table></div>
-
-<div class="card"><h2>Badge — proof in your README</h2>
-<p>Every certified agent gets a live SVG badge that updates on re-checks:</p>
-<pre>&lt;img src="${cfg.publicBaseURL}/badge/&lt;your-agentId&gt;.svg"/&gt;</pre>
-<p class="mut">Judges and buyers can click through to the full tx-hash-backed report.</p></div>
-
-<div class="card"><h2>Machine-readable feed</h2>
-<p>Other agents consume certifications programmatically — trust as a composable CAP dependency:</p>
+<div class="section"><h2><b>Machine-readable feeds</b> — trust as a CAP dependency</h2>
 <pre>GET ${cfg.publicBaseURL}/api/certs.json
-[{ "certId": "...", "agent": "...", "grade": "A", "score": 91,
-   "verdict": "certified", "flags": [], "reportUrl": "...", "badgeUrl": "..." }]</pre></div>
+[{ "certId": "cc-…", "agent": "…", "grade": "A", "score": 91, "verdict": "certified",
+   "paidProbes": 2, "livenessProbes": 0, "flags": [], "reportUrl": "…", "badgeUrl": "…" }]
 
-<div class="card"><h2>Why this needs CAP</h2>
-<p>On a normal API marketplace a reviewer can only read docs and star ratings. On CAP, CrooCred can <b>prove</b> its findings: escrow shows real money at stake, delivery hashes pin what was returned, settlement txs timestamp SLA compliance — and the certification itself is bought and delivered as a CAP order. The auditor is a customer of the market it audits.</p></div>
+GET ${cfg.publicBaseURL}/api/stats.json
+{ "certifiedAgents": ${m.certifiedAgents}, "paidProbes": ${m.paidProbes}, "targetAgents": ${m.targetAgents},
+  "buyerAgents": ${m.buyerAgents}, "usdcSpent": ${m.usdcSpent.toFixed(2)}, "generatedAt": "${generatedAt}" }</pre></div>
 
-<p class="mut">${m.reports} certification report(s) issued · agent: <a href="${STORE_AGENT_URL}">croocred on the Agent Store</a> · services: Certify (live test-buy) + Re-Check (refresh badge)</p>`;
-  return pageShell("CrooCred — live purchase certification for the agent economy", body);
+<div class="section"><h2><b>Why this needs CAP</b></h2>
+<p>On a normal API marketplace a reviewer can only read docs and star ratings. On CAP, CrooCred can <b>prove</b> its findings: escrow shows real money at stake, delivery hashes pin what was returned, settlement txs timestamp SLA compliance — and the certification itself is bought and delivered as a CAP order. The auditor is a paying customer of the market it audits.</p></div>
+
+<script>
+(function(){
+  var UUID=/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+  var runs=2, inp=document.getElementById('target-in'), out=document.getElementById('payload-out');
+  function render(){
+    var m=(inp.value||'').match(UUID);
+    var t=m?m[0]:'<paste-your-serviceId>';
+    out.textContent=JSON.stringify({target:t,runs:runs});
+  }
+  inp.addEventListener('input',render);
+  document.getElementById('runs-seg').addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b)return;
+    runs=+b.dataset.r;
+    this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
+    render();
+  });
+  function copy(btn,text){
+    navigator.clipboard.writeText(text).then(function(){
+      var old=btn.textContent; btn.textContent='Copied ✓';
+      setTimeout(function(){btn.textContent=old;},1500);
+    });
+  }
+  document.getElementById('copy-payload').addEventListener('click',function(){copy(this,out.textContent);});
+  var cb=document.getElementById('copy-badge');
+  if(cb) cb.addEventListener('click',function(){copy(this,document.getElementById('badge-snippet').textContent);});
+  var f=document.getElementById('filters');
+  if(f) f.addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b)return;
+    f.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);});
+    var mode=b.dataset.f;
+    document.querySelectorAll('#lb tr[data-paid]').forEach(function(tr){
+      var show = mode==='all' || (mode==='paid'&&+tr.dataset.paid>0) || (mode==='live'&&+tr.dataset.live>0) || (mode==='risky'&&tr.dataset.risky==='1');
+      tr.classList.toggle('hidden',!show);
+    });
+  });
+})();
+</script>`;
+  return pageShell("CrooCred — live purchase certification for the agent economy", body, generatedAt);
 }
 
-// ---------- build ------------------------------------------------------------
+// ------------------------------------------------------------- build -------
 
 export function buildSite(): string {
   const out = cfg.siteDir;
@@ -316,10 +550,13 @@ export function buildSite(): string {
 
   const all = loadAllRecords();
   const latest = latestPerAgent();
+  const m = computeMetrics(all, latest);
+  const generatedAt = new Date().toISOString();
 
-  writeFileSync(resolve(out, "index.html"), indexPage(all, latest));
-  for (const rec of all) writeFileSync(resolve(out, "r", `${rec.certId}.html`), reportPage(rec));
+  writeFileSync(resolve(out, "index.html"), indexPage(all, latest, generatedAt));
+  for (const rec of all) writeFileSync(resolve(out, "r", `${rec.certId}.html`), reportPage(rec, generatedAt));
   for (const [agentId, rec] of latest) writeFileSync(resolve(out, "badge", `${agentId}.svg`), renderBadge(rec));
+
   writeFileSync(
     resolve(out, "api", "certs.json"),
     JSON.stringify(
@@ -329,12 +566,17 @@ export function buildSite(): string {
         verdict: r.score.verdict,
         paidProbes: r.runs.filter((x) => x.mode === "paid" && x.txHashes.pay).length,
         livenessProbes: r.runs.filter((x) => x.mode === "liveness").length,
+        soldViaOrder: r.soldVia?.orderId ?? null,
         flags: r.score.flags, createdAt: r.createdAt,
         reportUrl: r.reportUrl, badgeUrl: r.badgeUrl,
       })),
       null,
       2,
     ),
+  );
+  writeFileSync(
+    resolve(out, "api", "stats.json"),
+    JSON.stringify({ ...m, usdcSpent: Number(m.usdcSpent.toFixed(2)), generatedAt }, null, 2),
   );
   return out;
 }

@@ -46,21 +46,63 @@ const MAX_ACCEPT_ATTEMPTS = 3;
 // ---------- request parsing --------------------------------------------------
 const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
-/** Extract the certification target from whatever the buyer sent. */
-function parseTarget(requirements: string): string | null {
-  const text = (requirements ?? "").trim();
+export interface CertificationRequest {
+  target: string;
+  runs?: number;
+  mode?: "liveness"; // buyers may downgrade to liveness; paid is balance-gated
+  note?: string;
+}
+
+/**
+ * Parse whatever the buyer sent: {"target": "...", "runs": 2}, a raw UUID,
+ * an Agent Store URL, or free text containing any of those. Requirements may
+ * arrive double-JSON-encoded (the API requires JSON), so unwrap up to twice.
+ */
+export function parseCertificationRequest(requirements: string): CertificationRequest | null {
+  let text = (requirements ?? "").trim();
   if (!text) return null;
-  try {
-    const obj = JSON.parse(text) as Record<string, unknown>;
-    for (const k of ["target", "target_id", "service_id", "serviceId", "agent_id", "agentId"]) {
-      const v = obj[k];
-      if (typeof v === "string" && UUID_RE.test(v)) return v.match(UUID_RE)![0];
+
+  let obj: Record<string, unknown> | null = null;
+  for (let i = 0; i < 2 && obj === null; i++) {
+    try {
+      const parsed: unknown = JSON.parse(text);
+      if (typeof parsed === "string") {
+        text = parsed.trim();
+      } else if (parsed && typeof parsed === "object") {
+        obj = parsed as Record<string, unknown>;
+      } else {
+        break;
+      }
+    } catch {
+      break;
     }
-  } catch {
-    /* not JSON — fall through */
   }
-  const m = text.match(UUID_RE);
-  return m ? m[0] : null;
+
+  let target: string | null = null;
+  let runs: number | undefined;
+  let mode: CertificationRequest["mode"];
+  let note: string | undefined;
+
+  if (obj) {
+    for (const k of ["target", "target_id", "service_id", "serviceId", "agent_id", "agentId", "url"]) {
+      const v = obj[k];
+      if (typeof v === "string" && UUID_RE.test(v)) {
+        target = v.match(UUID_RE)![0];
+        break;
+      }
+    }
+    if (typeof obj.runs === "number" && Number.isFinite(obj.runs)) {
+      runs = Math.max(1, Math.min(3, Math.round(obj.runs)));
+    }
+    if (obj.mode === "liveness") mode = "liveness";
+    if (typeof obj.note === "string") note = obj.note.slice(0, 500);
+    if (typeof obj.notes === "string") note = obj.notes.slice(0, 500);
+  }
+  if (!target) {
+    const m = text.match(UUID_RE);
+    target = m ? m[0] : null;
+  }
+  return target ? { target, runs, mode, note } : null;
 }
 
 // ---------- provider flow ----------------------------------------------------
@@ -69,15 +111,16 @@ async function handleNegotiation(negotiationId: string): Promise<void> {
   const neg = await client.getNegotiation(negotiationId);
   if (neg.status !== "pending") return;
 
-  const target = parseTarget(neg.requirements);
-  if (!target) {
+  const req = parseCertificationRequest(neg.requirements);
+  if (!req) {
     await client.rejectNegotiation(
       negotiationId,
-      "Please provide the target as a CROO serviceId or agentId (UUID). Example: {\"target\": \"<service-uuid>\"}",
+      "Please provide the target as a CROO serviceId or agentId (UUID) or an Agent Store URL. Example: {\"target\": \"<service-uuid>\", \"runs\": 2}",
     );
     log.warn(`rejected negotiation ${negotiationId}: no parsable target`);
     return;
   }
+  const target = req.target;
 
   const attempts = (acceptAttempts.get(negotiationId) ?? 0) + 1;
   acceptAttempts.set(negotiationId, attempts);
@@ -110,8 +153,8 @@ async function processPaidOrder(orderId: string): Promise<void> {
     if (order.status !== "paid") return;
 
     const neg = await client.getNegotiation(order.negotiationId);
-    const target = parseTarget(neg.requirements);
-    if (!target) {
+    const req = parseCertificationRequest(neg.requirements);
+    if (!req) {
       await client.rejectOrder(orderId, "No parsable certification target; escrow refunded.");
       state.processedOrders.push(orderId);
       persist();
@@ -119,7 +162,7 @@ async function processPaidOrder(orderId: string): Promise<void> {
     }
 
     // Re-Check style services run a single probe; full certs run cfg.runsPerCert.
-    let runs = cfg.runsPerCert;
+    let runs = req.runs ?? cfg.runsPerCert;
     try {
       const ourService = await getPublicService(order.serviceId);
       if (/re-?check|monitor/i.test(ourService.name)) runs = 1;
@@ -127,9 +170,10 @@ async function processPaidOrder(orderId: string): Promise<void> {
       /* default runs */
     }
 
-    log.info(`order ${orderId} paid — certifying target ${target} (${runs} probes)`);
-    const rec = await certify(client, target, {
+    log.info(`order ${orderId} paid — certifying target ${req.target} (${runs} probes${req.mode ? `, ${req.mode} requested` : ""})`);
+    const rec = await certify(client, req.target, {
       runs,
+      mode: req.mode,
       soldVia: { orderId, requesterAgentId: order.requesterAgentId },
     });
 
