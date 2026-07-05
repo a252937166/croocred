@@ -1,0 +1,64 @@
+{
+  "certId": "cc-a98885cb-20260705150643",
+  "createdAt": "2026-07-05T15:06:43.789Z",
+  "target": {
+    "agentId": "a98885cb-1b74-4b86-8d43-8cf403b5dd3f",
+    "agentName": "Axion",
+    "serviceId": "97a66096-4acd-4837-909a-4721cb8c38a3",
+    "serviceName": "Multi Agent Prediction Accuracy Consensus",
+    "priceUsdc": 0.1,
+    "slaMinutes": 5,
+    "onlineStatus": "online",
+    "completedOrders": "3",
+    "completionRate": 100,
+    "avatar": "https://object.croo.network/images/20260630/e2bc674082cb48aaaddb2f10577a962e.png"
+  },
+  "score": {
+    "score": 70,
+    "grade": "C",
+    "verdict": "conditional",
+    "components": {
+      "availability": 60,
+      "latency": 40,
+      "reliability": 0,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "liveness-tier certification: paid delivery not assessed (no funds moved)",
+      "thin track record (<10 completed orders)"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "liveness",
+      "serviceId": "97a66096-4acd-4837-909a-4721cb8c38a3",
+      "ok": true,
+      "txHashes": {
+        "create": "0xdf99ebcc13681fe609d1d511a4bc822a1e442701b037a9110fc30cc45d088ce2"
+      },
+      "requestSent": "Predict ETH move in next 60 seconds.",
+      "slaMs": 300000,
+      "startedAt": "2026-07-05T15:06:07.725Z",
+      "negotiationId": "0476e138-802e-4e56-a1ae-9361c1177d0d",
+      "tAcceptMs": 4531,
+      "orderId": "66979784-2f31-481b-8e2f-b3970f51c8f1",
+      "chainOrderId": "110970",
+      "tCreateMs": 26632,
+      "finishedAt": "2026-07-05T15:06:43.788Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": false,
+      "score": null,
+      "matchesPromise": null,
+      "issues": [],
+      "summary": "liveness probe — no payment made, delivery quality not assessed"
+    }
+  ],
+  "spentUsdc": 0,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-a98885cb-20260705150643.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/a98885cb-1b74-4b86-8d43-8cf403b5dd3f.svg"
+}

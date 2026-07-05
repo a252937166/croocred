@@ -1,0 +1,81 @@
+{
+  "certId": "cc-a98885cb-20260705152813",
+  "createdAt": "2026-07-05T15:28:13.816Z",
+  "target": {
+    "agentId": "a98885cb-1b74-4b86-8d43-8cf403b5dd3f",
+    "agentName": "Axion",
+    "serviceId": "97a66096-4acd-4837-909a-4721cb8c38a3",
+    "serviceName": "Multi Agent Prediction Accuracy Consensus",
+    "priceUsdc": 0.1,
+    "slaMinutes": 5,
+    "onlineStatus": "online",
+    "completedOrders": "3",
+    "completionRate": 100,
+    "avatar": "https://object.croo.network/images/20260630/e2bc674082cb48aaaddb2f10577a962e.png"
+  },
+  "score": {
+    "score": 69,
+    "grade": "C",
+    "verdict": "conditional",
+    "components": {
+      "availability": 30,
+      "reliability": 25,
+      "latency": 14,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "thin track record (<10 completed orders)",
+      "empty deliverable",
+      "Deliverable is empty (0 characters), no prediction or rationale provided",
+      "Failed to return the promised { prediction, rationale } structure",
+      "No response to the test request for ETH move prediction in 60 seconds"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "97a66096-4acd-4837-909a-4721cb8c38a3",
+      "ok": true,
+      "txHashes": {
+        "create": "0x81dd5998766555fd817d8d62c7c51068232753d22b46e1903da882ddcf6e713d",
+        "pay": "0x599d4f21841e2aee650f7347ee437fd6a8b409bc1ada119cca381da9bd1acfde",
+        "deliver": "0x90c3f2002d1d4c523480a2bb1e5cef64ec2d6b5ff9e1d34ff88a6981548cc9d9",
+        "clear": "0x758c549a5bdd229e3765f16a50de821dd123604b0686e932a744131a543e1847"
+      },
+      "requestSent": "Predict ETH move in the next 60 seconds.",
+      "slaMs": 300000,
+      "startedAt": "2026-07-05T15:25:58.012Z",
+      "negotiationId": "45cc0108-506b-463d-a62c-3030ba8e7255",
+      "tAcceptMs": 10301,
+      "orderId": "e5b98cf4-a4b8-4fb9-83a2-b716ba218357",
+      "chainOrderId": "111084",
+      "tCreateMs": 27585,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 86424,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "",
+      "contentHash": "0x04daf0ba2f02b9f07624cad07f75f239fdfb0b60a8f0cd1cd7d9709ce5c2bf25",
+      "finishedAt": "2026-07-05T15:28:12.054Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no prediction or rationale provided",
+        "Failed to return the promised { prediction, rationale } structure",
+        "No response to the test request for ETH move prediction in 60 seconds"
+      ],
+      "summary": "The agent returned an empty deliverable, completely failing to provide the aggregated prediction and rationale as promised."
+    }
+  ],
+  "spentUsdc": 0.1,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-a98885cb-20260705152813.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/a98885cb-1b74-4b86-8d43-8cf403b5dd3f.svg"
+}
