@@ -25,7 +25,13 @@ import {
 export async function certify(
   client: AgentClient,
   targetId: string,
-  opts: { runs?: number; soldVia?: CertRecord["soldVia"]; mode?: "paid" | "liveness" } = {},
+  opts: {
+    runs?: number;
+    soldVia?: CertRecord["soldVia"];
+    mode?: "paid" | "liveness";
+    /** Buyer-supplied probe input (e.g. a sample file URL) — skips LLM synthesis. */
+    probeInput?: string;
+  } = {},
 ): Promise<CertRecord> {
   const { agent, service } = await resolveTarget(targetId);
   let runsWanted = Math.max(1, Math.min(3, opts.runs ?? cfg.runsPerCert));
@@ -43,8 +49,8 @@ export async function certify(
     );
   }
 
-  const probeInput = await synthesizeProbeInput(agent, service);
-  log.info("probe input:", probeInput.slice(0, 200));
+  const probeInput = opts.probeInput?.trim() || (await synthesizeProbeInput(agent, service));
+  log.info(`probe input${opts.probeInput ? " (buyer-supplied)" : ""}:`, probeInput.slice(0, 200));
 
   const runs: TestRun[] = [];
   const verdicts: QualityVerdict[] = [];

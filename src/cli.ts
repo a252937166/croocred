@@ -75,7 +75,10 @@ async function main(): Promise<void> {
       break;
     }
     case "certify": {
-      const rec = await certify(mainClient(), args[0], { runs: args[1] ? Number(args[1]) : undefined });
+      const rec = await certify(mainClient(), args[0], {
+        runs: args[1] ? Number(args[1]) : undefined,
+        probeInput: args.slice(2).join(" ") || undefined,
+      });
       console.log(JSON.stringify({ certId: rec.certId, grade: rec.score.grade, score: rec.score.score, flags: rec.score.flags, spent: rec.spentUsdc }, null, 2));
       await buildSite();
       break;

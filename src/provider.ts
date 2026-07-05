@@ -175,6 +175,7 @@ async function processPaidOrder(orderId: string): Promise<void> {
     const rec = await certify(client, req.target, {
       runs,
       mode: req.mode,
+      probeInput: req.note, // buyers can pin the probe input via "note"
       soldVia: {
         orderId,
         requesterAgentId: order.requesterAgentId,
