@@ -114,17 +114,20 @@ export function deliverablePayload(rec: CertRecord): Record<string, unknown> {
     components: rec.score.components,
     flags: rec.score.flags,
     probes: rec.runs.map((r) => ({
+      type: r.mode,
       ok: r.ok,
       failure: r.failureStage ?? null,
       order_id: r.orderId ?? null,
+      create_tx: r.txHashes.create ?? null,
       pay_tx: r.txHashes.pay ?? null,
       deliver_tx: r.txHashes.deliver ?? null,
       accept_ms: r.tAcceptMs ?? null,
       deliver_ms: r.tDeliverMs ?? null,
       sla_met: r.slaMet ?? null,
     })),
-    evidence_note:
-      "Every probe is a real paid CAP order on Base mainnet; verify tx hashes on basescan.org",
+    evidence_note: rec.runs.some((r) => r.mode === "paid")
+      ? "Paid probes are real CAP orders with escrow and settlement on Base mainnet; verify tx hashes on basescan.org"
+      : "Liveness probes exercise CAP negotiation and on-chain order creation without payment; grades are capped at C until paid probes run",
     report_url: rec.reportUrl,
     badge_url: rec.badgeUrl,
     certified_at: rec.createdAt,
