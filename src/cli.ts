@@ -77,7 +77,7 @@ async function main(): Promise<void> {
     case "certify": {
       const rec = await certify(mainClient(), args[0], { runs: args[1] ? Number(args[1]) : undefined });
       console.log(JSON.stringify({ certId: rec.certId, grade: rec.score.grade, score: rec.score.score, flags: rec.score.flags, spent: rec.spentUsdc }, null, 2));
-      buildSite();
+      await buildSite();
       break;
     }
     case "buy": {
@@ -100,7 +100,7 @@ async function main(): Promise<void> {
       break;
     }
     case "site": {
-      console.log("built:", buildSite());
+      console.log("built:", await buildSite());
       break;
     }
     default:

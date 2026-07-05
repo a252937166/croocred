@@ -209,7 +209,7 @@ async function processPaidOrder(orderId: string): Promise<void> {
     log.info(`order ${orderId} delivered: ${rec.certId} grade=${rec.score.grade}`);
 
     try {
-      buildSite();
+      await buildSite();
     } catch (err) {
       log.warn("site rebuild failed", String(err));
     }

@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { cfg } from "../config.js";
 import { loadAllRecords, latestPerAgent, type CertRecord } from "../report.js";
 import { renderBadge } from "../badge.js";
+import { getUsdcBalance } from "../balance.js";
 import type { TestRun } from "../shopper.js";
 
 /**
@@ -149,8 +150,8 @@ tr.hidden{display:none}
 .empty-steps{font-size:14px;line-height:2}
 .empty-steps .mono{color:var(--green)}
 </style></head><body><div class="wrap">
-<nav><span class="wordmark">CROO<i>CRED</i></span>
-<div class="links"><a href="${cfg.publicBaseURL}/#leaderboard">REPORTS</a><a href="${cfg.publicBaseURL}/api/certs.json">API</a><a href="${GITHUB_URL}">GITHUB</a><a href="${STORE_AGENT_URL}">AGENT&nbsp;STORE</a></div></nav>
+<nav><span class="wordmark"><a href="${cfg.publicBaseURL}/" style="color:inherit;text-decoration:none">CROO<i>CRED</i></a></span>
+<div class="links"><a href="${cfg.publicBaseURL}/reports.html">REPORTS</a><a href="${cfg.publicBaseURL}/api.html">API</a><a href="${GITHUB_URL}">GITHUB</a><a href="${STORE_AGENT_URL}">AGENT&nbsp;STORE</a></div></nav>
 ${body}
 <footer>CrooCred — live purchase certification for the agent economy. Paid probes are real CAP orders with escrow and settlement on Base mainnet; liveness checks exercise negotiation + on-chain order creation without payment and cap grades at C. Every tx hash links to Basescan.<br/>
 <a href="${GITHUB_URL}">GitHub (MIT)</a> · <a href="${STORE_AGENT_URL}">croocred on the Agent Store</a> · <a href="${cfg.publicBaseURL}/api/certs.json">certs feed</a> · <a href="${cfg.publicBaseURL}/api/stats.json">stats feed</a><br/>
@@ -436,7 +437,13 @@ const SAMPLE_BADGE = `<svg xmlns="http://www.w3.org/2000/svg" width="360" height
 <text x="80" y="65" font-family="sans-serif" font-size="10" fill="#8a8a8a">2 paid on-chain probes · SAMPLE — design preview</text>
 <text x="348" y="65" font-family="Menlo,monospace" font-size="9" fill="#5a5a5a" text-anchor="end">CAP·Base</text></svg>`;
 
-function indexPage(all: CertRecord[], latest: Map<string, CertRecord>, generatedAt: string): string {
+export interface SystemStatus {
+  floatUsdc: number | null;
+  probeTier: "paid" | "liveness-only";
+  probesAffordable: number | null;
+}
+
+function indexPage(all: CertRecord[], latest: Map<string, CertRecord>, generatedAt: string, status: SystemStatus): string {
   const m = computeMetrics(all, latest);
   const rows = leaderboardRows(latest);
   const tone = (n: number, warn = false): "zero" | "pos" | "warn" => (n === 0 ? "zero" : warn ? "warn" : "pos");
@@ -452,14 +459,14 @@ function indexPage(all: CertRecord[], latest: Map<string, CertRecord>, generated
   </p>
 
   <div class="builder" id="builder">
-    <label for="target-in">Certify an agent — paste an Agent Store URL, agentId or serviceId</label>
+    <label for="target-in">Step 1 · Paste target — Agent Store URL, agentId or serviceId</label>
     <input type="text" id="target-in" placeholder="https://agent.croo.network/agent/… or a UUID" spellcheck="false"/>
     <div class="hint" id="target-hint">Accepted: serviceId · agentId · Agent Store URL</div>
     <div class="row">
-      <span class="mut">runs</span>
+      <span class="mut">Step 2 · probe runs</span>
       <span class="seg" id="runs-seg"><button data-r="1">1</button><button data-r="2" class="on">2</button><button data-r="3">3</button></span>
-      <button class="copybtn" id="copy-payload">Copy CAP payload</button>
-      <a class="mut" href="${STORE_AGENT_URL}" style="margin-left:auto">open croocred on the Store →</a>
+      <button class="copybtn" id="copy-payload">Step 3 · Copy CAP payload</button>
+      <a class="mut" href="${STORE_AGENT_URL}" style="margin-left:auto">Step 4 · order on the Store →</a>
     </div>
     <pre id="payload-out">{"target":"&lt;paste-your-serviceId&gt;","runs":2}</pre>
     <p class="mut" style="margin-top:8px">Paid probes are selected automatically when CrooCred's wallet covers them; add <span class="mono">"mode":"liveness"</span> to force the free tier. Order this payload on <a href="${STORE_AGENT_URL}">Certify Agent — Live Test-Buy</a>.</p>
@@ -480,6 +487,22 @@ ${metricCard(`$${m.usdcSpent.toFixed(2)}`, "USDC spent on probes", tone(m.usdcSp
 ${metricCard(fmtS(m.medianDeliverS), "median delivery", m.medianDeliverS === null ? "zero" : "pos")}
 ${metricCard(String(m.flaggedAgents), "risky agents found", m.flaggedAgents === 0 ? "zero" : "warn")}
 </div>
+
+<div class="section"><h2><b>System status</b> — proof this is a running daemon, not a static page</h2>
+<div class="scroll"><table>
+<tr><td style="width:220px">provider daemon</td><td>online — this page is rebuilt by it after every delivered order</td></tr>
+<tr><td>last site build</td><td class="mono">${generatedAt}</td></tr>
+<tr><td>probe tier available</td><td>${status.probeTier === "paid" ? `<span class="probe-type paid">paid</span> — float covers ~${status.probesAffordable} probes` : `<span class="probe-type liveness">liveness-only</span> — probe wallet unfunded; paid probes activate automatically once the wallet holds USDC`}</td></tr>
+<tr><td>agent listing</td><td><a href="${STORE_AGENT_URL}">croocred on the Agent Store</a> — Certify $0.5 / Re-Check $0.1</td></tr>
+</table></div></div>
+
+<div class="section" id="inspector"><h2><b>Inspect a target</b> — free listing check, no order needed</h2>
+<div class="builder" style="margin-top:0">
+<label for="insp-in">Paste an Agent Store URL, agentId or serviceId — reads CROO's public metadata live</label>
+<input type="text" id="insp-in" placeholder="e.g. f57a40f6-be70-4074-8f09-db46cdf51fed" spellcheck="false"/>
+<div class="hint" id="insp-hint">The same lookup CrooCred runs before every probe.</div>
+<div id="insp-out" style="margin-top:10px"></div>
+</div></div>
 
 <div class="section" id="leaderboard"><h2><b>Certified agents</b> (${m.certifiedAgents})</h2>
 ${rows ? `<div class="filters" id="filters">
@@ -511,7 +534,8 @@ ${rows ? `<div class="filters" id="filters">
 <div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap">
 <div>${SAMPLE_BADGE}<div class="mut" style="margin-top:6px">Sample — design preview, not a live certification.</div></div>
 <div style="flex:1;min-width:260px">
-<p>After certification, your badge is live at a stable URL and updates on every re-check:</p>
+<p>After certification, your badge is live at a stable URL and updates on every re-check. Paste your agentId to build your snippet:</p>
+<input type="text" id="badge-in" placeholder="your agentId (UUID)" spellcheck="false" style="width:100%;background:#0f120b;border:1px solid var(--line);border-radius:8px;color:var(--txt);font:13px var(--mono);padding:9px 12px;outline:none;margin-bottom:8px"/>
 <pre id="badge-snippet">&lt;img src="${cfg.publicBaseURL}/badge/&lt;your-agentId&gt;.svg"/&gt;</pre>
 <button class="copybtn" id="copy-badge">Copy snippet</button>
 </div></div></div>
@@ -558,6 +582,52 @@ GET ${cfg.publicBaseURL}/api/certs-full.json     — probe-level evidence: every
   document.getElementById('copy-payload').addEventListener('click',function(){copy(this,out.textContent);});
   var cb=document.getElementById('copy-badge');
   if(cb) cb.addEventListener('click',function(){copy(this,document.getElementById('badge-snippet').textContent);});
+  var bi=document.getElementById('badge-in');
+  if(bi) bi.addEventListener('input',function(){
+    var m=(bi.value||'').match(UUID);
+    document.getElementById('badge-snippet').textContent='<img src="${cfg.publicBaseURL}/badge/'+(m?m[0]:'<your-agentId>')+'.svg"/>';
+  });
+
+  // Agent Inspector — live lookup against CROO public metadata (CORS-enabled)
+  var API='https://api.croo.network/backend/v1/public';
+  var ii=document.getElementById('insp-in'), io=document.getElementById('insp-out'), ih=document.getElementById('insp-hint');
+  var FLOAT=${status.floatUsdc ?? 0}, CAP=0.2, debounce;
+  function usd(x){return '$'+(Number(x)/1e6).toFixed(2);}
+  function row(k,v){return '<div class="li" style="display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:4px 0"><span class="mut">'+k+'</span><span style="text-align:right">'+v+'</span></div>';}
+  function renderTarget(agent, svc){
+    var price=Number(svc.price)/1e6;
+    var mode = (FLOAT>=price*2 && price<=CAP) ? '<span class="probe-type paid">paid</span>' : '<span class="probe-type liveness">liveness</span>';
+    var capNote = price>CAP ? ' · above CrooCred safety cap $'+CAP.toFixed(2) : '';
+    io.innerHTML =
+      row('agent', esc2(agent.name)+' · '+(agent.onlineStatus==='online'?'🟢 online':'⚫ '+esc2(agent.onlineStatus||'offline')))+
+      row('service', esc2(svc.name))+
+      row('price / SLA', usd(svc.price)+' / '+svc.slaMinutes+'min')+
+      row('track record', agent.completedOrders+' orders · '+agent.completionRate+'% completion · 7d '+svc.orders7d)+
+      row('input type', svc.requirementType||'none')+
+      row('recommended probe', mode+capNote)+
+      '<div style="margin-top:10px"><button class="copybtn" id="insp-use">Use in wizard ↑</button></div>';
+    var ub=document.getElementById('insp-use');
+    ub.addEventListener('click',function(){inp.value=svc.serviceId;render();inp.scrollIntoView({behavior:'smooth',block:'center'});});
+  }
+  function esc2(s){var d=document.createElement('span');d.textContent=String(s||'');return d.innerHTML;}
+  function inspect(){
+    var m=(ii.value||'').match(UUID);
+    if(!m){io.innerHTML='';ih.textContent=(ii.value||'').trim()?'⚠ No UUID found yet':'The same lookup CrooCred runs before every probe.';ih.className='hint '+((ii.value||'').trim()?'warn':'');return;}
+    ih.textContent='Looking up…';ih.className='hint';
+    var id=m[0];
+    fetch(API+'/services/'+id).then(function(r){if(!r.ok)throw 0;return r.json();})
+      .then(function(d){return fetch(API+'/agents/'+d.service.agentId).then(function(r){return r.json();}).then(function(a){ih.textContent='✅ serviceId resolved';ih.className='hint ok';renderTarget(a.agent,d.service);});})
+      .catch(function(){
+        fetch(API+'/agents/'+id).then(function(r){if(!r.ok)throw 0;return r.json();})
+          .then(function(a){
+            var svcs=(a.agent.services||[]).slice().sort(function(x,y){return Number(x.price)-Number(y.price);});
+            if(!svcs.length){ih.textContent='⚠ Agent found but has no services';ih.className='hint warn';io.innerHTML='';return;}
+            ih.textContent='✅ agentId resolved — showing cheapest service';ih.className='hint ok';renderTarget(a.agent,svcs[0]);
+          })
+          .catch(function(){ih.textContent='✖ Not found on the CROO public API';ih.className='hint warn';io.innerHTML='';});
+      });
+  }
+  if(ii){ii.addEventListener('input',function(){clearTimeout(debounce);debounce=setTimeout(inspect,450);});}
   var f=document.getElementById('filters');
   if(f) f.addEventListener('click',function(e){
     var b=e.target.closest('button'); if(!b)return;
@@ -573,9 +643,118 @@ GET ${cfg.publicBaseURL}/api/certs-full.json     — probe-level evidence: every
   return pageShell("CrooCred — live purchase certification for the agent economy", body, generatedAt);
 }
 
+// -------------------------------------------------- static extra pages ----
+
+/** Full-structure sample report with unmissable NOT-LIVE marking. */
+function sampleReportPage(generatedAt: string): string {
+  const banner = `<div style="background:var(--amber);color:#1b1e10;font:800 12px var(--mono);letter-spacing:1.5px;text-align:center;padding:9px;border-radius:10px;margin-bottom:16px">SAMPLE REPORT · NOT A LIVE CERTIFICATION · NOT COUNTED IN METRICS OR FEEDS</div>`;
+  const ph = (t: string) => `<span class="mut">${t}</span>`;
+  const body = `${banner}
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px">
+  <div><h1 style="font:800 24px var(--mono)">ExampleAgent ${ph("(sample)")}</h1>
+  <div class="mut">service: example_service · $0.10/call · SLA 30min</div></div>
+  <div style="margin-left:auto;text-align:right">
+    <div class="grade" style="color:${GRADE_COLOR.B};font-size:34px">B</div>
+    <div class="mut">78/100 · certified</div>
+  </div>
+</div>
+<div class="section"><h2>Live test evidence — what a real report contains</h2>
+<p style="margin:0 0 10px">CrooCred placed <b>2 real paid CAP order(s)</b> against this service on Base mainnet. Total probe spend: $0.20 USDC. ${ph("(sample values)")}</p>
+<div class="scroll"><table><tr><th>probe</th><th>outcome</th><th>quality</th><th>on-chain evidence</th></tr>
+<tr><td>#1<br/><span class="probe-type paid">paid</span></td>
+<td>✅ delivered in 41s (SLA met)<div class="mut" style="margin-top:4px">order ${ph("ORDER_ID_APPEARS_HERE")} · neg ${ph("NEGOTIATION_ID")} · content hash ${ph("KECCAK256_HASH")}</div></td>
+<td>8/10</td><td class="mono">${ph("create · pay · deliver · clear — each links to basescan.org/tx/…")}</td></tr>
+<tr><td>#2<br/><span class="probe-type paid">paid</span></td>
+<td>✅ delivered in 56s (SLA met)<div class="mut" style="margin-top:4px">order ${ph("ORDER_ID")} · neg ${ph("NEGOTIATION_ID")}</div></td>
+<td>7/10</td><td class="mono">${ph("create · pay · deliver · clear tx links")}</td></tr>
+</table></div></div>
+<div class="section"><h2>Recommendation</h2><p style="font:700 15px var(--mono);color:${GRADE_COLOR.B}">HIRE — passed live testing ${ph("(sample)")}</p></div>
+<div class="section"><h2>Score breakdown</h2><table>
+<tr><td style="width:130px">availability</td><td style="width:60px">30</td><td><div class="bar"><i style="width:94%"></i></div></td></tr>
+<tr><td>reliability</td><td>25</td><td><div class="bar"><i style="width:89%"></i></div></td></tr>
+<tr><td>latency</td><td>13</td><td><div class="bar"><i style="width:76%"></i></div></td></tr>
+<tr><td>conformance</td><td>15</td><td><div class="bar"><i style="width:65%"></i></div></td></tr>
+<tr><td>quality</td><td>11</td><td><div class="bar"><i style="width:73%"></i></div></td></tr>
+</table></div>
+<div class="section"><h2>Risk flags</h2><div class="flag">⚑ thin track record (&lt;10 completed orders) ${ph("(sample)")}</div></div>
+<div class="section"><h2>Certification record</h2>
+<table>
+<tr><td>cert id</td><td class="mono">${ph("cc-xxxxxxxx-20260705…")}</td></tr>
+<tr><td>sold via CAP order</td><td class="mono">${ph("parent ORDER_ID + buyer agent id — or operator-run seed")}</td></tr>
+<tr><td>buyer → CrooCred pay tx</td><td class="mono">${ph("0x… links to Basescan")}</td></tr>
+<tr><td>CrooCred → buyer deliver tx</td><td class="mono">${ph("0x… links to Basescan")}</td></tr>
+</table></div>
+<div class="section"><h2>Badge</h2>${SAMPLE_BADGE}<p class="mut" style="margin-top:8px">A live badge updates on every re-check and links back to the report.</p></div>
+<p><a href="../reports.html">← reports</a> · <a href="../index.html">home</a></p>`;
+  return pageShell("CrooCred — sample evidence report (not live)", body, generatedAt);
+}
+
+function reportsPage(all: CertRecord[], latest: Map<string, CertRecord>, generatedAt: string): string {
+  const rows = leaderboardRows(latest);
+  const live = rows
+    ? `<div class="scroll"><table><tr><th>#</th><th>agent / service</th><th>grade</th><th>evidence</th><th>sla</th><th>quality</th><th>flags</th><th>report</th></tr>${rows}</table></div>`
+    : `<p class="mut">No live certifications yet — the first graded, tx-hash-backed reports land here as soon as probe orders run.</p>`;
+  const body = `
+<h1 style="font:800 26px var(--mono);text-transform:uppercase;margin-bottom:14px">Reports</h1>
+<div class="section"><h2><b>Live reports</b> (${latest.size})</h2>${live}</div>
+<div class="section"><h2><b>Sample report</b></h2>
+<p>See exactly what CrooCred publishes after a real CAP test-buy — every field, clearly marked as a sample.</p>
+<p style="margin-top:10px"><a class="cta ghost" href="r/sample.html">Open sample report</a></p></div>
+<div class="section"><h2><b>Generate your first report</b></h2>
+<div class="empty-steps">
+<p>1 · Copy your serviceId from your <a href="https://agent.croo.network/">Agent Store</a> listing<br/>
+2 · Build the payload on the <a href="index.html#builder">home page wizard</a> — <span class="mono">{"target":"&lt;serviceId&gt;","runs":2}</span><br/>
+3 · Order <b>Certify Agent — Live Test-Buy</b> ($0.5) from <a href="${STORE_AGENT_URL}">croocred on the Agent Store</a><br/>
+4 · CrooCred test-buys your service and your graded report + live badge appear here</p></div></div>
+<p class="mut">${all.length} report(s) issued in total.</p>`;
+  return pageShell("CrooCred — certification reports", body, generatedAt);
+}
+
+function apiPage(all: CertRecord[], latest: Map<string, CertRecord>, generatedAt: string): string {
+  const m = computeMetrics(all, latest);
+  const liveCerts = JSON.stringify(
+    all.slice(0, 1).map((r) => ({ certId: r.certId, agent: r.target.agentName, grade: r.score.grade, score: r.score.score, verdict: r.score.verdict, reportUrl: r.reportUrl, badgeUrl: r.badgeUrl })),
+    null, 2,
+  );
+  const body = `
+<h1 style="font:800 26px var(--mono);text-transform:uppercase;margin-bottom:6px">API</h1>
+<p class="mut" style="margin-bottom:14px">Machine-readable trust: other CAP agents query CrooCred before hiring a target. Static JSON, no auth, CORS-open.</p>
+<div class="section"><h2><b>Live status</b></h2>
+<div class="scroll"><table>
+<tr><td style="width:220px">certifications</td><td>${m.reports}</td></tr>
+<tr><td>paid probes</td><td>${m.paidProbes}</td></tr>
+<tr><td>last generated</td><td class="mono">${generatedAt}</td></tr>
+</table></div>
+${m.reports === 0 ? '<p class="mut" style="margin-top:8px">No certifications yet — once the first CAP probe runs, these feeds become the machine-readable trust registry.</p>' : ""}</div>
+<div class="section"><h2><b>GET /api/stats.json</b> — aggregate network stats</h2>
+<pre>curl -s ${cfg.publicBaseURL}/api/stats.json</pre>
+<pre>{ "certifiedAgents": ${m.certifiedAgents}, "reports": ${m.reports}, "paidProbes": ${m.paidProbes},
+  "livenessProbes": ${m.livenessProbes}, "targetAgents": ${m.targetAgents}, "buyerAgents": ${m.buyerAgents},
+  "a2aEdges": ${m.a2aEdges}, "usdcSpent": ${m.usdcSpent.toFixed(2)}, "generatedAt": "${generatedAt}" }</pre>
+<p><a href="api/stats.json">raw feed →</a></p></div>
+<div class="section"><h2><b>GET /api/certs.json</b> — compact leaderboard feed</h2>
+<pre>curl -s ${cfg.publicBaseURL}/api/certs.json</pre>
+<pre>${all.length ? esc(liveCerts) : `[]
+// empty until the first certification — shape per entry:
+// { "certId", "agent", "agentId", "service", "grade", "score", "verdict",
+//   "paidProbes", "livenessProbes", "soldViaOrder", "flags", "reportUrl", "badgeUrl" }`}</pre>
+<p><a href="api/certs.json">raw feed →</a></p></div>
+<div class="section"><h2><b>GET /api/certs-full.json</b> — probe-level evidence</h2>
+<p>Every probe's negotiation id, order id, create/pay/deliver/clear tx hashes, latencies, SLA result and content hash — the full receipt chain for machine consumers.</p>
+<pre>{ "certId": "cc-…", "target": { … }, "score": { … },
+  "soldVia": { "orderId": "…", "payTx": "0x…", "deliverTx": "0x…" },
+  "runs": [ { "mode": "paid", "orderId": "…", "createTx": "0x…", "payTx": "0x…",
+              "deliverTx": "0x…", "clearTx": "0x…", "acceptMs": 1481,
+              "deliverMs": 41000, "slaMet": true, "contentHash": "0x…" } ] }</pre>
+<p><a href="api/certs-full.json">raw feed →</a></p></div>
+<div class="section"><h2><b>Badges</b> — GET /badge/&lt;agentId&gt;.svg</h2>
+<p>Stable per-agent SVG, regenerated on every certification and re-check. Embed it anywhere; it always shows the latest grade.</p></div>`;
+  return pageShell("CrooCred — API", body, generatedAt);
+}
+
 // ------------------------------------------------------------- build -------
 
-export function buildSite(): string {
+export async function buildSite(): Promise<string> {
   const out = cfg.siteDir;
   mkdirSync(resolve(out, "r"), { recursive: true });
   mkdirSync(resolve(out, "badge"), { recursive: true });
@@ -586,7 +765,24 @@ export function buildSite(): string {
   const m = computeMetrics(all, latest);
   const generatedAt = new Date().toISOString();
 
-  writeFileSync(resolve(out, "index.html"), indexPage(all, latest, generatedAt));
+  // System status: probe-wallet float → paid vs liveness-only (best-effort).
+  let status: SystemStatus = { floatUsdc: null, probeTier: "liveness-only", probesAffordable: null };
+  const wallet = process.env.CROO_AA_WALLET;
+  if (wallet) {
+    const bal = await getUsdcBalance(wallet);
+    if (bal !== null) {
+      status = {
+        floatUsdc: bal,
+        probeTier: bal >= 0.2 ? "paid" : "liveness-only",
+        probesAffordable: Math.floor(bal / 0.1),
+      };
+    }
+  }
+
+  writeFileSync(resolve(out, "index.html"), indexPage(all, latest, generatedAt, status));
+  writeFileSync(resolve(out, "reports.html"), reportsPage(all, latest, generatedAt));
+  writeFileSync(resolve(out, "api.html"), apiPage(all, latest, generatedAt));
+  writeFileSync(resolve(out, "r", "sample.html"), sampleReportPage(generatedAt));
   for (const rec of all) writeFileSync(resolve(out, "r", `${rec.certId}.html`), reportPage(rec, generatedAt));
   for (const [agentId, rec] of latest) writeFileSync(resolve(out, "badge", `${agentId}.svg`), renderBadge(rec));
 
@@ -648,5 +844,5 @@ export function buildSite(): string {
 
 // Allow `npm run site`
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  console.log("site built at", buildSite());
+  buildSite().then((out) => console.log("site built at", out));
 }
