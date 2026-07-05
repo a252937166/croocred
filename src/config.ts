@@ -40,7 +40,8 @@ export const cfg = {
   llmModel: process.env.LLM_MODEL ?? "deepseek-chat",
 
   // Safety rails for test purchases
-  maxPricePerCallUsdc: Number(process.env.MAX_PRICE_PER_CALL_USDC ?? "0.5"),
+  // 0.2 keeps a 0.5 USDC certification profitable at RUNS_PER_CERT=2
+  maxPricePerCallUsdc: Number(process.env.MAX_PRICE_PER_CALL_USDC ?? "0.2"),
   maxBudgetPerCertUsdc: Number(process.env.MAX_BUDGET_PER_CERT_USDC ?? "1.2"),
   runsPerCert: Number(process.env.RUNS_PER_CERT ?? "2"),
 

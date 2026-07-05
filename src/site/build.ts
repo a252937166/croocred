@@ -106,7 +106,10 @@ clip-path:polygon(0 0,100% 0,100% calc(100% - 9px),97.5% 100%,95% calc(100% - 9p
 .receipt .stamp{position:absolute;top:86px;right:14px;border:3px double;border-radius:50%;width:74px;height:74px;display:flex;align-items:center;justify-content:center;font:800 21px var(--mono);transform:rotate(-14deg);opacity:.85;background:rgba(255,255,255,.25)}
 .receipt .barcode{margin:12px auto 0;height:30px;width:82%;background:repeating-linear-gradient(90deg,var(--paper-ink) 0 2px,transparent 2px 4px,var(--paper-ink) 4px 7px,transparent 7px 9px,var(--paper-ink) 9px 10px,transparent 10px 13px)}
 .receipt.specimen::before{content:"SPECIMEN";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:800 44px var(--mono);letter-spacing:6px;color:rgba(27,30,16,.10);transform:rotate(-18deg);pointer-events:none}
+.rc-ribbon{position:absolute;top:10px;right:-30px;transform:rotate(24deg);background:var(--amber);color:#1b1e10;font:800 9.5px var(--mono);letter-spacing:1px;padding:3px 34px}
 .rc-caption{text-align:center;margin-top:12px}
+.hint{font:12px var(--mono);margin-top:8px;min-height:18px}
+.hint.ok{color:var(--green)}.hint.warn{color:var(--amber)}
 
 /* metrics */
 .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin:14px 0}
@@ -212,7 +215,8 @@ function latestReceipt(all: CertRecord[]): string {
 
   if (!rec || !run) {
     return `<div class="receipt-wrap"><div>
-<div class="receipt specimen" aria-label="specimen receipt — no live data yet">
+<div class="receipt specimen" aria-label="specimen receipt — no live data yet" style="overflow:hidden">
+  <div class="rc-ribbon">SPECIMEN · NOT LIVE</div>
   <div class="rc-head">CROOCRED * PURCHASE AUDIT</div>
   <div class="rc-sub">CAP · BASE MAINNET · ESCROWED</div>
   <hr/>
@@ -348,15 +352,31 @@ function reportPage(rec: CertRecord, generatedAt: string): string {
 <tr><td>cert id</td><td class="mono">${rec.certId}</td></tr>
 <tr><td>certified at</td><td>${rec.createdAt}</td></tr>
 <tr><td>sold via CAP order</td><td class="mono">${rec.soldVia ? `${rec.soldVia.orderId} (buyer agent ${rec.soldVia.requesterAgentId})` : "operator-run seed certification (not sold via CAP)"}</td></tr>
+${rec.soldVia?.payTx ? `<tr><td>buyer → CrooCred pay tx</td><td class="mono"><a href="${basescan(rec.soldVia.payTx)}">${rec.soldVia.payTx}</a></td></tr>` : ""}
+${rec.soldVia?.deliverTx ? `<tr><td>CrooCred → buyer deliver tx</td><td class="mono"><a href="${basescan(rec.soldVia.deliverTx)}">${rec.soldVia.deliverTx}</a></td></tr>` : ""}
 <tr><td>agent id</td><td class="mono">${rec.target.agentId}</td></tr>
 <tr><td>service id</td><td class="mono">${rec.target.serviceId}</td></tr>
 <tr><td>online status at cert time</td><td>${esc(rec.target.onlineStatus)}</td></tr>
 <tr><td>completed orders (self-reported)</td><td>${esc(rec.target.completedOrders)} · ${rec.target.completionRate}% completion</td></tr>
 </table></div>
-<div class="section"><h2>Badge</h2>
+<div class="section"><h2>Claim this badge</h2>
 <img src="../badge/${rec.target.agentId}.svg" width="360" height="84" alt="CrooCred badge"/>
-<p class="mut" style="margin-top:8px">Embed: <span class="mono">&lt;img src="${cfg.publicBaseURL}/badge/${rec.target.agentId}.svg"/&gt;</span></p></div>
-<p><a href="../index.html">← all certified agents</a></p>`;
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+<button class="copybtn" data-copy='&lt;img src="${cfg.publicBaseURL}/badge/${rec.target.agentId}.svg" alt="CrooCred ${rec.score.verdict}"/&gt;'>Copy HTML</button>
+<button class="copybtn" data-copy="[![CrooCred ${rec.score.verdict}](${cfg.publicBaseURL}/badge/${rec.target.agentId}.svg)](${rec.reportUrl})">Copy Markdown</button>
+<button class="copybtn" data-copy="CrooCred ${rec.score.verdict} — grade ${rec.score.grade} (${rec.score.score}/100), live test-buy evidence: ${rec.reportUrl}">Copy DoraHacks text</button>
+</div>
+<p class="mut" style="margin-top:8px">The badge updates automatically on every re-check; the report link is permanent.</p></div>
+<p><a href="../index.html">← all certified agents</a></p>
+<script>
+document.querySelectorAll('[data-copy]').forEach(function(b){
+  b.addEventListener('click',function(){
+    navigator.clipboard.writeText(b.getAttribute('data-copy')).then(function(){
+      var old=b.textContent;b.textContent='Copied ✓';setTimeout(function(){b.textContent=old;},1500);
+    });
+  });
+});
+</script>`;
   return pageShell(`CrooCred report — ${rec.target.agentName}`, body, generatedAt);
 }
 
@@ -367,8 +387,13 @@ function metricCard(value: string, label: string, tone: "zero" | "pos" | "warn" 
 }
 
 function leaderboardRows(latest: Map<string, CertRecord>): string {
+  const paidCount = (r: CertRecord) => r.runs.filter((x) => x.mode === "paid" && x.txHashes.pay).length;
   return [...latest.values()]
-    .sort((a, b) => b.score.score - a.score.score)
+    // paid evidence outranks liveness-only, then recency, then score
+    .sort((a, b) =>
+      paidCount(b) - paidCount(a) ||
+      b.createdAt.localeCompare(a.createdAt) ||
+      b.score.score - a.score.score)
     .map((r, i) => {
       const c = GRADE_COLOR[r.score.grade];
       const paid = r.runs.filter((x) => x.mode === "paid" && x.txHashes.pay).length;
@@ -429,6 +454,7 @@ function indexPage(all: CertRecord[], latest: Map<string, CertRecord>, generated
   <div class="builder" id="builder">
     <label for="target-in">Certify an agent — paste an Agent Store URL, agentId or serviceId</label>
     <input type="text" id="target-in" placeholder="https://agent.croo.network/agent/… or a UUID" spellcheck="false"/>
+    <div class="hint" id="target-hint">Accepted: serviceId · agentId · Agent Store URL</div>
     <div class="row">
       <span class="mut">runs</span>
       <span class="seg" id="runs-seg"><button data-r="1">1</button><button data-r="2" class="on">2</button><button data-r="3">3</button></span>
@@ -436,20 +462,22 @@ function indexPage(all: CertRecord[], latest: Map<string, CertRecord>, generated
       <a class="mut" href="${STORE_AGENT_URL}" style="margin-left:auto">open croocred on the Store →</a>
     </div>
     <pre id="payload-out">{"target":"&lt;paste-your-serviceId&gt;","runs":2}</pre>
+    <p class="mut" style="margin-top:8px">Paid probes are selected automatically when CrooCred's wallet covers them; add <span class="mono">"mode":"liveness"</span> to force the free tier. Order this payload on <a href="${STORE_AGENT_URL}">Certify Agent — Live Test-Buy</a>.</p>
   </div>
 </div>
 ${latestReceipt(all)}
 </div>
 
-<h2 style="margin-top:26px"><b>Live evidence</b> — generated from persisted certification records only</h2>
+<h2 style="margin-top:26px"><b>Live evidence</b> — persisted certification records only · generated ${generatedAt.slice(0, 16).replace("T", " ")} UTC</h2>
 <div class="metrics">
 ${metricCard(String(m.certifiedAgents), "certified agents", tone(m.certifiedAgents))}
 ${metricCard(String(m.paidProbes), "paid probes", tone(m.paidProbes))}
 ${metricCard(String(m.livenessProbes), "liveness checks", m.livenessProbes === 0 ? "zero" : "warn")}
 ${metricCard(String(m.targetAgents), "target agents tested", tone(m.targetAgents))}
 ${metricCard(String(m.buyerAgents), "buyer agents", tone(m.buyerAgents))}
+${metricCard(String(m.a2aEdges), "a2a edges", tone(m.a2aEdges))}
 ${metricCard(`$${m.usdcSpent.toFixed(2)}`, "USDC spent on probes", tone(m.usdcSpent > 0 ? 1 : 0))}
-${metricCard(fmtS(m.medianAcceptS), "median accept", m.medianAcceptS === null ? "zero" : "pos")}
+${metricCard(fmtS(m.medianDeliverS), "median delivery", m.medianDeliverS === null ? "zero" : "pos")}
 ${metricCard(String(m.flaggedAgents), "risky agents found", m.flaggedAgents === 0 ? "zero" : "warn")}
 </div>
 
@@ -495,7 +523,9 @@ ${rows ? `<div class="filters" id="filters">
 
 GET ${cfg.publicBaseURL}/api/stats.json
 { "certifiedAgents": ${m.certifiedAgents}, "paidProbes": ${m.paidProbes}, "targetAgents": ${m.targetAgents},
-  "buyerAgents": ${m.buyerAgents}, "usdcSpent": ${m.usdcSpent.toFixed(2)}, "generatedAt": "${generatedAt}" }</pre></div>
+  "buyerAgents": ${m.buyerAgents}, "a2aEdges": ${m.a2aEdges}, "usdcSpent": ${m.usdcSpent.toFixed(2)}, "generatedAt": "${generatedAt}" }
+
+GET ${cfg.publicBaseURL}/api/certs-full.json     — probe-level evidence: every order id + tx hash</pre></div>
 
 <div class="section"><h2><b>Why this needs CAP</b></h2>
 <p>On a normal API marketplace a reviewer can only read docs and star ratings. On CAP, CrooCred can <b>prove</b> its findings: escrow shows real money at stake, delivery hashes pin what was returned, settlement txs timestamp SLA compliance — and the certification itself is bought and delivered as a CAP order. The auditor is a paying customer of the market it audits.</p></div>
@@ -503,11 +533,14 @@ GET ${cfg.publicBaseURL}/api/stats.json
 <script>
 (function(){
   var UUID=/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
-  var runs=2, inp=document.getElementById('target-in'), out=document.getElementById('payload-out');
+  var runs=2, inp=document.getElementById('target-in'), out=document.getElementById('payload-out'), hint=document.getElementById('target-hint');
   function render(){
-    var m=(inp.value||'').match(UUID);
+    var v=(inp.value||'').trim(), m=v.match(UUID);
     var t=m?m[0]:'<paste-your-serviceId>';
     out.textContent=JSON.stringify({target:t,runs:runs});
+    if(!v){hint.textContent='Accepted: serviceId · agentId · Agent Store URL';hint.className='hint';}
+    else if(m){hint.textContent='✅ UUID detected — payload ready to copy';hint.className='hint ok';}
+    else{hint.textContent='⚠ No UUID found yet — paste an Agent Store URL, agentId, or serviceId';hint.className='hint warn';}
   }
   inp.addEventListener('input',render);
   document.getElementById('runs-seg').addEventListener('click',function(e){
@@ -577,6 +610,38 @@ export function buildSite(): string {
   writeFileSync(
     resolve(out, "api", "stats.json"),
     JSON.stringify({ ...m, usdcSpent: Number(m.usdcSpent.toFixed(2)), generatedAt }, null, 2),
+  );
+  // Full evidence feed: probe-level ids + tx hashes for machine consumers.
+  writeFileSync(
+    resolve(out, "api", "certs-full.json"),
+    JSON.stringify(
+      all.map((r) => ({
+        certId: r.certId,
+        createdAt: r.createdAt,
+        target: r.target,
+        score: r.score,
+        soldVia: r.soldVia ?? null,
+        runs: r.runs.map((x) => ({
+          mode: x.mode,
+          ok: x.ok,
+          failureStage: x.failureStage ?? null,
+          negotiationId: x.negotiationId ?? null,
+          orderId: x.orderId ?? null,
+          createTx: x.txHashes.create ?? null,
+          payTx: x.txHashes.pay ?? null,
+          deliverTx: x.txHashes.deliver ?? null,
+          clearTx: x.txHashes.clear ?? null,
+          acceptMs: x.tAcceptMs ?? null,
+          deliverMs: x.tDeliverMs ?? null,
+          slaMet: x.slaMet ?? null,
+          contentHash: x.contentHash ?? null,
+        })),
+        reportUrl: r.reportUrl,
+        badgeUrl: r.badgeUrl,
+      })),
+      null,
+      2,
+    ),
   );
   return out;
 }

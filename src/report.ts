@@ -28,7 +28,13 @@ export interface CertRecord {
   reportUrl: string;
   badgeUrl: string;
   /** Order that purchased this certification, when sold via CAP. */
-  soldVia?: { orderId: string; requesterAgentId: string };
+  soldVia?: {
+    orderId: string;
+    requesterAgentId: string;
+    /** Parent-order tx hashes — the buyer→CrooCred half of the receipt chain. */
+    payTx?: string;
+    deliverTx?: string;
+  };
 }
 
 const CERTS_DIR = () => {

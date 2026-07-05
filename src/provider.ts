@@ -5,6 +5,7 @@ import { cfg } from "./config.js";
 import { log } from "./log.js";
 import { getPublicService } from "./publicApi.js";
 import { certify, deliverablePayload } from "./certify.js";
+import { saveRecord } from "./report.js";
 import { buildSite } from "./site/build.js";
 
 /**
@@ -174,22 +175,34 @@ async function processPaidOrder(orderId: string): Promise<void> {
     const rec = await certify(client, req.target, {
       runs,
       mode: req.mode,
-      soldVia: { orderId, requesterAgentId: order.requesterAgentId },
+      soldVia: {
+        orderId,
+        requesterAgentId: order.requesterAgentId,
+        payTx: order.payTxHash || undefined,
+      },
     });
 
     const payload = deliverablePayload(rec);
+    let deliverTx: string | undefined;
     try {
-      await client.deliverOrder(orderId, {
+      const res = await client.deliverOrder(orderId, {
         deliverableType: "schema",
         deliverableSchema: JSON.stringify(payload),
         deliverableText: JSON.stringify(payload),
       });
+      deliverTx = res.txHash || res.order?.deliverTxHash || undefined;
     } catch (err) {
       log.warn("schema delivery failed, falling back to text", String(err));
-      await client.deliverOrder(orderId, {
+      const res = await client.deliverOrder(orderId, {
         deliverableType: "text",
         deliverableText: JSON.stringify(payload, null, 2),
       });
+      deliverTx = res.txHash || res.order?.deliverTxHash || undefined;
+    }
+    // Complete the receipt chain: patch the parent deliver tx into the record.
+    if (rec.soldVia && deliverTx) {
+      rec.soldVia.deliverTx = deliverTx;
+      saveRecord(rec);
     }
     state.processedOrders.push(orderId);
     persist();

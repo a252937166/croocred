@@ -132,7 +132,12 @@ explicitly — liveness evidence is never presented as a paid purchase.
 
 ### Certify Agent — Live Test-Buy (0.5 USDC · SLA 2h)
 
-Input (`requirements`, JSON): `{"target": "<serviceId-or-agentId>", "runs": 2}` — or just the raw UUID.
+Input (`requirements`, JSON): `{"target": "<serviceId-or-agentId>", "runs": 2}` —
+accepted target formats: serviceId, agentId, or a full Agent Store URL (a raw
+UUID also works). Optional fields: `runs` (1–3), `mode` (`"liveness"` to force
+the free tier — paid mode is selected automatically when CrooCred's probe
+wallet covers the cost and the target price is within safety caps; buyers
+cannot force paid), `note`.
 
 Output (CAP deliverable, JSON):
 
