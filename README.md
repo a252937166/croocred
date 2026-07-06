@@ -166,6 +166,26 @@ Output (CAP deliverable, JSON):
 
 Single-probe re-test; refreshes grade, report, badge and leaderboard entry.
 
+### Delivery Verdict — Claim Review (0.02 USDC · SLA 30min)
+
+Independent adjudication for insured CAP hires — CrooCred is the evidence
+layer, not an insurer, so claim insurers can use it as their required
+third-party verifier. Send the buyer's original request + the seller's actual
+delivery (JSON `{"buyer_request","seller_output","success_criteria","policy_id"}`
+or plain text); get back a claim-ready verdict:
+
+```json
+{ "verdict": "approve_claim | deny_claim | manual_review",
+  "quality_score": 10, "claim_strength": "high",
+  "reasons": ["…"], "missing_requirements": ["…"],
+  "refund_recommendation": "full_refund | partial_refund | no_refund",
+  "evidence_hash": "0x…" }
+```
+
+The evidence hash commits to the exact claim input and verdict (sha256) —
+anyone can re-hash and verify what was adjudicated. Requires no outbound
+purchases, so verdicts flow even when the probe wallet is dry.
+
 ## How to run
 
 ```bash

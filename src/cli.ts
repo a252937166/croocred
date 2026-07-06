@@ -97,6 +97,12 @@ async function main(): Promise<void> {
       console.log(JSON.stringify(run, null, 2));
       break;
     }
+    case "verdict": {
+      const { judgeClaim } = await import("./verdict.js");
+      const v = await judgeClaim(args.join(" "));
+      console.log(JSON.stringify(v, null, 2));
+      break;
+    }
     case "records": {
       for (const r of loadAllRecords())
         console.log(`${r.createdAt}  ${r.score.grade} ${String(r.score.score).padStart(3)}  ${r.target.agentName} / ${r.target.serviceName}  (${r.certId})`);

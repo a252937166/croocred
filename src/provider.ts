@@ -5,6 +5,7 @@ import { cfg } from "./config.js";
 import { log } from "./log.js";
 import { getPublicService } from "./publicApi.js";
 import { certify, deliverablePayload } from "./certify.js";
+import { judgeClaim } from "./verdict.js";
 import { saveRecord } from "./report.js";
 import { buildSite } from "./site/build.js";
 
@@ -107,21 +108,44 @@ export function parseCertificationRequest(requirements: string): CertificationRe
 }
 
 // ---------- provider flow ----------------------------------------------------
+const serviceNameCache = new Map<string, string>();
+async function ownServiceName(serviceId: string): Promise<string> {
+  if (!serviceNameCache.has(serviceId)) {
+    try {
+      serviceNameCache.set(serviceId, (await getPublicService(serviceId)).name);
+    } catch {
+      return "";
+    }
+  }
+  return serviceNameCache.get(serviceId) ?? "";
+}
+const isVerdictService = (name: string): boolean => /verdict|claim/i.test(name);
+
 async function handleNegotiation(negotiationId: string): Promise<void> {
   if (state.acceptedNegotiations.includes(negotiationId)) return;
   const neg = await client.getNegotiation(negotiationId);
   if (neg.status !== "pending") return;
 
-  const req = parseCertificationRequest(neg.requirements);
-  if (!req) {
-    await client.rejectNegotiation(
-      negotiationId,
-      "Please provide the target as a CROO serviceId or agentId (UUID) or an Agent Store URL. Example: {\"target\": \"<service-uuid>\", \"runs\": 2}",
-    );
-    log.warn(`rejected negotiation ${negotiationId}: no parsable target`);
-    return;
+  // Claim-review orders carry free-form evidence, not a UUID target.
+  if (isVerdictService(await ownServiceName(neg.serviceId))) {
+    if (!(neg.requirements ?? "").trim()) {
+      await client.rejectNegotiation(
+        negotiationId,
+        "Please include the claim: buyer request + seller output (JSON {\"buyer_request\",\"seller_output\"} or plain text).",
+      );
+      return;
+    }
+  } else {
+    const req = parseCertificationRequest(neg.requirements);
+    if (!req) {
+      await client.rejectNegotiation(
+        negotiationId,
+        "Please provide the target as a CROO serviceId or agentId (UUID) or an Agent Store URL. Example: {\"target\": \"<service-uuid>\", \"runs\": 2}",
+      );
+      log.warn(`rejected negotiation ${negotiationId}: no parsable target`);
+      return;
+    }
   }
-  const target = req.target;
 
   const attempts = (acceptAttempts.get(negotiationId) ?? 0) + 1;
   acceptAttempts.set(negotiationId, attempts);
@@ -143,7 +167,7 @@ async function handleNegotiation(negotiationId: string): Promise<void> {
   }
   state.acceptedNegotiations.push(negotiationId);
   persist();
-  log.info(`accepted negotiation ${negotiationId} (target ${target})`);
+  log.info(`accepted negotiation ${negotiationId}`);
 }
 
 async function processPaidOrder(orderId: string): Promise<void> {
@@ -154,6 +178,26 @@ async function processPaidOrder(orderId: string): Promise<void> {
     if (order.status !== "paid") return;
 
     const neg = await client.getNegotiation(order.negotiationId);
+
+    // Claim-review branch: pure adjudication, no outbound purchases.
+    if (isVerdictService(await ownServiceName(order.serviceId))) {
+      log.info(`order ${orderId} paid — adjudicating claim`);
+      const verdict = await judgeClaim(neg.requirements);
+      await client.deliverOrder(orderId, {
+        deliverableType: "text",
+        deliverableText: JSON.stringify(verdict, null, 2),
+      });
+      state.processedOrders.push(orderId);
+      persist();
+      log.info(`order ${orderId} verdict delivered: ${verdict.verdict} (quality ${verdict.quality_score})`);
+      try {
+        await buildSite();
+      } catch (err) {
+        log.warn("site rebuild failed", String(err));
+      }
+      return;
+    }
+
     const req = parseCertificationRequest(neg.requirements);
     if (!req) {
       await client.rejectOrder(orderId, "No parsable certification target; escrow refunded.");

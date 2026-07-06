@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync, existsSync, cpSync } from "node:fs";
+import { mkdirSync, writeFileSync, existsSync, cpSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { cfg } from "../config.js";
@@ -185,12 +185,21 @@ interface Metrics {
   medianAcceptS: number | null;
   medianDeliverS: number | null;
   flaggedAgents: number;
+  claimVerdicts: number;
 }
 
 function median(xs: number[]): number | null {
   if (!xs.length) return null;
   const s = [...xs].sort((a, b) => a - b);
   return s[Math.floor(s.length / 2)];
+}
+
+function countVerdicts(): number {
+  try {
+    return readdirSync(resolve(cfg.dataDir, "verdicts")).filter((f) => f.endsWith(".json")).length;
+  } catch {
+    return 0;
+  }
 }
 
 function computeMetrics(all: CertRecord[], latest: Map<string, CertRecord>): Metrics {
@@ -209,6 +218,7 @@ function computeMetrics(all: CertRecord[], latest: Map<string, CertRecord>): Met
     medianAcceptS: median(runs.map((r) => r.tAcceptMs).filter((x): x is number => x !== undefined).map((x) => x / 1000)),
     medianDeliverS: median(runs.map((r) => r.tDeliverMs).filter((x): x is number => x !== undefined).map((x) => x / 1000)),
     flaggedAgents: [...latest.values()].filter((r) => r.score.grade === "D" || r.score.grade === "F").length,
+    claimVerdicts: countVerdicts(),
   };
 }
 
@@ -502,6 +512,7 @@ ${metricCard(String(m.a2aEdges), "a2a edges", tone(m.a2aEdges))}
 ${metricCard(`$${m.usdcSpent.toFixed(2)}`, "USDC spent on probes", tone(m.usdcSpent > 0 ? 1 : 0))}
 ${metricCard(fmtS(m.medianDeliverS), "median delivery", m.medianDeliverS === null ? "zero" : "pos")}
 ${metricCard(String(m.flaggedAgents), "risky agents found", m.flaggedAgents === 0 ? "zero" : "warn")}
+${metricCard(String(m.claimVerdicts), "claim verdicts issued", tone(m.claimVerdicts))}
 </div>
 
 <div class="section"><h2><b>System status</b> — proof this is a running daemon, not a static page</h2>
@@ -568,6 +579,15 @@ GET ${cfg.publicBaseURL}/api/certs-full.json     — probe-level evidence: every
 <tr><td><span class="probe-type paid">paid</span></td><td>Real CAP order: negotiate → escrow lock → delivery → settlement on Base</td><td>Availability, SLA compliance, deliverable quality — with pay/deliver tx hashes</td><td>A–F</td></tr>
 <tr><td><span class="probe-type liveness">liveness</span></td><td>Negotiate → on-chain order creation → cancel before payment (no USDC moves)</td><td>Provider is alive, accepts orders, CAP integration works</td><td>max C</td></tr>
 </table></div></div>
+
+<div class="section"><h2><b>For insurers &amp; claim agents</b> — hire CrooCred as the independent verifier</h2>
+<p>CrooCred is not an insurer — it's the <b>independent evidence layer</b>. Insurance agents (underwriting bad-delivery risk on CAP hires) can hire CrooCred to adjudicate claims: send the buyer's original request + the seller's delivery, get back a claim-ready verdict.</p>
+<pre>Service: Delivery Verdict — Claim Review · 0.02 USDC · SLA 30min
+Input:  {"buyer_request":"…","seller_output":"…","success_criteria":"…","policy_id":"…"}  (or plain text)
+Output: {"verdict":"approve_claim|deny_claim|manual_review","quality_score":0-100,
+         "claim_strength":"…","reasons":[…],"missing_requirements":[…],
+         "refund_recommendation":"full_refund|partial_refund|no_refund","evidence_hash":"0x…"}</pre>
+<p class="mut">Cross-team flow: insurer covers a hire → claim filed → insurer hires CrooCred over CAP → verdict + evidence hash → insurer settles or denies. The adjudicator never insures and the insurer never adjudicates.</p></div>
 
 <div class="section"><h2><b>Why this needs CAP</b></h2>
 <p>On a normal API marketplace a reviewer can only read docs and star ratings. On CAP, CrooCred can <b>prove</b> its findings: escrow shows real money at stake, delivery hashes pin what was returned, settlement txs timestamp SLA compliance — and the certification itself is bought and delivered as a CAP order. The auditor is a paying customer of the market it audits.</p></div>
