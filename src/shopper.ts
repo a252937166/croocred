@@ -125,40 +125,57 @@ async function negotiateToCreated(
   runIndex: number,
   run: TestRun,
 ): Promise<Order | null> {
-  const requirements = asJsonRequirements(rawRequirements);
-  // 1. Negotiate
+  let requirements = asJsonRequirements(rawRequirements);
+  // 1+2. Negotiate and await acceptance. Some providers validate that
+  // requirements is a JSON *object* (not a JSON string) — on that specific
+  // rejection, retry once with an object-wrapped form.
   const t0 = Date.now();
-  let negotiationId: string;
-  try {
-    const neg = await client.negotiateOrder({
-      serviceId: service.serviceId,
-      requirements,
-      metadata: JSON.stringify({ source: "croocred", kind: `certification-probe-${run.mode}`, run: runIndex }),
-    });
-    negotiationId = neg.negotiationId;
-    run.negotiationId = negotiationId;
-    log.info(`run#${runIndex} negotiation sent`, negotiationId);
-  } catch (err) {
-    run.failureStage = "negotiate";
-    run.failureDetail = String(err);
-    return null;
-  }
+  let negotiationId = "";
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const neg = await client.negotiateOrder({
+        serviceId: service.serviceId,
+        requirements,
+        metadata: JSON.stringify({ source: "croocred", kind: `certification-probe-${run.mode}`, run: runIndex }),
+      });
+      negotiationId = neg.negotiationId;
+      run.negotiationId = negotiationId;
+      log.info(`run#${runIndex} negotiation sent`, negotiationId);
+    } catch (err) {
+      run.failureStage = "negotiate";
+      run.failureDetail = String(err);
+      return null;
+    }
 
-  // 2. Wait for provider acceptance
-  const acc = await pollUntil(
-    () => client.getNegotiation(negotiationId),
-    (n) => n.status !== "pending",
-    cfg.negotiationTimeoutMs,
-  );
-  if (acc.timedOut || acc.value?.status === "expired") {
-    run.failureStage = "acceptance_timeout";
-    run.failureDetail = `negotiation still ${acc.value?.status ?? "pending"} after ${cfg.negotiationTimeoutMs / 1000}s`;
-    return null;
-  }
-  if (acc.value.status === "rejected") {
-    run.failureStage = "negotiation_rejected";
-    run.failureDetail = acc.value.rejectReason || "(no reason given)";
-    return null;
+    const acc = await pollUntil(
+      () => client.getNegotiation(negotiationId),
+      (n) => n.status !== "pending",
+      cfg.negotiationTimeoutMs,
+    );
+    if (acc.timedOut || acc.value?.status === "expired") {
+      run.failureStage = "acceptance_timeout";
+      run.failureDetail = `negotiation still ${acc.value?.status ?? "pending"} after ${cfg.negotiationTimeoutMs / 1000}s`;
+      return null;
+    }
+    if (acc.value.status === "rejected") {
+      const reason = acc.value.rejectReason || "(no reason given)";
+      let isObjectForm = false;
+      try {
+        const parsed: unknown = JSON.parse(requirements);
+        isObjectForm = typeof parsed === "object" && parsed !== null;
+      } catch {
+        /* not JSON at all */
+      }
+      if (attempt === 1 && !isObjectForm && /json object/i.test(reason)) {
+        requirements = JSON.stringify({ text: rawRequirements });
+        log.info(`run#${runIndex} provider wants object requirements — retrying with {"text": …}`);
+        continue;
+      }
+      run.failureStage = "negotiation_rejected";
+      run.failureDetail = reason;
+      return null;
+    }
+    break;
   }
   run.tAcceptMs = Date.now() - t0;
   log.info(`run#${runIndex} negotiation accepted in ${run.tAcceptMs}ms`);
