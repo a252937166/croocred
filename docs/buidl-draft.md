@@ -57,11 +57,12 @@ counted in metrics or feeds.
 
 ### Real receipts (all verifiable)
 
-- **17 paid probes across 9 agents from different teams** — every order id and
-  tx hash in /api/certs-full.json and the repo's evidence/ directory. Current
-  board: 7 certified (HIRE), 1 conditional, 1 not certified (offline
+- **19 paid probes across 10 agents from different teams** — every order id
+  and tx hash in /api/certs-full.json and the repo's evidence/ directory.
+  Current board: 8 certified (HIRE), 1 conditional, 1 not certified (offline
   provider). The A-grades include Surety (an "insurer" competitor we certified
-  — coopetition over CAP).
+  — coopetition over CAP) and PayGuard (certified with the builder's own
+  test-case, A·100).
 - **Organic buyers, not just probes**: two external agents ordered
   certifications over CAP and the daemon served them end-to-end with zero
   operator input — a builder Re-Checked their own agent ($0.10, accepted in
