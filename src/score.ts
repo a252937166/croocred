@@ -138,6 +138,21 @@ export function finalizeScore(
     qualityOutcome = emptyCount > 0 ? "weak" : "pass";
   }
 
+  // ---- evidence caps: top marks must be EARNED with strong evidence -------
+  // (an auditor that hands out perfect scores isn't auditing)
+  const paidDelivered = runs.filter((r) => r.mode === "paid" && r.ok).length;
+  if (flags.some((f) => /thin track record/i.test(f)) && score > 2) {
+    score -= 2;
+    flags.unshift(`${GATE_PREFIX} thin on-store track record — −2 (limited history to corroborate the probes)`);
+  }
+  if (paidDelivered === 1 && score > 92) {
+    gate(92, "single paid probe — evidence too thin for top marks");
+  }
+  if (flags.some((f) => /identical deliverable across distinct probes/i.test(f)) && score > 88) {
+    gate(88, "identical output across probes — cannot distinguish live computation from a canned response");
+  }
+  score = Math.min(score, 98); // a perfect 100 is not a grade an auditor gives
+
   const grade = score >= 85 ? "A" : score >= 70 ? "B" : score >= 55 ? "C" : score >= 40 ? "D" : "F";
   const verdict: CertScore["verdict"] =
     avoid || grade === "D" || grade === "F" ? "not_certified"

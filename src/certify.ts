@@ -55,10 +55,16 @@ export async function certify(
   const runs: TestRun[] = [];
   const verdicts: QualityVerdict[] = [];
   for (let i = 0; i < runsWanted; i++) {
+    // Vary the input per probe (unless buyer-supplied): identical inputs make
+    // identical outputs uninformative — with distinct inputs, identical
+    // outputs are strong evidence of a canned response.
+    const input =
+      i === 0 || opts.probeInput?.trim() ? probeInput : await synthesizeProbeInput(agent, service);
+    if (i > 0 && input !== probeInput) log.info(`probe input #${i + 1}:`, input.slice(0, 160));
     const run =
       mode === "paid"
-        ? await runTestPurchase(client, service, probeInput, i + 1)
-        : await runLivenessProbe(client, service, probeInput, i + 1);
+        ? await runTestPurchase(client, service, input, i + 1)
+        : await runLivenessProbe(client, service, input, i + 1);
     runs.push(run);
     verdicts.push(
       mode === "paid"

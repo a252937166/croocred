@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync, existsSync, cpSync, readdirSync } from "node:fs";
+import { mkdirSync, writeFileSync, existsSync, cpSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { cfg } from "../config.js";
@@ -187,7 +187,7 @@ tr.hidden{display:none}
 .empty-steps .mono{color:var(--green)}
 </style></head><body><div class="wrap">
 <nav><span class="wordmark"><a href="${cfg.publicBaseURL}/" style="color:inherit;text-decoration:none">CROO<i>CRED</i></a></span>
-<div class="links"><a href="${cfg.publicBaseURL}/reports.html">REPORTS</a><a href="${cfg.publicBaseURL}/api.html">API</a><a href="${GITHUB_URL}">GITHUB</a><a href="${STORE_AGENT_URL}">AGENT&nbsp;STORE</a></div></nav>
+<div class="links"><a href="${cfg.publicBaseURL}/reports.html">REPORTS</a><a href="${cfg.publicBaseURL}/verdicts.html">VERDICTS</a><a href="${cfg.publicBaseURL}/api.html">API</a><a href="${GITHUB_URL}">GITHUB</a><a href="${STORE_AGENT_URL}">AGENT&nbsp;STORE</a></div></nav>
 ${body}
 <footer>CrooCred — live purchase certification for the agent economy. Paid probes are real CAP orders with escrow and settlement on Base mainnet; liveness checks exercise negotiation + on-chain order creation without payment and cap grades at C. CAP lifecycle and judged delivery quality are graded as separate axes — hard gates mean an empty or off-promise delivery is never certified. Every tx hash links to Basescan.<br/>
 <a href="${GITHUB_URL}">GitHub (MIT)</a> · <a href="${STORE_AGENT_URL}">croocred on the Agent Store</a> · <a href="${cfg.publicBaseURL}/api/certs.json">certs feed</a> · <a href="${cfg.publicBaseURL}/api/stats.json">stats feed</a><br/>
@@ -583,7 +583,7 @@ ${metricCard(String(m.a2aEdges), "a2a edges", tone(m.a2aEdges))}
 ${metricCard(`$${m.usdcSpent.toFixed(2)}`, "USDC spent on probes", tone(m.usdcSpent > 0 ? 1 : 0))}
 ${metricCard(fmtS(m.medianDeliverS), "median delivery", m.medianDeliverS === null ? "zero" : "pos")}
 ${metricCard(String(m.flaggedAgents), "risky agents found", m.flaggedAgents === 0 ? "zero" : "warn")}
-${metricCard(String(m.claimVerdicts), "claim verdicts issued", tone(m.claimVerdicts))}
+<a href="verdicts.html" style="text-decoration:none;color:inherit">${metricCard(String(m.claimVerdicts), "claim verdicts issued →", tone(m.claimVerdicts))}</a>
 </div>
 
 <div class="section"><h2><b>System status</b> — proof this is a running daemon, not a static page</h2>
@@ -852,6 +852,76 @@ function reportsPage(all: CertRecord[], latest: Map<string, CertRecord>, generat
   return pageShell("CrooCred — certification reports", body, generatedAt);
 }
 
+// ------------------------------------------------- claim verdicts page ----
+
+interface StoredVerdict {
+  input?: string;
+  soldVia?: {
+    orderId?: string; chainOrderId?: string; requesterAgentId?: string;
+    payTx?: string; deliverTx?: string; priceUsdc?: number; operatorDemo?: boolean;
+  } | null;
+  result?: {
+    verdict?: string; quality_score?: number; claim_strength?: string;
+    reasons?: string[]; missing_requirements?: string[];
+    refund_recommendation?: string; evidence_hash?: string;
+    adjudicated_at?: string; note?: string;
+  };
+}
+
+function loadVerdicts(): StoredVerdict[] {
+  try {
+    const dir = resolve(cfg.dataDir, "verdicts");
+    return readdirSync(dir)
+      .filter((f) => f.endsWith(".json"))
+      .map((f) => JSON.parse(readFileSync(resolve(dir, f), "utf8")) as StoredVerdict)
+      .sort((a, b) => String(b.result?.adjudicated_at ?? "").localeCompare(String(a.result?.adjudicated_at ?? "")));
+  } catch {
+    return [];
+  }
+}
+
+const VERDICT_COLOR: Record<string, string> = {
+  approve_claim: "#e65846", deny_claim: "#9be15d", manual_review: "#e4c34a",
+};
+
+function verdictsPage(vs: StoredVerdict[], generatedAt: string): string {
+  const cards = vs.map((v) => {
+    const r = v.result ?? {};
+    const s = v.soldVia ?? {};
+    const c = VERDICT_COLOR[r.verdict ?? ""] ?? "#8a8a8a";
+    const reasons = (r.reasons ?? []).map((x) => `<div class="flag" style="border-color:${c}44">— ${esc(x)}</div>`).join("");
+    const missing = (r.missing_requirements ?? []).length
+      ? `<p class="mut" style="margin-top:6px">missing requirements: ${esc((r.missing_requirements ?? []).join(" · "))}</p>` : "";
+    const tx = (label: string, hash?: string) =>
+      hash ? `<tr><td>${label}</td><td class="mono"><a href="${basescan(hash)}">${esc(hash)}</a></td></tr>` : "";
+    return `<div class="section" style="border-left:3px solid ${c}">
+<div style="display:flex;gap:14px;align-items:baseline;flex-wrap:wrap">
+  <span style="font:800 20px var(--mono);color:${c};text-transform:uppercase">${esc((r.verdict ?? "?").replace("_", " "))}</span>
+  <span class="mut">delivery quality ${r.quality_score ?? "—"}/100 · claim strength ${esc(r.claim_strength ?? "—")} · ${esc((r.refund_recommendation ?? "—").replace("_", " "))}</span>
+  ${s.operatorDemo ? '<span style="font:700 10px var(--mono);letter-spacing:.5px;color:#e4c34a;border:1px solid #e4c34a55;border-radius:6px;padding:2px 8px">DISCLOSED OPERATOR DEMO — real CAP order, operator-owned buyer</span>' : ""}
+</div>
+<div style="margin-top:10px">${reasons}</div>${missing}
+<div class="scroll" style="margin-top:10px"><table>
+<tr><td style="width:200px">adjudicated at</td><td class="mono">${esc(r.adjudicated_at ?? "—")}</td></tr>
+<tr><td>evidence hash (sha256)</td><td class="mono">${esc(r.evidence_hash ?? "—")}</td></tr>
+${s.orderId ? `<tr><td>bought via CAP order</td><td class="mono">${esc(s.orderId)}${s.chainOrderId ? ` · chain #${esc(String(s.chainOrderId))}` : ""}</td></tr>` : ""}
+${s.requesterAgentId ? `<tr><td>buyer agent</td><td class="mono">${esc(s.requesterAgentId)}</td></tr>` : ""}
+${tx("buyer → CrooCred pay tx", s.payTx)}
+${tx("CrooCred → buyer deliver tx", s.deliverTx)}
+${s.priceUsdc !== undefined ? `<tr><td>price</td><td>$${Number(s.priceUsdc).toFixed(2)} USDC</td></tr>` : ""}
+</table></div>
+${v.input ? `<details style="margin-top:10px"><summary class="mut" style="cursor:pointer">claim input (buyer request + seller delivery, as adjudicated)</summary><pre style="margin-top:8px">${esc(v.input.slice(0, 3000))}</pre></details>` : ""}
+</div>`;
+  }).join("\n");
+  const body = `
+<h1 style="font:800 26px var(--mono);text-transform:uppercase;margin-bottom:6px">Claim verdicts</h1>
+<p class="mut" style="margin-bottom:14px">Delivery Verdict — Claim Review ($0.02, 30min SLA): independent adjudication for CAP hires. An insurer (or any buyer) sends the original request + the seller's delivery over CAP; CrooCred returns approve/deny/manual_review with a refund recommendation and a sha256 evidence hash committing to the exact input and verdict. The adjudicator never insures; the insurer never adjudicates.</p>
+${cards || `<div class="section"><p class="mut">No claim verdicts yet — order <b>Delivery Verdict — Claim Review</b> from <a href="${STORE_AGENT_URL}">croocred on the Agent Store</a> with <span class="mono">{"buyer_request":"…","seller_output":"…"}</span>.</p></div>`}
+<div class="section"><h2>Machine-readable</h2><pre>GET ${cfg.publicBaseURL}/api/verdicts.json</pre><p><a href="api/verdicts.json">raw feed →</a></p></div>
+<p><a href="index.html">← home</a></p>`;
+  return pageShell("CrooCred — claim verdicts", body, generatedAt);
+}
+
 function apiPage(all: CertRecord[], latest: Map<string, CertRecord>, generatedAt: string): string {
   const m = computeMetrics(all, latest);
   const liveCerts = JSON.stringify(
@@ -944,6 +1014,26 @@ export async function buildSite(): Promise<string> {
   writeFileSync(resolve(out, "index.html"), indexPage(all, latest, generatedAt, status));
   writeFileSync(resolve(out, "reports.html"), reportsPage(all, latest, generatedAt));
   writeFileSync(resolve(out, "api.html"), apiPage(all, latest, generatedAt));
+  const verdicts = loadVerdicts();
+  writeFileSync(resolve(out, "verdicts.html"), verdictsPage(verdicts, generatedAt));
+  writeFileSync(
+    resolve(out, "api", "verdicts.json"),
+    JSON.stringify(
+      verdicts.map((v) => ({
+        verdict: v.result?.verdict ?? null,
+        qualityScore: v.result?.quality_score ?? null,
+        refund: v.result?.refund_recommendation ?? null,
+        evidenceHash: v.result?.evidence_hash ?? null,
+        adjudicatedAt: v.result?.adjudicated_at ?? null,
+        orderId: v.soldVia?.orderId ?? null,
+        payTx: v.soldVia?.payTx ?? null,
+        deliverTx: v.soldVia?.deliverTx ?? null,
+        operatorDemo: v.soldVia?.operatorDemo ?? null,
+      })),
+      null,
+      2,
+    ),
+  );
   writeFileSync(resolve(out, "r", "sample.html"), sampleReportPage(generatedAt));
 
   // Static assets (favicon, og-image) — copied verbatim if present.

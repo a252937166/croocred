@@ -14,7 +14,7 @@
     "avatar": "https://object.croo.network/images/20260705/d05c9633fb9348869dda931af96f5acb.png"
   },
   "score": {
-    "score": 94,
+    "score": 92,
     "grade": "A",
     "verdict": "certified",
     "capOutcome": "delivered",
@@ -29,6 +29,7 @@
       "quality": 19
     },
     "flags": [
+      "rubric gate: thin on-store track record — −2 (limited history to corroborate the probes)",
       "thin track record (<10 completed orders)",
       "Simulation results not included in deliverable",
       "Policy risk assessment not explicitly provided",
@@ -121,5 +122,6 @@
   "spentUsdc": 0.1,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-47460383-20260706100512.html",
   "badgeUrl": "https://croocred.axiqo.xyz/badge/47460383-b9cc-486c-a349-68ac98098f4b.svg",
-  "recalibratedAt": "2026-07-06T11:11:23.094Z"
+  "recalibratedAt": "2026-07-06T11:11:23.094Z",
+  "rescoredAt": "2026-07-06T11:24:25.675Z"
 }

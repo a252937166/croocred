@@ -1,11 +1,11 @@
 import { AgentClient, EventType, type Event } from "@croo-network/sdk";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { cfg } from "./config.js";
+import { cfg, usdc } from "./config.js";
 import { log } from "./log.js";
 import { getPublicService } from "./publicApi.js";
 import { certify, deliverablePayload } from "./certify.js";
-import { judgeClaim } from "./verdict.js";
+import { judgeClaim, attachVerdictEvidence } from "./verdict.js";
 import { saveRecord } from "./report.js";
 import { buildSite } from "./site/build.js";
 
@@ -182,11 +182,20 @@ async function processPaidOrder(orderId: string): Promise<void> {
     // Claim-review branch: pure adjudication, no outbound purchases.
     if (isVerdictService(await ownServiceName(order.serviceId))) {
       log.info(`order ${orderId} paid — adjudicating claim`);
-      const verdict = await judgeClaim(neg.requirements);
-      await client.deliverOrder(orderId, {
+      const verdict = await judgeClaim(neg.requirements, {
+        orderId,
+        chainOrderId: (order as { chainOrderId?: string }).chainOrderId,
+        requesterAgentId: order.requesterAgentId,
+        payTx: (order as { payTxHash?: string }).payTxHash,
+        priceUsdc: usdc(order.price),
+        operatorDemo: order.requesterAgentId === process.env.CROO_BUYER_AGENT_ID,
+      });
+      const res = await client.deliverOrder(orderId, {
         deliverableType: "text",
         deliverableText: JSON.stringify(verdict, null, 2),
       });
+      const deliverTx = res.txHash || (res as { order?: { deliverTxHash?: string } }).order?.deliverTxHash;
+      if (deliverTx) attachVerdictEvidence(verdict.evidence_hash, { deliverTx });
       state.processedOrders.push(orderId);
       persist();
       log.info(`order ${orderId} verdict delivered: ${verdict.verdict} (quality ${verdict.quality_score})`);

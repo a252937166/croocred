@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readdirSync, readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { cfg } from "./config.js";
 import { log } from "./log.js";
@@ -103,7 +103,21 @@ async function chatJSON(system: string, user: string): Promise<Record<string, un
   }
 }
 
-export async function judgeClaim(requirements: string): Promise<ClaimVerdict> {
+/** CAP order that purchased this adjudication — the verdict's own receipt. */
+export interface VerdictOrderEvidence {
+  orderId: string;
+  chainOrderId?: string;
+  requesterAgentId?: string;
+  payTx?: string;
+  deliverTx?: string;
+  priceUsdc?: number;
+  operatorDemo?: boolean;
+}
+
+export async function judgeClaim(
+  requirements: string,
+  orderEvidence?: VerdictOrderEvidence,
+): Promise<ClaimVerdict> {
   const c = parseClaim(requirements);
   const adjudicatedAt = new Date().toISOString();
 
@@ -170,14 +184,35 @@ export async function judgeClaim(requirements: string): Promise<ClaimVerdict> {
     note: "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing.",
   };
 
-  // Persist for the dashboard metric ("claim verdicts issued").
+  // Persist for the dashboard ("claim verdicts issued" + evidence page).
   try {
     const dir = resolve(cfg.dataDir, "verdicts");
     mkdirSync(dir, { recursive: true });
-    writeFileSync(resolve(dir, `v-${adjudicatedAt.replace(/[-:.TZ]/g, "").slice(0, 14)}-${evidenceHash.slice(2, 8)}.json`), JSON.stringify({ input: c.raw.slice(0, 8000), result }, null, 2));
+    writeFileSync(
+      resolve(dir, `v-${adjudicatedAt.replace(/[-:.TZ]/g, "").slice(0, 14)}-${evidenceHash.slice(2, 8)}.json`),
+      JSON.stringify({ input: c.raw.slice(0, 8000), soldVia: orderEvidence ?? null, result }, null, 2),
+    );
   } catch (err) {
     log.warn("verdict persist failed", String(err));
   }
 
   return result;
+}
+
+/** Patch order evidence (e.g. the deliver tx, known only after delivery) into a persisted verdict. */
+export function attachVerdictEvidence(evidenceHash: string, patch: Partial<VerdictOrderEvidence>): void {
+  try {
+    const dir = resolve(cfg.dataDir, "verdicts");
+    if (!existsSync(dir)) return;
+    for (const f of readdirSync(dir)) {
+      if (!f.endsWith(`${evidenceHash.slice(2, 8)}.json`)) continue;
+      const p = resolve(dir, f);
+      const data = JSON.parse(readFileSync(p, "utf8")) as { soldVia?: Partial<VerdictOrderEvidence> | null };
+      data.soldVia = { ...(data.soldVia ?? {}), ...patch };
+      writeFileSync(p, JSON.stringify(data, null, 2));
+      return;
+    }
+  } catch (err) {
+    log.warn("verdict evidence patch failed", String(err));
+  }
 }

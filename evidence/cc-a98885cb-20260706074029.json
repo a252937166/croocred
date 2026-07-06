@@ -14,7 +14,7 @@
     "avatar": "https://object.croo.network/images/20260630/e2bc674082cb48aaaddb2f10577a962e.png"
   },
   "score": {
-    "score": 92,
+    "score": 88,
     "grade": "A",
     "verdict": "certified",
     "capOutcome": "delivered",
@@ -29,6 +29,8 @@
       "quality": 18
     },
     "flags": [
+      "rubric gate: identical output across probes — cannot distinguish live computation from a canned response",
+      "rubric gate: thin on-store track record — −2 (limited history to corroborate the probes)",
       "thin track record (<10 completed orders)",
       "identical deliverable across distinct probes (possible canned output)",
       "Key claims left unverified: 'live volatility across momentum, value and microstructure theses' and 'graded on-chain vs Pyth each round' are stated but no evidence or breakdown provided",
@@ -121,6 +123,6 @@
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-a98885cb-20260706074029.html",
   "badgeUrl": "https://croocred.axiqo.xyz/badge/a98885cb-1b74-4b86-8d43-8cf403b5dd3f.svg",
   "rejudgedAt": "2026-07-06T09:56:03.512Z",
-  "rescoredAt": "2026-07-06T09:56:18.369Z",
+  "rescoredAt": "2026-07-06T11:24:25.683Z",
   "recalibratedAt": "2026-07-06T11:12:06.685Z"
 }

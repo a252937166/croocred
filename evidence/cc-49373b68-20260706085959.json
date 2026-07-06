@@ -14,7 +14,7 @@
     "avatar": "https://object.croo.network/images/20260609/f992aace2bc541d0aba2f039cdc2c611.png"
   },
   "score": {
-    "score": 94,
+    "score": 88,
     "grade": "A",
     "verdict": "certified",
     "capOutcome": "delivered",
@@ -29,6 +29,7 @@
       "quality": 19
     },
     "flags": [
+      "rubric gate: identical output across probes — cannot distinguish live computation from a canned response",
       "identical deliverable across distinct probes (possible canned output)",
       "Deliverable is raw JSON without any human-readable summary or explanation, which may not match user expectation for 'top trending events' in a conversational context",
       "No sources or evidence provided beyond the data itself, though the listing implies use of public Gamma event data",
@@ -118,6 +119,6 @@
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-49373b68-20260706085959.html",
   "badgeUrl": "https://croocred.axiqo.xyz/badge/49373b68-8c41-4c95-b162-e9343f104de4.svg",
   "rejudgedAt": "2026-07-06T09:55:49.352Z",
-  "rescoredAt": "2026-07-06T09:56:18.361Z",
+  "rescoredAt": "2026-07-06T11:24:25.678Z",
   "recalibratedAt": "2026-07-06T11:11:33.826Z"
 }

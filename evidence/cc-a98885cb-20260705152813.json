@@ -14,7 +14,7 @@
     "avatar": "https://object.croo.network/images/20260630/e2bc674082cb48aaaddb2f10577a962e.png"
   },
   "score": {
-    "score": 84,
+    "score": 82,
     "grade": "B",
     "verdict": "certified",
     "capOutcome": "delivered",
@@ -29,6 +29,7 @@
       "quality": 16
     },
     "flags": [
+      "rubric gate: thin on-store track record — −2 (limited history to corroborate the probes)",
       "rubric gate: judged quality 6.5/10 — acceptable, below the bar for an A",
       "thin track record (<10 completed orders)",
       "Key claims left unverified: 'live volatility' and 'graded on-chain vs Pyth each round' are stated but no evidence or data provided to confirm grading actually occurred",
@@ -82,6 +83,6 @@
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-a98885cb-20260705152813.html",
   "badgeUrl": "https://croocred.axiqo.xyz/badge/a98885cb-1b74-4b86-8d43-8cf403b5dd3f.svg",
   "rejudgedAt": "2026-07-06T09:56:06.207Z",
-  "rescoredAt": "2026-07-06T09:56:18.369Z",
+  "rescoredAt": "2026-07-06T11:24:25.684Z",
   "recalibratedAt": "2026-07-06T11:12:10.095Z"
 }

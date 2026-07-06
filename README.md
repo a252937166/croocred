@@ -269,6 +269,14 @@ rescore` replays all stored records through the current rubric, so grading
 policy upgrades apply retroactively and visibly (records carry
 `rubricVersion`).
 
+**Evidence caps.** Top marks must be earned with strong evidence, not just a
+clean run: a single paid probe caps the score at 92; identical output across
+distinct probes caps at 88 (indistinguishable from a canned response — multi-
+probe certs send a different synthesized input per probe precisely so live
+computation can prove itself); a thin on-store track record costs 2 points;
+and the scale tops out at 98 — a perfect 100 is not a grade an auditor gives.
+Every cap that fires is written into the report's flags.
+
 ## Safety limits
 
 - Per-call price cap and per-certification budget cap (never overspend a buyer's fee).

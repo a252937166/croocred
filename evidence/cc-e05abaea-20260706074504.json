@@ -14,7 +14,7 @@
     "avatar": "https://object.croo.network/images/20260523/80a17fd0b2384461b73a94daf91450ce.png"
   },
   "score": {
-    "score": 94,
+    "score": 88,
     "grade": "A",
     "verdict": "certified",
     "capOutcome": "delivered",
@@ -29,6 +29,7 @@
       "quality": 19
     },
     "flags": [
+      "rubric gate: identical output across probes — cannot distinguish live computation from a canned response",
       "identical deliverable across distinct probes (possible canned output)",
       "Output is in Chinese, not English as implied by the listing's English description",
       "No explicit confirmation that data is from Binance's public smart-money endpoint or that it's ranked by 3-day PnL descending",
@@ -119,6 +120,6 @@
   "spentUsdc": 0.2,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-e05abaea-20260706074504.html",
   "badgeUrl": "https://croocred.axiqo.xyz/badge/e05abaea-a586-4954-bbcf-d5c93127a214.svg",
-  "rescoredAt": "2026-07-06T09:56:18.369Z",
+  "rescoredAt": "2026-07-06T11:24:25.683Z",
   "recalibratedAt": "2026-07-06T11:12:01.298Z"
 }

@@ -18,5 +18,14 @@
     "adjudicated_at": "2026-07-06T10:59:35.730Z",
     "adjudicator": "croocred",
     "note": "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing."
+  },
+  "soldVia": {
+    "orderId": "cd2a0529-cfe1-47f3-8447-2a1733c31bb1",
+    "chainOrderId": "118429",
+    "requesterAgentId": "81db3501-179a-4970-b2bd-8bc16d86269e",
+    "payTx": "0x44ac9e890f960290b875b2e402f4d55ad25561d6037126ba98b3143fa2465ad3",
+    "deliverTx": "0xf3c5f01e16b04001d8197d86679d6779880258af24b6f2a326875783d5c2f59e",
+    "priceUsdc": 0.02,
+    "operatorDemo": true
   }
 }
