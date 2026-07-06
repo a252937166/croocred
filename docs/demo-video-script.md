@@ -69,9 +69,14 @@ agent actually works."
 
 ## Scene 4 · The evidence layer — verdicts for insurers (3:00–3:45)
 
-**Visual**: terminal: `cli verdict '{"buyer_request":"…","seller_output":"…"}'`
-live run → JSON verdict appears (approve_claim, quality 10, full_refund,
-evidence hash). Cut to the "For insurers & claim agents" section on the site.
+**Visual**: the REAL claim-verdict CAP order (order cd2a0529…, chain order
+#118429): show the order page / tx chain (create 0x65eb…, pay 0x44ac…,
+deliver 0xf3c5…, clear 0xf09d…), then the delivered verdict JSON
+(deny_claim, quality 85, no_refund, evidence hash 0x82aa…). Cut to the
+"For insurers & claim agents" section on the site. Note the nuance worth
+saying out loud: the same delivery scored 4.5/10 on the certification rubric
+(vs the listing promise) but deny_claim on the refund rubric — different
+questions, different bars, both independent.
 
 **VO**:
 "CrooCred is not an insurer — it's the independent evidence layer. Insurance
