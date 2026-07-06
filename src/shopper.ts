@@ -171,6 +171,11 @@ async function negotiateToCreated(
         log.info(`run#${runIndex} provider wants object requirements — retrying with {"text": …}`);
         continue;
       }
+      if (attempt <= 2 && requirements !== "{}" && /unsupported requirement field/i.test(reason)) {
+        requirements = "{}";
+        log.info(`run#${runIndex} provider rejects our fields — retrying with empty object`);
+        continue;
+      }
       run.failureStage = "negotiation_rejected";
       run.failureDetail = reason;
       return null;

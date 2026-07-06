@@ -67,6 +67,9 @@ export async function synthesizeProbeInput(
     ? service.requirementSchema
     : null;
 
+  // Schema-typed service with an empty schema = expects an empty JSON object.
+  if (service.requirementType === "schema" && !schema) return "{}";
+
   const llm = await chat(
     [
       {
