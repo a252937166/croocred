@@ -3,22 +3,163 @@ import type { TestRun } from "./shopper.js";
 import type { QualityVerdict } from "./judge.js";
 
 /**
- * Scoring model (0-100). Weights favor what a hiring agent actually risks:
- * does the provider respond, deliver on time, and return what was promised.
+ * Scoring model (0-100), rubric v2.
  *
+ * Components (weights favor what a hiring agent actually risks):
  *   availability  30  — negotiations answered, orders not stalled/rejected
  *   reliability   25  — paid orders delivered (escrow released, not refunded)
  *   latency       15  — delivery time vs promised SLA
  *   conformance   15  — deliverable shape matches the listing
  *   quality       15  — LLM-judged substance vs promise (redistributed if unassessed)
+ *
+ * v2 separates two axes that v1 conflated:
+ *   capOutcome     — did the CAP lifecycle complete (escrow, delivery, settlement)
+ *   qualityOutcome — did the content do what the listing promises
+ * A provider can pass CAP and fail quality (paid, delivered… an empty payload).
+ * Certification is only earned when BOTH pass. Hard gates below make that
+ * impossible to bypass: empty deliverables, conformance 0 or judged quality 0
+ * can never produce a "certified / HIRE" report. An audit product must rather
+ * under-certify than mislabel a failure as a pass.
  */
 
 export interface CertScore {
   score: number;
   grade: "A" | "B" | "C" | "D" | "F";
   verdict: "certified" | "conditional" | "not_certified";
+  /** CAP lifecycle outcome, independent of content quality. */
+  capOutcome: "delivered" | "partial" | "failed" | "created_only";
+  /** Judged content quality vs the listing promise, independent of lifecycle. */
+  qualityOutcome: "pass" | "weak" | "fail" | "not_assessed";
+  recommendation: "HIRE" | "CAUTION" | "AVOID";
+  rubricVersion: number;
   components: Record<string, number>;
   flags: string[];
+}
+
+const GATE_PREFIX = "rubric gate:";
+
+/**
+ * Final scoring stage — pure function over (components, flags, runs, verdicts).
+ * Used both by live certifications and by `cli rescore`, which replays stored
+ * records through the current rubric (gate flags are stripped first so the
+ * operation is idempotent).
+ */
+export function finalizeScore(
+  components: Record<string, number>,
+  baseFlags: string[],
+  runs: TestRun[],
+  verdicts: QualityVerdict[],
+): CertScore {
+  const flags = baseFlags.filter((f) => !f.startsWith(GATE_PREFIX));
+  const raw = Object.values(components).reduce((a, b) => a + b, 0);
+
+  // ---- liveness tier: no USDC moved, capped at C, delivery never assessed --
+  if (runs.length > 0 && runs.every((r) => r.mode === "liveness")) {
+    const score = Math.min(70, raw);
+    const grade = score >= 55 ? "C" : score >= 40 ? "D" : "F";
+    return {
+      score,
+      grade,
+      verdict: grade === "C" ? "conditional" : "not_certified",
+      capOutcome: "created_only",
+      qualityOutcome: "not_assessed",
+      recommendation: grade === "C" ? "CAUTION" : "AVOID",
+      rubricVersion: 2,
+      components,
+      flags: flags.slice(0, 12),
+    };
+  }
+
+  const paidRuns = runs.filter((r) => r.txHashes.pay);
+  const deliveredRuns = runs.filter((r) => r.ok);
+  // Verdicts are parallel to runs; only verdicts of runs that actually
+  // delivered say anything about delivery content (a pre-delivery failure
+  // yields an "empty" verdict that must not count as an empty delivery).
+  const deliveredVerdicts = runs
+    .map((r, i) => ({ run: r, v: verdicts[i] }))
+    .filter((p) => p.run.ok && p.v)
+    .map((p) => p.v);
+  const assessed = deliveredVerdicts.filter((v) => v.assessed && v.score !== null);
+  const qMean = assessed.length
+    ? assessed.reduce((a, v) => a + (v.score ?? 0), 0) / assessed.length
+    : null;
+  const emptyCount = deliveredVerdicts.filter((v) =>
+    v.issues.some((s) => /empty deliverable/i.test(s)),
+  ).length;
+
+  const capOutcome: CertScore["capOutcome"] =
+    deliveredRuns.length === 0 ? "failed"
+    : deliveredRuns.length < paidRuns.length ? "partial"
+    : "delivered";
+
+  let score = raw;
+  let avoid = false;
+  const gate = (cap: number, why: string) => {
+    if (score > cap) score = cap;
+    flags.unshift(`${GATE_PREFIX} ${why}`);
+  };
+
+  // ---- hard gates: a delivery that isn't a delivery -----------------------
+  if (deliveredRuns.length === 0) {
+    gate(39, "no paid probe was delivered — CAP lifecycle failed");
+    avoid = true;
+  } else if (emptyCount > 0 && emptyCount >= deliveredRuns.length) {
+    gate(39, "every delivered probe returned an empty payload — treated as non-delivery");
+    avoid = true;
+  } else if (emptyCount > 0) {
+    gate(54, `${emptyCount} of ${deliveredRuns.length} delivered probes returned an empty payload`);
+    avoid = true;
+  }
+  if (deliveredRuns.length > 0 && (components.conformance ?? 0) === 0) {
+    gate(54, "conformance 0 — deliverable shape never matched the listing");
+    avoid = true;
+  }
+
+  // ---- quality gates: content vs promise ----------------------------------
+  let qualityOutcome: CertScore["qualityOutcome"];
+  if (qMean === null) {
+    qualityOutcome = deliveredRuns.length ? "not_assessed" : "fail";
+    if (deliveredRuns.length)
+      gate(69, "delivery quality not judged — certification requires an assessed deliverable");
+  } else if (qMean < 3) {
+    qualityOutcome = "fail";
+    gate(54, `judged quality ${qMean.toFixed(1)}/10 — broken or irrelevant output`);
+    avoid = true;
+  } else if (qMean < 5) {
+    qualityOutcome = "fail";
+    gate(69, `judged quality ${qMean.toFixed(1)}/10 — the listing's core promise was not met`);
+  } else if (qMean < 7) {
+    qualityOutcome = "weak";
+    gate(84, `judged quality ${qMean.toFixed(1)}/10 — acceptable, below the bar for an A`);
+  } else {
+    qualityOutcome = emptyCount > 0 ? "weak" : "pass";
+  }
+
+  const grade = score >= 85 ? "A" : score >= 70 ? "B" : score >= 55 ? "C" : score >= 40 ? "D" : "F";
+  const verdict: CertScore["verdict"] =
+    avoid || grade === "D" || grade === "F" ? "not_certified"
+    : grade === "C" || qualityOutcome === "fail" || qualityOutcome === "not_assessed" ? "conditional"
+    : "certified";
+
+  const severe = flags.some((f) =>
+    /empty deliverable|not valid JSON|stalled|missed SLA|offline at certification/i.test(f),
+  );
+  const recommendation: CertScore["recommendation"] =
+    avoid || verdict === "not_certified" ? "AVOID"
+    : verdict === "certified" && qualityOutcome === "pass" && !severe ? "HIRE"
+    : "CAUTION";
+
+  return {
+    score,
+    grade,
+    verdict,
+    capOutcome,
+    qualityOutcome,
+    recommendation,
+    rubricVersion: 2,
+    components,
+    flags: flags.slice(0, 12),
+  };
 }
 
 /**
@@ -56,17 +197,7 @@ function computeLivenessScore(agent: PublicAgent, service: PublicService, runs: 
     conformance: 0,
     quality: 0,
   };
-  const raw = components.availability + components.latency;
-  // Cap at 70 (a C) — liveness alone can never earn an A/B badge.
-  const score = Math.min(70, raw);
-  const grade = score >= 55 ? "C" : score >= 40 ? "D" : "F";
-  return {
-    score,
-    grade,
-    verdict: grade === "C" ? "conditional" : "not_certified",
-    components,
-    flags: flags.slice(0, 10),
-  };
+  return finalizeScore(components, flags, runs, []);
 }
 
 export function computeScore(
@@ -78,7 +209,6 @@ export function computeScore(
   if (runs.every((r) => r.mode === "liveness")) return computeLivenessScore(agent, service, runs);
   const flags: string[] = [];
   const attempted = runs.length;
-  const accepted = runs.filter((r) => !["negotiate", "acceptance_timeout", "negotiation_rejected"].includes(r.failureStage ?? "")).length;
   const paidRuns = runs.filter((r) => r.txHashes.pay);
   const deliveredRuns = runs.filter((r) => r.ok);
 
@@ -100,9 +230,12 @@ export function computeScore(
   }
 
   // conformance: delivered runs whose payload shape matches the listing
+  // (verdicts are parallel to runs — index by run position, not by the
+  // delivered subset, or a failed run shifts every later verdict)
   let conformance = 0;
   if (deliveredRuns.length) {
-    const okShape = deliveredRuns.filter((r, i) => {
+    const okShape = runs.filter((r, i) => {
+      if (!r.ok) return false;
       const v = verdicts[i];
       const shapeIssue = v?.issues.some((s) => /empty deliverable|not valid JSON/i.test(s));
       return !shapeIssue;
@@ -110,8 +243,11 @@ export function computeScore(
     conformance = okShape / deliveredRuns.length;
   }
 
-  // quality: mean LLM score /10 across assessed runs
-  const assessed = verdicts.filter((v) => v.assessed && v.score !== null);
+  // quality: mean LLM score /10 across assessed delivered runs
+  const assessed = runs
+    .map((r, i) => ({ run: r, v: verdicts[i] }))
+    .filter((p) => p.run.ok && p.v?.assessed && p.v.score !== null)
+    .map((p) => p.v);
   const qualityAssessed = assessed.length > 0;
   const quality = qualityAssessed
     ? assessed.reduce((a, v) => a + (v.score ?? 0), 0) / assessed.length / 10
@@ -128,7 +264,6 @@ export function computeScore(
     conformance: Math.round(conformance * weights.conformance),
     quality: Math.round(quality * weights.quality),
   };
-  const score = Object.values(components).reduce((a, b) => a + b, 0);
 
   // Flags (informational, mirror the hackathon's own risk language)
   if (agent.onlineStatus !== "online") flags.push("agent listed as offline at certification time");
@@ -145,8 +280,5 @@ export function computeScore(
   }
   for (const v of verdicts) for (const i of v.issues) if (!flags.includes(i)) flags.push(i);
 
-  const grade = score >= 85 ? "A" : score >= 70 ? "B" : score >= 55 ? "C" : score >= 40 ? "D" : "F";
-  const verdict = grade <= "B" ? "certified" : grade === "C" ? "conditional" : "not_certified";
-
-  return { score, grade, verdict: verdict as CertScore["verdict"], components, flags: flags.slice(0, 10) };
+  return finalizeScore(components, flags, runs, verdicts);
 }

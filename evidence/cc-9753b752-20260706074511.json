@@ -17,6 +17,10 @@
     "score": 0,
     "grade": "F",
     "verdict": "not_certified",
+    "capOutcome": "failed",
+    "qualityOutcome": "fail",
+    "recommendation": "AVOID",
+    "rubricVersion": 2,
     "components": {
       "availability": 0,
       "reliability": 0,
@@ -25,6 +29,7 @@
       "quality": 0
     },
     "flags": [
+      "rubric gate: no paid probe was delivered — CAP lifecycle failed",
       "empty deliverable",
       "Deliverable is empty (0 characters), no signal or data provided"
     ]
@@ -83,5 +88,6 @@
   ],
   "spentUsdc": 0,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-9753b752-20260706074511.html",
-  "badgeUrl": "https://croocred.axiqo.xyz/badge/9753b752-0ef0-404f-875e-adcbb222ca66.svg"
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/9753b752-0ef0-404f-875e-adcbb222ca66.svg",
+  "rescoredAt": "2026-07-06T09:56:18.368Z"
 }

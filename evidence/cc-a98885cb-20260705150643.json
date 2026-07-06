@@ -17,6 +17,10 @@
     "score": 70,
     "grade": "C",
     "verdict": "conditional",
+    "capOutcome": "created_only",
+    "qualityOutcome": "not_assessed",
+    "recommendation": "CAUTION",
+    "rubricVersion": 2,
     "components": {
       "availability": 60,
       "latency": 40,
@@ -60,5 +64,6 @@
   ],
   "spentUsdc": 0,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-a98885cb-20260705150643.html",
-  "badgeUrl": "https://croocred.axiqo.xyz/badge/a98885cb-1b74-4b86-8d43-8cf403b5dd3f.svg"
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/a98885cb-1b74-4b86-8d43-8cf403b5dd3f.svg",
+  "rescoredAt": "2026-07-06T09:56:18.370Z"
 }

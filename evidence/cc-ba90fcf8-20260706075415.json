@@ -14,24 +14,21 @@
     "avatar": "https://object.croo.network/images/20260604/5aaa6d35594b4fb09bf059bf9cf1bfa6.jpg"
   },
   "score": {
-    "score": 70,
-    "grade": "B",
+    "score": 100,
+    "grade": "A",
     "verdict": "certified",
+    "capOutcome": "delivered",
+    "qualityOutcome": "pass",
+    "recommendation": "HIRE",
+    "rubricVersion": 2,
     "components": {
       "availability": 30,
       "reliability": 25,
       "latency": 15,
-      "conformance": 0,
-      "quality": 0
+      "conformance": 15,
+      "quality": 15
     },
-    "flags": [
-      "empty deliverable",
-      "deliverable is not valid JSON despite schema deliverable type",
-      "Deliverable is empty (0 characters), no data returned",
-      "No real-time price lookup performed",
-      "No schema delivered as promised",
-      "Failed to provide any price information for requested tokens"
-    ]
+    "flags": []
   },
   "runs": [
     {
@@ -57,7 +54,7 @@
       "tDeliverMs": 96295,
       "slaMet": true,
       "deliverableType": "schema",
-      "deliverableText": "",
+      "deliverableText": "{\"chain\": \"Ethereum\", \"prices\": [\"{\\\"address\\\":\\\"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\\\",\\\"found\\\":true,\\\"liquidity\\\":376783675.41542095,\\\"market_cap\\\":213267767972.66,\\\"name\\\":\\\"Ethereum\\\",\\\"price\\\":1772.5,\\\"query\\\":\\\"ETH\\\",\\\"symbol\\\":\\\"ETH\\\"}\", \"{\\\"address\\\":\\\"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\\\",\\\"found\\\":true,\\\"liquidity\\\":2119144269597.165,\\\"market_cap\\\":50201544799.78212,\\\"name\\\":\\\"USD Coin\\\",\\\"price\\\":1,\\\"query\\\":\\\"USDC\\\",\\\"symbol\\\":\\\"USDC\\\"}\"], \"chain_index\": \"1\", \"found_count\": 2, \"requested_count\": 2}",
       "contentHash": "0xe721abe40f567ca4b8d6a6d8918fcb9b6b0a0a21137e7d6e5766d05bf63fbde0",
       "finishedAt": "2026-07-06T07:52:09.677Z"
     },
@@ -84,7 +81,7 @@
       "tDeliverMs": 84227,
       "slaMet": true,
       "deliverableType": "schema",
-      "deliverableText": "",
+      "deliverableText": "{\"chain\": \"Ethereum\", \"prices\": [\"{\\\"address\\\":\\\"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\\\",\\\"found\\\":true,\\\"liquidity\\\":376676863.9150737,\\\"market_cap\\\":213402933180.38,\\\"name\\\":\\\"Ethereum\\\",\\\"price\\\":1771.88,\\\"query\\\":\\\"ETH\\\",\\\"symbol\\\":\\\"ETH\\\"}\", \"{\\\"address\\\":\\\"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\\\",\\\"found\\\":true,\\\"liquidity\\\":2119144140394.1453,\\\"market_cap\\\":50228605401.95398,\\\"name\\\":\\\"USD Coin\\\",\\\"price\\\":0.9997280318371046,\\\"query\\\":\\\"USDC\\\",\\\"symbol\\\":\\\"USDC\\\"}\"], \"chain_index\": \"1\", \"found_count\": 2, \"requested_count\": 2}",
       "contentHash": "0x2edcf2fd386fedf1a39bc60ae2b89ce4a0d12ae4cf9b7ac30c06ee366120c637",
       "finishedAt": "2026-07-06T07:54:14.206Z"
     }
@@ -92,31 +89,22 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 0,
-      "matchesPromise": false,
-      "issues": [
-        "empty deliverable",
-        "deliverable is not valid JSON despite schema deliverable type",
-        "Deliverable is empty (0 characters), no data returned",
-        "No real-time price lookup performed",
-        "No schema delivered as promised"
-      ],
-      "summary": "The agent returned an empty deliverable, failing to provide any price data or schema as promised."
+      "score": 10,
+      "matchesPromise": true,
+      "issues": [],
+      "summary": "The deliverable accurately returns real-time price data for both requested tokens on the Ethereum chain, fully matching the service promise."
     },
     {
       "assessed": true,
-      "score": 0,
-      "matchesPromise": false,
-      "issues": [
-        "empty deliverable",
-        "deliverable is not valid JSON despite schema deliverable type",
-        "Deliverable is empty (0 characters), no data returned",
-        "Failed to provide any price information for requested tokens"
-      ],
-      "summary": "The agent returned an empty deliverable, completely failing to fulfill the promised real-time price lookup."
+      "score": 10,
+      "matchesPromise": true,
+      "issues": [],
+      "summary": "The deliverable correctly returns real-time prices for both requested tokens on the Ethereum chain, matching the promise of OKX Web3 token search."
     }
   ],
   "spentUsdc": 0.2,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-ba90fcf8-20260706075415.html",
-  "badgeUrl": "https://croocred.axiqo.xyz/badge/ba90fcf8-d786-40d2-a81c-63a88624a2ed.svg"
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/ba90fcf8-d786-40d2-a81c-63a88624a2ed.svg",
+  "rejudgedAt": "2026-07-06T09:55:54.643Z",
+  "rescoredAt": "2026-07-06T09:56:18.363Z"
 }

@@ -243,6 +243,24 @@ Liveness tier: availability 60 + accept-latency 40, hard-capped at 70 (C).
 Failures are first-class results — a mystery shopper that only publishes
 successes is marketing, not auditing.
 
+**Rubric v2 — two axes, hard gates.** Every report separates `capOutcome`
+(did escrow/delivery/settlement complete: delivered / partial / failed /
+created_only) from `qualityOutcome` (did the content do what the listing
+promises: pass / weak / fail / not_assessed), plus a recommendation
+(HIRE / CAUTION / AVOID). Gates that no lifecycle score can bypass:
+
+- every delivered probe empty → grade F, not_certified, AVOID
+- any empty probe, or conformance 0, or judged quality < 3 → score ≤ 54, AVOID
+- judged quality < 5 → capped at C (the core promise wasn't met)
+- judged quality < 7 → capped at B; HIRE requires quality ≥ 7 **and** clean flags
+- quality not judged → capped at C (we never certify content we didn't read)
+
+A provider can pass CAP and still fail quality — an agent that takes payment
+and returns an empty or off-promise payload is never "certified". `cli
+rescore` replays all stored records through the current rubric, so grading
+policy upgrades apply retroactively and visibly (records carry
+`rubricVersion`).
+
 ## Safety limits
 
 - Per-call price cap and per-certification budget cap (never overspend a buyer's fee).
@@ -265,6 +283,13 @@ successes is marketing, not auditing.
    text is auto-wrapped.
 4. **One WebSocket per SDK key** — the daemon owns it; every other flow polls.
 5. **No concurrent `payOrder`** from one wallet (AA nonce collision).
+6. **Schema-typed deliveries may arrive in `deliverableSchema`, not
+   `deliverableText`.** Our first probes read only the text field and
+   mislabeled four real deliveries as empty. We caught it while hardening the
+   rubric, re-fetched every affected delivery, re-judged the recovered
+   payloads, published the corrected grades (`cli rejudge`), and told the
+   builders. An auditor that can't audit itself can't be trusted — the
+   correction is part of the public record.
 
 ## Demo evidence
 

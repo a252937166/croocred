@@ -14,22 +14,25 @@
     "avatar": "https://object.croo.network/images/20260630/e2bc674082cb48aaaddb2f10577a962e.png"
   },
   "score": {
-    "score": 69,
-    "grade": "C",
-    "verdict": "conditional",
+    "score": 96,
+    "grade": "A",
+    "verdict": "certified",
+    "capOutcome": "delivered",
+    "qualityOutcome": "pass",
+    "recommendation": "HIRE",
+    "rubricVersion": 2,
     "components": {
       "availability": 30,
       "reliability": 25,
       "latency": 14,
-      "conformance": 0,
-      "quality": 0
+      "conformance": 15,
+      "quality": 12
     },
     "flags": [
       "thin track record (<10 completed orders)",
-      "empty deliverable",
-      "Deliverable is empty (0 characters), no prediction or rationale provided",
-      "Failed to return the promised { prediction, rationale } structure",
-      "No response to the test request for ETH move prediction in 60 seconds"
+      "The deliverable returns a prediction and rationale as promised",
+      "The rationale mentions three theses (momentum, value, microstructure) and on-chain vs Pyth grading",
+      "The prediction value ($0.73) is provided but the unit is ambiguous (dollars vs percentage) and the deliverable does not explicitly confirm the deadlineSeconds parameter was honored"
     ]
   },
   "runs": [
@@ -56,7 +59,7 @@
       "tDeliverMs": 86424,
       "slaMet": true,
       "deliverableType": "schema",
-      "deliverableText": "",
+      "deliverableText": "{\"rationale\": \"Axion consensus: ~$0.73 expected ETH move over ~60s, from live volatility across momentum, value and microstructure theses, graded on-chain vs Pyth each round. Arena best: agent-b525 at $1.05 avg error over 3 graded rounds.\", \"prediction\": 0.73}",
       "contentHash": "0x04daf0ba2f02b9f07624cad07f75f239fdfb0b60a8f0cd1cd7d9709ce5c2bf25",
       "finishedAt": "2026-07-05T15:28:12.054Z"
     }
@@ -64,18 +67,19 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 0,
-      "matchesPromise": false,
+      "score": 8,
+      "matchesPromise": true,
       "issues": [
-        "empty deliverable",
-        "Deliverable is empty (0 characters), no prediction or rationale provided",
-        "Failed to return the promised { prediction, rationale } structure",
-        "No response to the test request for ETH move prediction in 60 seconds"
+        "The deliverable returns a prediction and rationale as promised",
+        "The rationale mentions three theses (momentum, value, microstructure) and on-chain vs Pyth grading",
+        "The prediction value ($0.73) is provided but the unit is ambiguous (dollars vs percentage) and the deliverable does not explicitly confirm the deadlineSeconds parameter was honored"
       ],
-      "summary": "The agent returned an empty deliverable, completely failing to provide the aggregated prediction and rationale as promised."
+      "summary": "The deliverable provides the aggregated prediction and rationale with reference to the three theses and grading, meeting the core promise, though the unit clarity and deadline confirmation are minor gaps."
     }
   ],
   "spentUsdc": 0.1,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-a98885cb-20260705152813.html",
-  "badgeUrl": "https://croocred.axiqo.xyz/badge/a98885cb-1b74-4b86-8d43-8cf403b5dd3f.svg"
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/a98885cb-1b74-4b86-8d43-8cf403b5dd3f.svg",
+  "rejudgedAt": "2026-07-06T09:56:06.207Z",
+  "rescoredAt": "2026-07-06T09:56:18.369Z"
 }

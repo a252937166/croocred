@@ -117,6 +117,10 @@ export function deliverablePayload(rec: CertRecord): Record<string, unknown> {
     grade: rec.score.grade,
     score: rec.score.score,
     verdict: rec.score.verdict,
+    cap_outcome: rec.score.capOutcome,
+    quality_outcome: rec.score.qualityOutcome,
+    recommendation: rec.score.recommendation,
+    rubric_version: rec.score.rubricVersion,
     components: rec.score.components,
     flags: rec.score.flags,
     probes: rec.runs.map((r) => ({

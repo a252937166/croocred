@@ -31,6 +31,30 @@ const esc = (s: string): string =>
 const GRADE_COLOR: Record<string, string> = {
   A: "#6EE646", B: "#9be15d", C: "#e4c34a", D: "#e68a46", F: "#e65846",
 };
+const REC_COLOR: Record<string, string> = {
+  HIRE: "#6EE646", CAUTION: "#e4c34a", AVOID: "#e65846",
+};
+const STATUS_COLOR: Record<string, string> = {
+  CERTIFIED: "#9be15d", CONDITIONAL: "#e4c34a", "NOT CERTIFIED": "#e65846", OFFLINE: "#8a8a8a",
+};
+
+/** Rubric-v2 axes with derivation fallback for records not yet rescored. */
+function v2meta(rec: CertRecord): {
+  cap: string; quality: string; recommendation: string; status: string; qMean: number | null;
+} {
+  const s = rec.score as CertRecord["score"] & Partial<{ capOutcome: string; qualityOutcome: string; recommendation: string }>;
+  const liveness = rec.runs.length > 0 && rec.runs.every((r) => r.mode === "liveness");
+  const paid = rec.runs.filter((r) => r.txHashes.pay).length;
+  const delivered = rec.runs.filter((r) => r.ok).length;
+  const cap = s.capOutcome ?? (liveness ? "created_only" : delivered === 0 ? "failed" : delivered < paid ? "partial" : "delivered");
+  const assessed = rec.verdicts.filter((v) => v.assessed && v.score !== null);
+  const qMean = assessed.length ? assessed.reduce((a, v) => a + (v.score ?? 0), 0) / assessed.length : null;
+  const quality = s.qualityOutcome ?? (qMean === null ? "not_assessed" : qMean >= 7 ? "pass" : qMean >= 5 ? "weak" : "fail");
+  const recommendation = s.recommendation ?? (s.verdict === "certified" ? "HIRE" : s.verdict === "conditional" ? "CAUTION" : "AVOID");
+  const offline = cap === "failed" && s.flags.some((f) => /offline|not accepting/i.test(f));
+  const status = offline ? "OFFLINE" : s.verdict === "certified" ? "CERTIFIED" : s.verdict === "conditional" ? "CONDITIONAL" : "NOT CERTIFIED";
+  return { cap, quality, recommendation, status, qMean };
+}
 
 const basescan = (tx: string): string => `https://basescan.org/tx/${tx}`;
 const STORE_AGENT_URL = `https://agent.croo.network/agent/${process.env.CROO_AGENT_ID ?? ""}`;
@@ -165,7 +189,7 @@ tr.hidden{display:none}
 <nav><span class="wordmark"><a href="${cfg.publicBaseURL}/" style="color:inherit;text-decoration:none">CROO<i>CRED</i></a></span>
 <div class="links"><a href="${cfg.publicBaseURL}/reports.html">REPORTS</a><a href="${cfg.publicBaseURL}/api.html">API</a><a href="${GITHUB_URL}">GITHUB</a><a href="${STORE_AGENT_URL}">AGENT&nbsp;STORE</a></div></nav>
 ${body}
-<footer>CrooCred — live purchase certification for the agent economy. Paid probes are real CAP orders with escrow and settlement on Base mainnet; liveness checks exercise negotiation + on-chain order creation without payment and cap grades at C. Every tx hash links to Basescan.<br/>
+<footer>CrooCred — live purchase certification for the agent economy. Paid probes are real CAP orders with escrow and settlement on Base mainnet; liveness checks exercise negotiation + on-chain order creation without payment and cap grades at C. CAP lifecycle and judged delivery quality are graded as separate axes — hard gates mean an empty or off-promise delivery is never certified. Every tx hash links to Basescan.<br/>
 <a href="${GITHUB_URL}">GitHub (MIT)</a> · <a href="${STORE_AGENT_URL}">croocred on the Agent Store</a> · <a href="${cfg.publicBaseURL}/api/certs.json">certs feed</a> · <a href="${cfg.publicBaseURL}/api/stats.json">stats feed</a><br/>
 Built for the CROO Agent Hackathon 2026 · page generated ${generatedAt} by the provider daemon.</footer>
 </div></body></html>`;
@@ -174,7 +198,10 @@ Built for the CROO Agent Hackathon 2026 · page generated ${generatedAt} by the 
 // ------------------------------------------------------------- metrics ----
 
 interface Metrics {
+  agentsTested: number;
   certifiedAgents: number;
+  conditionalAgents: number;
+  notCertifiedAgents: number;
   reports: number;
   paidProbes: number;
   livenessProbes: number;
@@ -206,8 +233,12 @@ function computeMetrics(all: CertRecord[], latest: Map<string, CertRecord>): Met
   const runs = all.flatMap((r) => r.runs);
   const targets = new Set(all.map((r) => r.target.agentId));
   const buyers = new Set(all.map((r) => r.soldVia?.requesterAgentId).filter(Boolean) as string[]);
+  const latestRecs = [...latest.values()];
   return {
-    certifiedAgents: latest.size,
+    agentsTested: latest.size,
+    certifiedAgents: latestRecs.filter((r) => r.score.verdict === "certified").length,
+    conditionalAgents: latestRecs.filter((r) => r.score.verdict === "conditional").length,
+    notCertifiedAgents: latestRecs.filter((r) => r.score.verdict === "not_certified").length,
     reports: all.length,
     paidProbes: runs.filter((r) => r.mode === "paid" && r.txHashes.pay).length,
     livenessProbes: runs.filter((r) => r.mode === "liveness").length,
@@ -217,7 +248,7 @@ function computeMetrics(all: CertRecord[], latest: Map<string, CertRecord>): Met
     usdcSpent: all.reduce((a, r) => a + r.spentUsdc, 0),
     medianAcceptS: median(runs.map((r) => r.tAcceptMs).filter((x): x is number => x !== undefined).map((x) => x / 1000)),
     medianDeliverS: median(runs.map((r) => r.tDeliverMs).filter((x): x is number => x !== undefined).map((x) => x / 1000)),
-    flaggedAgents: [...latest.values()].filter((r) => r.score.grade === "D" || r.score.grade === "F").length,
+    flaggedAgents: [...latest.values()].filter((r) => r.score.verdict === "not_certified").length,
     claimVerdicts: countVerdicts(),
   };
 }
@@ -252,6 +283,8 @@ function latestReceipt(all: CertRecord[]): string {
   ${receiptLine("ACCEPT", "—")}
   ${receiptLine("DELIVERY", "—")}
   ${receiptLine("SLA", "—")}
+  ${receiptLine("CAP", "—")}
+  ${receiptLine("QUALITY", "—")}
   <hr/>
   <div class="li total"><span>PROBE SPEND</span><span>$0.00</span></div>
   <div class="barcode"></div>
@@ -262,7 +295,15 @@ function latestReceipt(all: CertRecord[]): string {
 
   const grade = rec.score.grade;
   const c = GRADE_COLOR[grade];
-  const result = run.ok ? (run.mode === "paid" ? "PASS" : "ALIVE") : "FAIL";
+  const meta = v2meta(rec);
+  // Two axes, never conflated: CAP lifecycle vs judged content quality.
+  const capLabel = run.mode === "liveness" ? (run.ok ? "CREATED·UNPAID" : "FAILED") : run.ok ? "DELIVERED" : "FAILED";
+  const qLabel =
+    run.mode !== "paid" ? "N/A"
+    : meta.quality === "pass" ? "PASS"
+    : meta.quality === "weak" ? "WEAK"
+    : meta.quality === "fail" ? "FAIL"
+    : "N/A";
   const payTx = run.txHashes.pay ? `<a href="${basescan(run.txHashes.pay)}">${short(run.txHashes.pay, 12)}</a>` : "—";
   const delTx = run.txHashes.deliver ? `<a href="${basescan(run.txHashes.deliver)}">${short(run.txHashes.deliver, 12)}</a>` : "—";
   const createTx = run.txHashes.create ? `<a href="${basescan(run.txHashes.create)}">${short(run.txHashes.create, 12)}</a>` : "—";
@@ -282,7 +323,8 @@ function latestReceipt(all: CertRecord[]): string {
   ${receiptLine("ACCEPT", fmtS((run.tAcceptMs ?? 0) / 1000))}
   ${run.tDeliverMs !== undefined ? receiptLine("DELIVERY", fmtS(run.tDeliverMs / 1000)) : ""}
   ${receiptLine("SLA", run.slaMet === undefined ? "—" : run.slaMet ? "MET" : "MISSED")}
-  ${receiptLine("RESULT", result)}
+  ${receiptLine("CAP", capLabel)}
+  ${receiptLine("QUALITY", qLabel)}
   <hr/>
   <div class="li total"><span>PROBE SPEND</span><span>$${(run.pricePaidUsdc ?? 0).toFixed(2)}</span></div>
   <div class="barcode"></div>
@@ -350,10 +392,35 @@ function reportPage(rec: CertRecord, generatedAt: string): string {
   const flags = rec.score.flags.length
     ? rec.score.flags.map((f) => `<div class="flag">⚑ ${esc(f)}</div>`).join("")
     : '<div class="mut">no flags raised</div>';
+  const meta = v2meta(rec);
+  const deliveredPaid = rec.runs.filter((r) => r.mode === "paid" && r.ok).length;
+  const capLabel =
+    meta.cap === "delivered" ? `DELIVERED — ${deliveredPaid}/${paidCount} paid probe(s) completed with escrow settlement`
+    : meta.cap === "partial" ? `PARTIAL — ${deliveredPaid}/${paidCount} paid probe(s) delivered`
+    : meta.cap === "created_only" ? "CREATED ONLY — negotiation + on-chain order creation, cancelled unpaid (liveness tier)"
+    : "FAILED — no probe was delivered";
+  const capColor = meta.cap === "delivered" ? GRADE_COLOR.A : meta.cap === "created_only" ? GRADE_COLOR.C : GRADE_COLOR.F;
+  const qLabel =
+    meta.quality === "pass" ? `PASS — judged ${meta.qMean?.toFixed(1)}/10 vs the listing promise`
+    : meta.quality === "weak" ? `WEAK — judged ${meta.qMean?.toFixed(1)}/10 vs the listing promise`
+    : meta.quality === "fail" ? `FAIL — judged ${meta.qMean === null ? "0" : meta.qMean.toFixed(1)}/10 vs the listing promise`
+    : "NOT ASSESSED — no judged deliverable";
+  const qColor = meta.quality === "pass" ? GRADE_COLOR.A : meta.quality === "weak" ? GRADE_COLOR.C : meta.quality === "fail" ? GRADE_COLOR.F : "#8a8a8a";
+  const recColor = REC_COLOR[meta.recommendation] ?? "#8a8a8a";
+  const auditBlock = `
+<div class="section" style="border-left:3px solid ${recColor}">
+<h2>Audit result — CAP lifecycle and delivery quality are graded separately</h2>
+<div class="scroll"><table>
+<tr><td style="width:170px">CAP lifecycle</td><td style="font:700 13px var(--mono);color:${capColor}">${capLabel}</td></tr>
+<tr><td>Delivery quality</td><td style="font:700 13px var(--mono);color:${qColor}">${qLabel}</td></tr>
+<tr><td>Final verdict</td><td style="font:700 13px var(--mono)">${esc(rec.score.verdict.replace("_", " ").toUpperCase())} · <span style="color:${recColor}">${meta.recommendation}</span></td></tr>
+</table></div>
+<p class="mut" style="margin-top:6px">Rubric v${(rec.score as { rubricVersion?: number }).rubricVersion ?? 1}: a provider can pass CAP (escrow, delivery, settlement) and still fail quality — an empty or off-promise payload is never certified. Hard gates cap the grade when conformance or judged quality is 0.</p>
+</div>`;
   const recommendation =
-    rec.score.verdict === "certified" ? "HIRE — passed live testing"
-    : rec.score.verdict === "conditional" ? "CAUTION — partial evidence, see flags"
-    : "AVOID — failed live testing";
+    meta.recommendation === "HIRE" ? "HIRE — passed live testing: CAP lifecycle and judged quality both pass"
+    : meta.recommendation === "CAUTION" ? "CAUTION — evidence is mixed; read the audit axes and flags"
+    : "AVOID — failed live testing (hard gate triggered; see flags)";
   const body = `
 <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px">
   ${rec.target.avatar ? `<img class="av" src="${esc(rec.target.avatar)}" alt=""/>` : ""}
@@ -364,10 +431,11 @@ function reportPage(rec: CertRecord, generatedAt: string): string {
     <div class="mut">${rec.score.score}/100 · ${esc(rec.score.verdict)}</div>
   </div>
 </div>
+${auditBlock}
 <div class="section"><h2>${paidCount ? "Live test evidence" : "Liveness check"}</h2>
 <p style="margin:0 0 10px">${evidenceLine}</p>
 <div class="scroll"><table><tr><th>probe</th><th>outcome</th><th>quality</th><th>on-chain evidence</th></tr>${runRows(rec)}</table></div></div>
-<div class="section"><h2>Recommendation</h2><p style="font:700 15px var(--mono);color:${c}">${recommendation}</p></div>
+<div class="section"><h2>Recommendation</h2><p style="font:700 15px var(--mono);color:${recColor}">${recommendation}</p></div>
 <div class="section"><h2>Score breakdown</h2><table>${comp}</table>${qualityNote}</div>
 <div class="section"><h2>Risk flags</h2>${flags}</div>
 <div class="section"><h2>Certification record</h2>
@@ -419,9 +487,10 @@ function leaderboardRows(latest: Map<string, CertRecord>): string {
       b.score.score - a.score.score)
     .map((r, i) => {
       const c = GRADE_COLOR[r.score.grade];
+      const meta = v2meta(r);
       const paid = r.runs.filter((x) => x.mode === "paid" && x.txHashes.pay).length;
       const live = r.runs.filter((x) => x.mode === "liveness").length;
-      const risky = r.score.grade === "D" || r.score.grade === "F";
+      const risky = meta.status === "NOT CERTIFIED" || meta.status === "OFFLINE";
       const delivered = r.runs.filter((x) => x.ok && x.mode === "paid");
       const sla = delivered.length
         ? `${fmtS((delivered[0].tDeliverMs ?? 0) / 1000)} / ${r.target.slaMinutes}m`
@@ -431,6 +500,7 @@ function leaderboardRows(latest: Map<string, CertRecord>): string {
 <td>${i + 1}</td>
 <td><b>${esc(r.target.agentName)}</b><div class="mut">${esc(r.target.serviceName)}</div></td>
 <td><span class="grade" style="color:${c}">${r.score.grade}</span> <span class="mut">${r.score.score}</span></td>
+<td><span style="font:700 10.5px var(--mono);letter-spacing:.4px;color:${STATUS_COLOR[meta.status] ?? "#8a8a8a"}">${meta.status}</span><div class="mut" style="font-size:10px">${meta.recommendation}</div></td>
 <td>${[paid ? `<span class="probe-type paid">${paid} paid</span>` : "", live ? `<span class="probe-type liveness">${live} liveness</span>` : ""].filter(Boolean).join(" ") || "—"}</td>
 <td class="mono">${sla}</td>
 <td>${q ? `${q.score}/10` : '<span class="mut">n/a</span>'}</td>
@@ -503,7 +573,8 @@ ${latestReceipt(all)}
 
 <h2 style="margin-top:26px"><b>Live evidence</b> — persisted certification records only · generated ${generatedAt.slice(0, 16).replace("T", " ")} UTC</h2>
 <div class="metrics">
-${metricCard(String(m.certifiedAgents), "certified agents", tone(m.certifiedAgents))}
+${metricCard(String(m.agentsTested), "agents tested", tone(m.agentsTested))}
+${metricCard(String(m.certifiedAgents), "certified (both axes pass)", tone(m.certifiedAgents))}
 ${metricCard(String(m.paidProbes), "paid probes", tone(m.paidProbes))}
 ${metricCard(String(m.livenessProbes), "liveness checks", m.livenessProbes === 0 ? "zero" : "warn")}
 ${metricCard(String(m.targetAgents), "target agents tested", tone(m.targetAgents))}
@@ -533,14 +604,15 @@ ${metricCard(String(m.claimVerdicts), "claim verdicts issued", tone(m.claimVerdi
 <div id="insp-out" style="margin-top:10px"></div>
 </div></div>
 
-<div class="section" id="leaderboard"><h2><b>Certified agents</b> (${m.certifiedAgents})</h2>
+<div class="section" id="leaderboard"><h2><b>Tested agents</b> (${m.agentsTested})</h2>
+<p class="mut" style="margin:2px 0 10px">${m.certifiedAgents} certified · ${m.conditionalAgents} conditional · ${m.notCertifiedAgents} not certified — certification requires the CAP lifecycle <i>and</i> judged delivery quality to pass; hard gates mean an empty or off-promise delivery can never be certified.</p>
 ${rows ? `<div class="filters" id="filters">
 <button class="on" data-f="all">All</button>
 <button data-f="paid">Paid only</button>
 <button data-f="live">Liveness</button>
 <button data-f="risky">Flagged</button>
 </div>
-<div class="scroll"><table id="lb"><tr><th>#</th><th>agent / service</th><th>grade</th><th>evidence</th><th>sla</th><th>quality</th><th>flags</th><th>report</th></tr>${rows}</table></div>` : emptyLeaderboard()}
+<div class="scroll"><table id="lb"><tr><th>#</th><th>agent / service</th><th>grade</th><th>status</th><th>evidence</th><th>sla</th><th>quality</th><th>flags</th><th>report</th></tr>${rows}</table></div>` : emptyLeaderboard()}
 </div>
 
 <div class="section"><h2><b>Badge</b> — proof in your README</h2>
@@ -556,11 +628,13 @@ ${rows ? `<div class="filters" id="filters">
 <div class="section"><h2><b>Machine-readable feeds</b> — trust as a CAP dependency</h2>
 <pre>GET ${cfg.publicBaseURL}/api/certs.json
 [{ "certId": "cc-…", "agent": "…", "grade": "A", "score": 91, "verdict": "certified",
+   "capOutcome": "delivered", "qualityOutcome": "pass", "recommendation": "HIRE",
    "paidProbes": 2, "livenessProbes": 0, "flags": [], "reportUrl": "…", "badgeUrl": "…" }]
 
 GET ${cfg.publicBaseURL}/api/stats.json
-{ "certifiedAgents": ${m.certifiedAgents}, "paidProbes": ${m.paidProbes}, "targetAgents": ${m.targetAgents},
-  "buyerAgents": ${m.buyerAgents}, "a2aEdges": ${m.a2aEdges}, "usdcSpent": ${m.usdcSpent.toFixed(2)}, "generatedAt": "${generatedAt}" }
+{ "agentsTested": ${m.agentsTested}, "certifiedAgents": ${m.certifiedAgents}, "paidProbes": ${m.paidProbes},
+  "targetAgents": ${m.targetAgents}, "buyerAgents": ${m.buyerAgents}, "a2aEdges": ${m.a2aEdges},
+  "usdcSpent": ${m.usdcSpent.toFixed(2)}, "generatedAt": "${generatedAt}" }
 
 GET ${cfg.publicBaseURL}/api/certs-full.json     — probe-level evidence: every order id + tx hash</pre></div>
 
@@ -729,6 +803,13 @@ function sampleReportPage(generatedAt: string): string {
 <td>✅ delivered in 56s (SLA met)<div class="mut" style="margin-top:4px">order ${ph("ORDER_ID")} · neg ${ph("NEGOTIATION_ID")}</div></td>
 <td>7/10</td><td class="mono">${ph("create · pay · deliver · clear tx links")}</td></tr>
 </table></div></div>
+<div class="section"><h2>Audit result — two axes ${ph("(sample)")}</h2>
+<div class="scroll"><table>
+<tr><td style="width:170px">CAP lifecycle</td><td style="font:700 13px var(--mono);color:${GRADE_COLOR.A}">DELIVERED — 2/2 paid probe(s) completed with escrow settlement</td></tr>
+<tr><td>Delivery quality</td><td style="font:700 13px var(--mono);color:${GRADE_COLOR.A}">PASS — judged 7.5/10 vs the listing promise</td></tr>
+<tr><td>Final verdict</td><td style="font:700 13px var(--mono)">CERTIFIED · <span style="color:${GRADE_COLOR.A}">HIRE</span></td></tr>
+</table></div>
+<p class="mut" style="margin-top:6px">A provider can pass CAP (escrow, delivery, settlement) and still fail quality — certification requires both. Empty or off-promise deliveries hit hard gates and can never be certified.</p></div>
 <div class="section"><h2>Recommendation</h2><p style="font:700 15px var(--mono);color:${GRADE_COLOR.B}">HIRE — passed live testing ${ph("(sample)")}</p></div>
 <div class="section"><h2>Score breakdown</h2><table>
 <tr><td style="width:130px">availability</td><td style="width:60px">30</td><td><div class="bar"><i style="width:94%"></i></div></td></tr>
@@ -753,7 +834,7 @@ function sampleReportPage(generatedAt: string): string {
 function reportsPage(all: CertRecord[], latest: Map<string, CertRecord>, generatedAt: string): string {
   const rows = leaderboardRows(latest);
   const live = rows
-    ? `<div class="scroll"><table><tr><th>#</th><th>agent / service</th><th>grade</th><th>evidence</th><th>sla</th><th>quality</th><th>flags</th><th>report</th></tr>${rows}</table></div>`
+    ? `<div class="scroll"><table><tr><th>#</th><th>agent / service</th><th>grade</th><th>status</th><th>evidence</th><th>sla</th><th>quality</th><th>flags</th><th>report</th></tr>${rows}</table></div>`
     : `<p class="mut">No live certifications yet — the first graded, tx-hash-backed reports land here as soon as probe orders run.</p>`;
   const body = `
 <h1 style="font:800 26px var(--mono);text-transform:uppercase;margin-bottom:14px">Reports</h1>
@@ -774,7 +855,10 @@ function reportsPage(all: CertRecord[], latest: Map<string, CertRecord>, generat
 function apiPage(all: CertRecord[], latest: Map<string, CertRecord>, generatedAt: string): string {
   const m = computeMetrics(all, latest);
   const liveCerts = JSON.stringify(
-    all.slice(0, 1).map((r) => ({ certId: r.certId, agent: r.target.agentName, grade: r.score.grade, score: r.score.score, verdict: r.score.verdict, reportUrl: r.reportUrl, badgeUrl: r.badgeUrl })),
+    all.slice(0, 1).map((r) => {
+      const meta = v2meta(r);
+      return { certId: r.certId, agent: r.target.agentName, grade: r.score.grade, score: r.score.score, verdict: r.score.verdict, capOutcome: meta.cap, qualityOutcome: meta.quality, recommendation: meta.recommendation, reportUrl: r.reportUrl, badgeUrl: r.badgeUrl };
+    }),
     null, 2,
   );
   const body = `
@@ -791,7 +875,8 @@ ${m.reports === 0 ? '<p class="mut" style="margin-top:8px">No certifications yet
 <div class="section"><h2><b>GET /api/stats.json</b> — aggregate network stats</h2>
 <pre>curl -s ${cfg.publicBaseURL}/api/stats.json</pre>
 <button class="copybtn" data-copy="curl -s ${cfg.publicBaseURL}/api/stats.json">Copy curl</button>
-<pre>{ "certifiedAgents": ${m.certifiedAgents}, "reports": ${m.reports}, "paidProbes": ${m.paidProbes},
+<pre>{ "agentsTested": ${m.agentsTested}, "certifiedAgents": ${m.certifiedAgents}, "conditionalAgents": ${m.conditionalAgents},
+  "notCertifiedAgents": ${m.notCertifiedAgents}, "reports": ${m.reports}, "paidProbes": ${m.paidProbes},
   "livenessProbes": ${m.livenessProbes}, "targetAgents": ${m.targetAgents}, "buyerAgents": ${m.buyerAgents},
   "a2aEdges": ${m.a2aEdges}, "usdcSpent": ${m.usdcSpent.toFixed(2)}, "generatedAt": "${generatedAt}" }</pre>
 <p><a href="api/stats.json">raw feed →</a></p></div>
@@ -801,6 +886,7 @@ ${m.reports === 0 ? '<p class="mut" style="margin-top:8px">No certifications yet
 <pre>${all.length ? esc(liveCerts) : `[]
 // empty until the first certification — shape per entry:
 // { "certId", "agent", "agentId", "service", "grade", "score", "verdict",
+//   "capOutcome", "qualityOutcome", "recommendation",
 //   "paidProbes", "livenessProbes", "soldViaOrder", "flags", "reportUrl", "badgeUrl" }`}</pre>
 <p><a href="api/certs.json">raw feed →</a></p></div>
 <div class="section"><h2><b>GET /api/certs-full.json</b> — probe-level evidence</h2>
@@ -889,16 +975,20 @@ export async function buildSite(): Promise<string> {
   writeFileSync(
     resolve(out, "api", "certs.json"),
     JSON.stringify(
-      all.map((r) => ({
-        certId: r.certId, agent: r.target.agentName, agentId: r.target.agentId,
-        service: r.target.serviceName, grade: r.score.grade, score: r.score.score,
-        verdict: r.score.verdict,
-        paidProbes: r.runs.filter((x) => x.mode === "paid" && x.txHashes.pay).length,
-        livenessProbes: r.runs.filter((x) => x.mode === "liveness").length,
-        soldViaOrder: r.soldVia?.orderId ?? null,
-        flags: r.score.flags, createdAt: r.createdAt,
-        reportUrl: r.reportUrl, badgeUrl: r.badgeUrl,
-      })),
+      all.map((r) => {
+        const meta = v2meta(r);
+        return {
+          certId: r.certId, agent: r.target.agentName, agentId: r.target.agentId,
+          service: r.target.serviceName, grade: r.score.grade, score: r.score.score,
+          verdict: r.score.verdict,
+          capOutcome: meta.cap, qualityOutcome: meta.quality, recommendation: meta.recommendation,
+          paidProbes: r.runs.filter((x) => x.mode === "paid" && x.txHashes.pay).length,
+          livenessProbes: r.runs.filter((x) => x.mode === "liveness").length,
+          soldViaOrder: r.soldVia?.orderId ?? null,
+          flags: r.score.flags, createdAt: r.createdAt,
+          reportUrl: r.reportUrl, badgeUrl: r.badgeUrl,
+        };
+      }),
       null,
       2,
     ),

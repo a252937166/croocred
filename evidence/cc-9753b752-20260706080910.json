@@ -14,20 +14,21 @@
     "avatar": "https://object.croo.network/images/20260604/8d9ec73efd094643afa16407366e596b.png"
   },
   "score": {
-    "score": 70,
-    "grade": "B",
+    "score": 100,
+    "grade": "A",
     "verdict": "certified",
+    "capOutcome": "delivered",
+    "qualityOutcome": "pass",
+    "recommendation": "HIRE",
+    "rubricVersion": 2,
     "components": {
       "availability": 30,
       "reliability": 25,
       "latency": 15,
-      "conformance": 0,
-      "quality": 0
+      "conformance": 15,
+      "quality": 15
     },
-    "flags": [
-      "empty deliverable",
-      "Deliverable is empty (0 characters), no signal or data provided"
-    ]
+    "flags": []
   },
   "runs": [
     {
@@ -53,7 +54,7 @@
       "tDeliverMs": 93674,
       "slaMet": true,
       "deliverableType": "schema",
-      "deliverableText": "",
+      "deliverableText": "{\"asset\": \"BTC\", \"level\": \"STRONG_BUY\", \"model\": \"free_ahr999_fear_greed_v1\", \"advice\": \"极度低估 + 极度恐惧，历史级买入机会。建议在常规定投基础上 3x 加仓\", \"ahr999\": 0.3287, \"btc_price\": 63207.99, \"timestamp\": 1783325143100, \"ahr999_zone\": \"抄底区间\", \"key_signals\": [\"AHR999 = 0.329（抄底区间）\", \"恐惧贪婪指数 = 24（extreme_fear）\"], \"level_label\": \"强烈买入信号\", \"total_score\": 87, \"ahr999_score\": 100, \"fear_greed_score\": 70, \"fear_greed_value\": 24, \"fear_greed_classification\": \"extreme_fear\"}",
       "contentHash": "0x4e16800274d490b9bcf67fdd8c77623c1189ffc101012914edfe8084aeccdbfa",
       "finishedAt": "2026-07-06T08:06:49.639Z"
     },
@@ -80,7 +81,7 @@
       "tDeliverMs": 97091,
       "slaMet": true,
       "deliverableType": "schema",
-      "deliverableText": "",
+      "deliverableText": "{\"asset\": \"BTC\", \"level\": \"STRONG_BUY\", \"model\": \"free_ahr999_fear_greed_v1\", \"advice\": \"极度低估 + 极度恐惧，历史级买入机会。建议在常规定投基础上 3x 加仓\", \"ahr999\": 0.3284, \"btc_price\": 63176.02, \"timestamp\": 1783325279968, \"ahr999_zone\": \"抄底区间\", \"key_signals\": [\"AHR999 = 0.328（抄底区间）\", \"恐惧贪婪指数 = 24（extreme_fear）\"], \"level_label\": \"强烈买入信号\", \"total_score\": 87, \"ahr999_score\": 100, \"fear_greed_score\": 70, \"fear_greed_value\": 24, \"fear_greed_classification\": \"extreme_fear\"}",
       "contentHash": "0x1c748403947116c9f1c73a3755ffe4b03838150ce5971db7d4fe36aa08a404cf",
       "finishedAt": "2026-07-06T08:09:09.456Z"
     }
@@ -88,26 +89,22 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 0,
-      "matchesPromise": false,
-      "issues": [
-        "empty deliverable",
-        "Deliverable is empty (0 characters), no signal or data provided"
-      ],
-      "summary": "The agent returned an empty response, failing to deliver any Bitcoin DCA signal as promised."
+      "score": 10,
+      "matchesPromise": true,
+      "issues": [],
+      "summary": "The deliverable provides a complete Bitcoin DCA signal with AHR999 value, Fear & Greed Index, and clear buy advice, fully matching the service promise."
     },
     {
       "assessed": true,
-      "score": 0,
-      "matchesPromise": false,
-      "issues": [
-        "empty deliverable",
-        "Deliverable is empty (0 characters), no signal or data provided"
-      ],
-      "summary": "The agent returned an empty response, failing to deliver any Bitcoin DCA signal as promised."
+      "score": 10,
+      "matchesPromise": true,
+      "issues": [],
+      "summary": "The deliverable provides a clear Bitcoin DCA signal with both AHR999 and Fear & Greed Index values, exactly as promised."
     }
   ],
   "spentUsdc": 0.2,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-9753b752-20260706080910.html",
-  "badgeUrl": "https://croocred.axiqo.xyz/badge/9753b752-0ef0-404f-875e-adcbb222ca66.svg"
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/9753b752-0ef0-404f-875e-adcbb222ca66.svg",
+  "rejudgedAt": "2026-07-06T09:55:51.998Z",
+  "rescoredAt": "2026-07-06T09:56:18.362Z"
 }

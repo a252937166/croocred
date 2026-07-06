@@ -14,23 +14,26 @@
     "avatar": "https://object.croo.network/images/20260630/e2bc674082cb48aaaddb2f10577a962e.png"
   },
   "score": {
-    "score": 69,
-    "grade": "C",
-    "verdict": "conditional",
+    "score": 96,
+    "grade": "A",
+    "verdict": "certified",
+    "capOutcome": "delivered",
+    "qualityOutcome": "pass",
+    "recommendation": "HIRE",
+    "rubricVersion": 2,
     "components": {
       "availability": 30,
       "reliability": 25,
       "latency": 14,
-      "conformance": 0,
-      "quality": 0
+      "conformance": 15,
+      "quality": 12
     },
     "flags": [
       "thin track record (<10 completed orders)",
-      "empty deliverable",
-      "Deliverable is empty (0 characters)",
-      "No prediction or rationale provided",
-      "No evidence of multi-agent consensus or on-chain grading",
-      "No prediction or rationale returned"
+      "identical deliverable across distinct probes (possible canned output)",
+      "Prediction is a dollar amount ($0.73) rather than a direction (up/down) as implied by 'direction' in the test request, but the listing says 'move-size forecast' which matches the dollar amount.",
+      "Rationale references graded rounds but doesn't explicitly confirm the 60-second deadline was used.",
+      "Prediction value 0.73 is a dollar amount, not a direction or percentage as might be expected from 'direction' in the test request, but the listing says 'move-size forecast' which matches"
     ]
   },
   "runs": [
@@ -57,7 +60,7 @@
       "tDeliverMs": 93205,
       "slaMet": true,
       "deliverableType": "schema",
-      "deliverableText": "",
+      "deliverableText": "{\"rationale\": \"Axion consensus: ~$0.73 expected ETH move over ~60s, from live volatility across momentum, value and microstructure theses, graded on-chain vs Pyth each round. Arena best: agent-b525 at $1.05 avg error over 3 graded rounds.\", \"prediction\": 0.73}",
       "contentHash": "0x04daf0ba2f02b9f07624cad07f75f239fdfb0b60a8f0cd1cd7d9709ce5c2bf25",
       "finishedAt": "2026-07-06T07:38:08.715Z"
     },
@@ -84,7 +87,7 @@
       "tDeliverMs": 96513,
       "slaMet": true,
       "deliverableType": "schema",
-      "deliverableText": "",
+      "deliverableText": "{\"rationale\": \"Axion consensus: ~$0.73 expected ETH move over ~60s, from live volatility across momentum, value and microstructure theses, graded on-chain vs Pyth each round. Arena best: agent-b525 at $1.05 avg error over 3 graded rounds.\", \"prediction\": 0.73}",
       "contentHash": "0x04daf0ba2f02b9f07624cad07f75f239fdfb0b60a8f0cd1cd7d9709ce5c2bf25",
       "finishedAt": "2026-07-06T07:40:27.726Z"
     }
@@ -92,30 +95,27 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 0,
-      "matchesPromise": false,
+      "score": 8,
+      "matchesPromise": true,
       "issues": [
-        "empty deliverable",
-        "Deliverable is empty (0 characters)",
-        "No prediction or rationale provided",
-        "No evidence of multi-agent consensus or on-chain grading"
+        "Prediction is a dollar amount ($0.73) rather than a direction (up/down) as implied by 'direction' in the test request, but the listing says 'move-size forecast' which matches the dollar amount.",
+        "Rationale references graded rounds but doesn't explicitly confirm the 60-second deadline was used."
       ],
-      "summary": "The service returned an empty deliverable, failing to provide any prediction, rationale, or evidence of the promised multi-agent consensus."
+      "summary": "Deliverable returns a consensus move-size forecast with rationale, matching the listing's promise of aggregated ETH short-horizon move-size prediction."
     },
     {
       "assessed": true,
-      "score": 0,
-      "matchesPromise": false,
+      "score": 8,
+      "matchesPromise": true,
       "issues": [
-        "empty deliverable",
-        "Deliverable is empty (0 characters)",
-        "No prediction or rationale returned",
-        "No evidence of multi-agent consensus or on-chain grading"
+        "Prediction value 0.73 is a dollar amount, not a direction or percentage as might be expected from 'direction' in the test request, but the listing says 'move-size forecast' which matches"
       ],
-      "summary": "The service returned an empty deliverable, failing to provide any prediction or rationale as promised."
+      "summary": "Deliverable returns a consensus move-size forecast with rationale and references on-chain grading, fulfilling the listing's promise."
     }
   ],
   "spentUsdc": 0.2,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-a98885cb-20260706074029.html",
-  "badgeUrl": "https://croocred.axiqo.xyz/badge/a98885cb-1b74-4b86-8d43-8cf403b5dd3f.svg"
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/a98885cb-1b74-4b86-8d43-8cf403b5dd3f.svg",
+  "rejudgedAt": "2026-07-06T09:56:03.512Z",
+  "rescoredAt": "2026-07-06T09:56:18.369Z"
 }

@@ -48,9 +48,11 @@ judged against what the listing promised. The result is a graded report where
 every claim links to Basescan. This is probe evidence no one can fake —
 including us."
 
-**Beat (2:00)**: hover the FAILED probe row from the first Axion run.
-"Our very first paid probe caught a real defect — an agent that accepted
-payment and delivered… nothing. That's why live testing matters."
+**Beat (2:00)**: open the zkzora Receipt Agent report — audit block showing
+CAP: DELIVERED / QUALITY: FAIL 4.0/10 / CONDITIONAL · CAUTION.
+"CAP proves the delivery happened. It can't prove the delivery was any good —
+so we grade the two separately. This agent passed the lifecycle and failed
+the promise; it can pass CAP all day and it still won't get certified."
 
 ## Scene 3 · The leaderboard & badges (2:20–3:00)
 
@@ -111,7 +113,7 @@ stack. The receipts are waiting."
 - [ ] Homepage hero + receipt zoom (S1)
 - [ ] Terminal cert run — reuse seed.log replay or run one fresh $0.10 cert live (S2)
 - [ ] Report page + Basescan click-through of a real pay tx (S2)
-- [ ] Failed-probe row of cc-a98885cb-20260705152813 (S2 beat)
+- [ ] zkzora report audit block (CAP DELIVERED / QUALITY FAIL) for the S2 beat
 - [ ] Leaderboard + filters + badge embed (S3)
 - [ ] verdict CLI live run (S4)
 - [ ] Discord sponsorship screenshots — get Red.G's OK or blur handle (S5)

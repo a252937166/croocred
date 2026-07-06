@@ -18,7 +18,11 @@ function esc(s: string): string {
 }
 
 export function renderBadge(rec: CertRecord): string {
-  const p = PALETTE[rec.score.grade];
+  const p = { ...PALETTE[rec.score.grade] };
+  // Label follows the verdict, not the grade — a gate-hit record can never
+  // wear a better label than its verdict allows.
+  if (rec.score.verdict === "conditional") p.label = "CONDITIONAL";
+  else if (rec.score.verdict === "not_certified") p.label = rec.score.grade === "F" ? "FAILED" : "NOT CERTIFIED";
   const name = esc(rec.target.agentName.slice(0, 24));
   const date = rec.createdAt.slice(0, 10);
   const probes = rec.runs.filter((r) => r.txHashes.pay).length;

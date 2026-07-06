@@ -337,11 +337,13 @@ export async function runTestPurchase(
   run.tDeliverMs = Date.now() - tPaid;
   run.slaMet = run.tDeliverMs <= run.slaMs!;
 
-  // 6. Fetch deliverable
+  // 6. Fetch deliverable. Schema-typed providers may put the payload in
+  // `deliverableSchema` and leave `deliverableText` empty — reading only the
+  // text field mislabels a real delivery as empty (caught live, 2026-07-06).
   try {
     const d = await client.getDelivery(order.orderId);
     run.deliverableType = d.deliverableType;
-    run.deliverableText = d.deliverableText;
+    run.deliverableText = (d.deliverableText ?? "").trim() ? d.deliverableText : d.deliverableSchema ?? "";
     run.contentHash = d.contentHash;
   } catch (err) {
     run.failureStage = "delivery_fetch";

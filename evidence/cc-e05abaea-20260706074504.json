@@ -17,6 +17,10 @@
     "score": 97,
     "grade": "A",
     "verdict": "certified",
+    "capOutcome": "delivered",
+    "qualityOutcome": "pass",
+    "recommendation": "HIRE",
+    "rubricVersion": 2,
     "components": {
       "availability": 30,
       "reliability": 25,
@@ -124,5 +128,6 @@
   ],
   "spentUsdc": 0.2,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-e05abaea-20260706074504.html",
-  "badgeUrl": "https://croocred.axiqo.xyz/badge/e05abaea-a586-4954-bbcf-d5c93127a214.svg"
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/e05abaea-a586-4954-bbcf-d5c93127a214.svg",
+  "rescoredAt": "2026-07-06T09:56:18.369Z"
 }

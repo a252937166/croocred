@@ -14,21 +14,26 @@
     "avatar": "https://object.croo.network/images/20260609/f992aace2bc541d0aba2f039cdc2c611.png"
   },
   "score": {
-    "score": 70,
-    "grade": "B",
+    "score": 98,
+    "grade": "A",
     "verdict": "certified",
+    "capOutcome": "delivered",
+    "qualityOutcome": "pass",
+    "recommendation": "HIRE",
+    "rubricVersion": 2,
     "components": {
       "availability": 30,
       "reliability": 25,
       "latency": 15,
-      "conformance": 0,
-      "quality": 0
+      "conformance": 15,
+      "quality": 13
     },
     "flags": [
-      "empty deliverable",
-      "Deliverable is empty (0 characters), no data returned",
-      "Failed to provide any trending events or volume data",
-      "No response to the user's request"
+      "identical deliverable across distinct probes (possible canned output)",
+      "The deliverable returns events as JSON strings inside an array, which is slightly less convenient than a flat JSON object but still usable.",
+      "Events are returned as JSON strings within the array, not as parsed objects",
+      "No category filter was applied (though none was requested)",
+      "The deliverable type is undefined in the listing but the response is a JSON object"
     ]
   },
   "runs": [
@@ -55,7 +60,7 @@
       "tDeliverMs": 93329,
       "slaMet": true,
       "deliverableType": "schema",
-      "deliverableText": "",
+      "deliverableText": "{\"count\": 10, \"limit\": 10, \"events\": [\"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":58040264.092640005,\\\"slug\\\":\\\"world-cup-winner\\\",\\\"title\\\":\\\"World Cup Winner\\\",\\\"url\\\":\\\"https://polymarket.com/event/world-cup-winner\\\",\\\"volume\\\":3959049893.6084256,\\\"volume_24h\\\":61801642.99420319}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":0,\\\"slug\\\":\\\"lol-blg-ly-2026-07-05\\\",\\\"title\\\":\\\"LoL: Bilibili Gaming vs LYON (BO5) - Mid-Season Invitational Playoffs\\\",\\\"url\\\":\\\"https://polymarket.com/event/lol-blg-ly-2026-07-05\\\",\\\"volume\\\":6301216.179315001,\\\"volume_24h\\\":6260031.871904006}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":6810216.598139998,\\\"slug\\\":\\\"lol-t1-fur-2026-07-06\\\",\\\"title\\\":\\\"LoL: T1 vs FURIA Esports (BO5) - Mid-Season Invitational Playoffs\\\",\\\"url\\\":\\\"https://polymarket.com/event/lol-t1-fur-2026-07-06\\\",\\\"volume\\\":5283882.135786999,\\\"volume_24h\\\":5241930.178917002}\", \"{\\\"category\\\":\\\"Politics\\\",\\\"liquidity\\\":1366077.24565,\\\"slug\\\":\\\"next-leader-out-of-power-before-2027-no-orban\\\",\\\"title\\\":\\\"Next leader out of power before 2027? (No Orban)\\\",\\\"url\\\":\\\"https://polymarket.com/event/next-leader-out-of-power-before-2027-no-orban\\\",\\\"volume\\\":47061503.98674901,\\\"volume_24h\\\":3799241.478155001}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":6197759.159550002,\\\"slug\\\":\\\"fifwc-prt-esp-2026-07-06-more-markets\\\",\\\"title\\\":\\\"Portugal vs. Spain - More Markets\\\",\\\"url\\\":\\\"https://polymarket.com/event/fifwc-prt-esp-2026-07-06-more-markets\\\",\\\"volume\\\":4319677.177871995,\\\"volume_24h\\\":3786675.7395829973}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":5621920.7438,\\\"slug\\\":\\\"fifwc-usa-bel-2026-07-06-more-markets\\\",\\\"title\\\":\\\"United States vs. Belgium - More Markets\\\",\\\"url\\\":\\\"https://polymarket.com/event/fifwc-usa-bel-2026-07-06-more-markets\\\",\\\"volume\\\":4021749.886370988,\\\"volume_24h\\\":3353337.26732}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":5135412.965500001,\\\"slug\\\":\\\"fifwc-prt-esp-2026-07-06\\\",\\\"title\\\":\\\"Portugal vs. Spain\\\",\\\"url\\\":\\\"https://polymarket.com/event/fifwc-prt-esp-2026-07-06\\\",\\\"volume\\\":3405869.127675024,\\\"volume_24h\\\":2703825.9717230015}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":5180121.0646,\\\"slug\\\":\\\"fifwc-usa-bel-2026-07-06\\\",\\\"title\\\":\\\"United States vs. Belgium\\\",\\\"url\\\":\\\"https://polymarket.com/event/fifwc-usa-bel-2026-07-06\\\",\\\"volume\\\":4438034.5641109925,\\\"volume_24h\\\":2664917.055180995}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":15466185.391989999,\\\"slug\\\":\\\"fifwc-prt-esp-2026-07-06-exact-score\\\",\\\"title\\\":\\\"Portugal vs. Spain - Exact Score\\\",\\\"url\\\":\\\"https://polymarket.com/event/fifwc-prt-esp-2026-07-06-exact-score\\\",\\\"volume\\\":2176428.2300479966,\\\"volume_24h\\\":2045825.4418500008}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":5264297.06797,\\\"slug\\\":\\\"world-cup-golden-boot-winner\\\",\\\"title\\\":\\\"World Cup: Golden Boot Winner\\\",\\\"url\\\":\\\"https://polymarket.com/event/world-cup-golden-boot-winner\\\",\\\"volume\\\":47823229.76902795,\\\"volume_24h\\\":1881516.9934069994}\"], \"service\": \"polymarket-hot-events\", \"category\": \"\"}",
       "contentHash": "0xb971c4c59630faa9a9b831bfab5453ebf9a02fa2bc9f2af79416ded3728f3060",
       "finishedAt": "2026-07-06T08:57:34.752Z"
     },
@@ -82,7 +87,7 @@
       "tDeliverMs": 96621,
       "slaMet": true,
       "deliverableType": "schema",
-      "deliverableText": "",
+      "deliverableText": "{\"count\": 10, \"limit\": 10, \"events\": [\"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":58040264.092640005,\\\"slug\\\":\\\"world-cup-winner\\\",\\\"title\\\":\\\"World Cup Winner\\\",\\\"url\\\":\\\"https://polymarket.com/event/world-cup-winner\\\",\\\"volume\\\":3959049893.6084256,\\\"volume_24h\\\":61801642.99420319}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":0,\\\"slug\\\":\\\"lol-blg-ly-2026-07-05\\\",\\\"title\\\":\\\"LoL: Bilibili Gaming vs LYON (BO5) - Mid-Season Invitational Playoffs\\\",\\\"url\\\":\\\"https://polymarket.com/event/lol-blg-ly-2026-07-05\\\",\\\"volume\\\":6301216.179315001,\\\"volume_24h\\\":6260031.871904006}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":6810216.598139998,\\\"slug\\\":\\\"lol-t1-fur-2026-07-06\\\",\\\"title\\\":\\\"LoL: T1 vs FURIA Esports (BO5) - Mid-Season Invitational Playoffs\\\",\\\"url\\\":\\\"https://polymarket.com/event/lol-t1-fur-2026-07-06\\\",\\\"volume\\\":5283882.135786999,\\\"volume_24h\\\":5241930.178917002}\", \"{\\\"category\\\":\\\"Politics\\\",\\\"liquidity\\\":1366077.24565,\\\"slug\\\":\\\"next-leader-out-of-power-before-2027-no-orban\\\",\\\"title\\\":\\\"Next leader out of power before 2027? (No Orban)\\\",\\\"url\\\":\\\"https://polymarket.com/event/next-leader-out-of-power-before-2027-no-orban\\\",\\\"volume\\\":47061503.98674901,\\\"volume_24h\\\":3799241.478155001}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":6197759.159550002,\\\"slug\\\":\\\"fifwc-prt-esp-2026-07-06-more-markets\\\",\\\"title\\\":\\\"Portugal vs. Spain - More Markets\\\",\\\"url\\\":\\\"https://polymarket.com/event/fifwc-prt-esp-2026-07-06-more-markets\\\",\\\"volume\\\":4319677.177871995,\\\"volume_24h\\\":3786675.7395829973}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":5621920.7438,\\\"slug\\\":\\\"fifwc-usa-bel-2026-07-06-more-markets\\\",\\\"title\\\":\\\"United States vs. Belgium - More Markets\\\",\\\"url\\\":\\\"https://polymarket.com/event/fifwc-usa-bel-2026-07-06-more-markets\\\",\\\"volume\\\":4021749.886370988,\\\"volume_24h\\\":3353337.26732}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":5135412.965500001,\\\"slug\\\":\\\"fifwc-prt-esp-2026-07-06\\\",\\\"title\\\":\\\"Portugal vs. Spain\\\",\\\"url\\\":\\\"https://polymarket.com/event/fifwc-prt-esp-2026-07-06\\\",\\\"volume\\\":3405869.127675024,\\\"volume_24h\\\":2703825.9717230015}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":5180121.0646,\\\"slug\\\":\\\"fifwc-usa-bel-2026-07-06\\\",\\\"title\\\":\\\"United States vs. Belgium\\\",\\\"url\\\":\\\"https://polymarket.com/event/fifwc-usa-bel-2026-07-06\\\",\\\"volume\\\":4438034.5641109925,\\\"volume_24h\\\":2664917.055180995}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":15466185.391989999,\\\"slug\\\":\\\"fifwc-prt-esp-2026-07-06-exact-score\\\",\\\"title\\\":\\\"Portugal vs. Spain - Exact Score\\\",\\\"url\\\":\\\"https://polymarket.com/event/fifwc-prt-esp-2026-07-06-exact-score\\\",\\\"volume\\\":2176428.2300479966,\\\"volume_24h\\\":2045825.4418500008}\", \"{\\\"category\\\":\\\"Sports\\\",\\\"liquidity\\\":5264297.06797,\\\"slug\\\":\\\"world-cup-golden-boot-winner\\\",\\\"title\\\":\\\"World Cup: Golden Boot Winner\\\",\\\"url\\\":\\\"https://polymarket.com/event/world-cup-golden-boot-winner\\\",\\\"volume\\\":47823229.76902795,\\\"volume_24h\\\":1881516.9934069994}\"], \"service\": \"polymarket-hot-events\", \"category\": \"\"}",
       "contentHash": "0xb971c4c59630faa9a9b831bfab5453ebf9a02fa2bc9f2af79416ded3728f3060",
       "finishedAt": "2026-07-06T08:59:57.582Z"
     }
@@ -90,28 +95,28 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 0,
-      "matchesPromise": false,
+      "score": 9,
+      "matchesPromise": true,
       "issues": [
-        "empty deliverable",
-        "Deliverable is empty (0 characters), no data returned"
+        "The deliverable returns events as JSON strings inside an array, which is slightly less convenient than a flat JSON object but still usable."
       ],
-      "summary": "The agent returned no content at all, failing to provide any trending events as promised."
+      "summary": "The deliverable correctly returns the top trending Polymarket events sorted by 24h volume, matching the service promise."
     },
     {
       "assessed": true,
-      "score": 0,
-      "matchesPromise": false,
+      "score": 8,
+      "matchesPromise": true,
       "issues": [
-        "empty deliverable",
-        "Deliverable is empty (0 characters), no data returned",
-        "Failed to provide any trending events or volume data",
-        "No response to the user's request"
+        "Events are returned as JSON strings within the array, not as parsed objects",
+        "No category filter was applied (though none was requested)",
+        "The deliverable type is undefined in the listing but the response is a JSON object"
       ],
-      "summary": "The agent returned an empty deliverable, failing to provide the promised top trending Polymarket events."
+      "summary": "The deliverable correctly returns top trending Polymarket events sorted by 24h volume using public Gamma data, but the events are nested as strings instead of parsed objects."
     }
   ],
   "spentUsdc": 0.2,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-49373b68-20260706085959.html",
-  "badgeUrl": "https://croocred.axiqo.xyz/badge/49373b68-8c41-4c95-b162-e9343f104de4.svg"
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/49373b68-8c41-4c95-b162-e9343f104de4.svg",
+  "rejudgedAt": "2026-07-06T09:55:49.352Z",
+  "rescoredAt": "2026-07-06T09:56:18.361Z"
 }

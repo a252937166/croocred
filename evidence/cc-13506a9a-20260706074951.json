@@ -14,21 +14,28 @@
     "avatar": "https://object.croo.network/images/20260609/27733036b5cc480fa1ae1f2f392f72c0.png"
   },
   "score": {
-    "score": 70,
-    "grade": "B",
+    "score": 97,
+    "grade": "A",
     "verdict": "certified",
+    "capOutcome": "delivered",
+    "qualityOutcome": "pass",
+    "recommendation": "HIRE",
+    "rubricVersion": 2,
     "components": {
       "availability": 30,
       "reliability": 25,
       "latency": 15,
-      "conformance": 0,
-      "quality": 0
+      "conformance": 15,
+      "quality": 12
     },
     "flags": [
-      "empty deliverable",
-      "deliverable is not valid JSON despite schema deliverable type",
-      "Deliverable is empty (0 characters), no SEO audit data returned",
-      "Deliverable is empty (0 characters), no content returned"
+      "identical deliverable across distinct probes (possible canned output)",
+      "Deliverable is a JSON string containing serialized category objects, not a clean JSON object as might be expected",
+      "Word count rule incorrectly reports 0 words despite bodyText being provided in the test request",
+      "Some rules (e.g., img-alt) pass with 'no images' rather than checking actual images from the page",
+      "Word count rule incorrectly reports 0 words despite bodyText being provided",
+      "Some rules (e.g., img-alt) are scored as passed with a message that contradicts the rule intent",
+      "Categories array contains stringified JSON objects instead of native objects"
     ]
   },
   "runs": [
@@ -55,7 +62,7 @@
       "tDeliverMs": 88230,
       "slaMet": true,
       "deliverableType": "schema",
-      "deliverableText": "",
+      "deliverableText": "{\"max_score\": 82, \"categories\": [\"{\\\"category\\\":\\\"title\\\",\\\"label\\\":\\\"Title Optimization\\\",\\\"score\\\":16,\\\"maxScore\\\":16,\\\"rules\\\":[{\\\"id\\\":\\\"title-exists\\\",\\\"name\\\":\\\"Title Tag Exists\\\",\\\"severity\\\":\\\"critical\\\",\\\"passed\\\":true,\\\"score\\\":5,\\\"message\\\":\\\"Title exists (36 characters)\\\"},{\\\"id\\\":\\\"title-length\\\",\\\"name\\\":\\\"Title Length (30-60 characters)\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":true,\\\"score\\\":8,\\\"message\\\":\\\"Title length is 36 characters, within optimal range\\\"},{\\\"id\\\":\\\"title-no-default\\\",\\\"name\\\":\\\"Title is not generic/default\\\",\\\"severity\\\":\\\"info\\\",\\\"passed\\\":true,\\\"score\\\":3,\\\"message\\\":\\\"Title is not a default title\\\"}]}\", \"{\\\"category\\\":\\\"description\\\",\\\"label\\\":\\\"Description Optimization\\\",\\\"score\\\":16,\\\"maxScore\\\":16,\\\"rules\\\":[{\\\"id\\\":\\\"desc-exists\\\",\\\"name\\\":\\\"Meta Description Exists\\\",\\\"severity\\\":\\\"critical\\\",\\\"passed\\\":true,\\\"score\\\":5,\\\"message\\\":\\\"Meta Description exists (125 characters)\\\"},{\\\"id\\\":\\\"desc-length\\\",\\\"name\\\":\\\"Description Length (120-160 characters)\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":true,\\\"score\\\":7,\\\"message\\\":\\\"Description length is 125 characters, within optimal range\\\"},{\\\"id\\\":\\\"desc-cta\\\",\\\"name\\\":\\\"Description contains Call-to-Action (CTA)\\\",\\\"severity\\\":\\\"info\\\",\\\"passed\\\":true,\\\"score\\\":4,\\\"message\\\":\\\"Description contains CTA keywords\\\"}]}\", \"{\\\"category\\\":\\\"structure\\\",\\\"label\\\":\\\"Content Structure\\\",\\\"score\\\":5,\\\"maxScore\\\":13,\\\"rules\\\":[{\\\"id\\\":\\\"h1-exists\\\",\\\"name\\\":\\\"H1 Tag Exists and is Unique\\\",\\\"severity\\\":\\\"critical\\\",\\\"passed\\\":true,\\\"score\\\":5,\\\"message\\\":\\\"H1 Tag exists\\\"},{\\\"id\\\":\\\"h2-exists\\\",\\\"name\\\":\\\"H2 Subheadings Exist (≥2)\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Page lacks H2 subheadings, content lacks hierarchical structure\\\"},{\\\"id\\\":\\\"word-count\\\",\\\"name\\\":\\\"Word Count ≥ 300\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Body text is only 0 words, search engines may flag as thin content\\\"}]}\", \"{\\\"category\\\":\\\"images\\\",\\\"label\\\":\\\"Image Optimization\\\",\\\"score\\\":6,\\\"maxScore\\\":9,\\\"rules\\\":[{\\\"id\\\":\\\"img-alt\\\",\\\"name\\\":\\\"All Images have Alt Text\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":true,\\\"score\\\":6,\\\"message\\\":\\\"No images on the page\\\"},{\\\"id\\\":\\\"og-image\\\",\\\"name\\\":\\\"Open Graph Image Exists\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Missing og:image, no preview thumbnail on social shares\\\"}]}\", \"{\\\"category\\\":\\\"technical\\\",\\\"label\\\":\\\"Technical SEO\\\",\\\"score\\\":3,\\\"maxScore\\\":21,\\\"rules\\\":[{\\\"id\\\":\\\"https\\\",\\\"name\\\":\\\"HTTPS Secure Connection\\\",\\\"severity\\\":\\\"critical\\\",\\\"passed\\\":true,\\\"score\\\":3,\\\"message\\\":\\\"Using HTTPS secure connection\\\"},{\\\"id\\\":\\\"canonical\\\",\\\"name\\\":\\\"Canonical URL Exists\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Missing Canonical URL, may cause duplicate content issues\\\"},{\\\"id\\\":\\\"viewport\\\",\\\"name\\\":\\\"Viewport Meta Tag Exists\\\",\\\"severity\\\":\\\"critical\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Missing Viewport Meta tag, mobile experience may be affected\\\"},{\\\"id\\\":\\\"og-tags\\\",\\\"name\\\":\\\"Open Graph Tags Complete\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Open Graph tags incomplete (0/3), impacts social sharing\\\"},{\\\"id\\\":\\\"schema\\\",\\\"name\\\":\\\"Schema.org Structured Data\\\",\\\"severity\\\":\\\"info\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Missing Schema.org structured data (JSON-LD), no rich snippets\\\"},{\\\"id\\\":\\\"lang-attr\\\",\\\"name\\\":\\\"HTML lang Attribute\\\",\\\"severity\\\":\\\"info\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Missing HTML lang attribute, impacts search engine language detection\\\"}]}\", \"{\\\"category\\\":\\\"links\\\",\\\"label\\\":\\\"Links \\\\u0026 Keywords\\\",\\\"score\\\":2,\\\"maxScore\\\":7,\\\"rules\\\":[{\\\"id\\\":\\\"internal-links\\\",\\\"name\\\":\\\"Internal Links ≥ 3\\\",\\\"severity\\\":\\\"info\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Only 0 internal links, consider adding more site navigation links\\\"},{\\\"id\\\":\\\"keyword-density\\\",\\\"name\\\":\\\"Keyword Density is reasonable (1-3%)\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":true,\\\"score\\\":2,\\\"message\\\":\\\"Insufficient content to evaluate keyword density\\\"}]}\"], \"total_score\": 48}",
       "contentHash": "0xa2b95c705b431327149c819a009776e7ec441eb3d45e5242148b264854185dcd",
       "finishedAt": "2026-07-06T07:47:38.526Z"
     },
@@ -82,7 +89,7 @@
       "tDeliverMs": 89595,
       "slaMet": true,
       "deliverableType": "schema",
-      "deliverableText": "",
+      "deliverableText": "{\"max_score\": 82, \"categories\": [\"{\\\"category\\\":\\\"title\\\",\\\"label\\\":\\\"Title Optimization\\\",\\\"score\\\":16,\\\"maxScore\\\":16,\\\"rules\\\":[{\\\"id\\\":\\\"title-exists\\\",\\\"name\\\":\\\"Title Tag Exists\\\",\\\"severity\\\":\\\"critical\\\",\\\"passed\\\":true,\\\"score\\\":5,\\\"message\\\":\\\"Title exists (36 characters)\\\"},{\\\"id\\\":\\\"title-length\\\",\\\"name\\\":\\\"Title Length (30-60 characters)\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":true,\\\"score\\\":8,\\\"message\\\":\\\"Title length is 36 characters, within optimal range\\\"},{\\\"id\\\":\\\"title-no-default\\\",\\\"name\\\":\\\"Title is not generic/default\\\",\\\"severity\\\":\\\"info\\\",\\\"passed\\\":true,\\\"score\\\":3,\\\"message\\\":\\\"Title is not a default title\\\"}]}\", \"{\\\"category\\\":\\\"description\\\",\\\"label\\\":\\\"Description Optimization\\\",\\\"score\\\":16,\\\"maxScore\\\":16,\\\"rules\\\":[{\\\"id\\\":\\\"desc-exists\\\",\\\"name\\\":\\\"Meta Description Exists\\\",\\\"severity\\\":\\\"critical\\\",\\\"passed\\\":true,\\\"score\\\":5,\\\"message\\\":\\\"Meta Description exists (125 characters)\\\"},{\\\"id\\\":\\\"desc-length\\\",\\\"name\\\":\\\"Description Length (120-160 characters)\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":true,\\\"score\\\":7,\\\"message\\\":\\\"Description length is 125 characters, within optimal range\\\"},{\\\"id\\\":\\\"desc-cta\\\",\\\"name\\\":\\\"Description contains Call-to-Action (CTA)\\\",\\\"severity\\\":\\\"info\\\",\\\"passed\\\":true,\\\"score\\\":4,\\\"message\\\":\\\"Description contains CTA keywords\\\"}]}\", \"{\\\"category\\\":\\\"structure\\\",\\\"label\\\":\\\"Content Structure\\\",\\\"score\\\":5,\\\"maxScore\\\":13,\\\"rules\\\":[{\\\"id\\\":\\\"h1-exists\\\",\\\"name\\\":\\\"H1 Tag Exists and is Unique\\\",\\\"severity\\\":\\\"critical\\\",\\\"passed\\\":true,\\\"score\\\":5,\\\"message\\\":\\\"H1 Tag exists\\\"},{\\\"id\\\":\\\"h2-exists\\\",\\\"name\\\":\\\"H2 Subheadings Exist (≥2)\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Page lacks H2 subheadings, content lacks hierarchical structure\\\"},{\\\"id\\\":\\\"word-count\\\",\\\"name\\\":\\\"Word Count ≥ 300\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Body text is only 0 words, search engines may flag as thin content\\\"}]}\", \"{\\\"category\\\":\\\"images\\\",\\\"label\\\":\\\"Image Optimization\\\",\\\"score\\\":6,\\\"maxScore\\\":9,\\\"rules\\\":[{\\\"id\\\":\\\"img-alt\\\",\\\"name\\\":\\\"All Images have Alt Text\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":true,\\\"score\\\":6,\\\"message\\\":\\\"No images on the page\\\"},{\\\"id\\\":\\\"og-image\\\",\\\"name\\\":\\\"Open Graph Image Exists\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Missing og:image, no preview thumbnail on social shares\\\"}]}\", \"{\\\"category\\\":\\\"technical\\\",\\\"label\\\":\\\"Technical SEO\\\",\\\"score\\\":3,\\\"maxScore\\\":21,\\\"rules\\\":[{\\\"id\\\":\\\"https\\\",\\\"name\\\":\\\"HTTPS Secure Connection\\\",\\\"severity\\\":\\\"critical\\\",\\\"passed\\\":true,\\\"score\\\":3,\\\"message\\\":\\\"Using HTTPS secure connection\\\"},{\\\"id\\\":\\\"canonical\\\",\\\"name\\\":\\\"Canonical URL Exists\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Missing Canonical URL, may cause duplicate content issues\\\"},{\\\"id\\\":\\\"viewport\\\",\\\"name\\\":\\\"Viewport Meta Tag Exists\\\",\\\"severity\\\":\\\"critical\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Missing Viewport Meta tag, mobile experience may be affected\\\"},{\\\"id\\\":\\\"og-tags\\\",\\\"name\\\":\\\"Open Graph Tags Complete\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Open Graph tags incomplete (0/3), impacts social sharing\\\"},{\\\"id\\\":\\\"schema\\\",\\\"name\\\":\\\"Schema.org Structured Data\\\",\\\"severity\\\":\\\"info\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Missing Schema.org structured data (JSON-LD), no rich snippets\\\"},{\\\"id\\\":\\\"lang-attr\\\",\\\"name\\\":\\\"HTML lang Attribute\\\",\\\"severity\\\":\\\"info\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Missing HTML lang attribute, impacts search engine language detection\\\"}]}\", \"{\\\"category\\\":\\\"links\\\",\\\"label\\\":\\\"Links \\\\u0026 Keywords\\\",\\\"score\\\":2,\\\"maxScore\\\":7,\\\"rules\\\":[{\\\"id\\\":\\\"internal-links\\\",\\\"name\\\":\\\"Internal Links ≥ 3\\\",\\\"severity\\\":\\\"info\\\",\\\"passed\\\":false,\\\"score\\\":0,\\\"message\\\":\\\"Only 0 internal links, consider adding more site navigation links\\\"},{\\\"id\\\":\\\"keyword-density\\\",\\\"name\\\":\\\"Keyword Density is reasonable (1-3%)\\\",\\\"severity\\\":\\\"warning\\\",\\\"passed\\\":true,\\\"score\\\":2,\\\"message\\\":\\\"Insufficient content to evaluate keyword density\\\"}]}\"], \"total_score\": 48}",
       "contentHash": "0xa2b95c705b431327149c819a009776e7ec441eb3d45e5242148b264854185dcd",
       "finishedAt": "2026-07-06T07:49:50.118Z"
     }
@@ -90,28 +97,30 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 0,
-      "matchesPromise": false,
+      "score": 8,
+      "matchesPromise": true,
       "issues": [
-        "empty deliverable",
-        "deliverable is not valid JSON despite schema deliverable type",
-        "Deliverable is empty (0 characters), no SEO audit data returned"
+        "Deliverable is a JSON string containing serialized category objects, not a clean JSON object as might be expected",
+        "Word count rule incorrectly reports 0 words despite bodyText being provided in the test request",
+        "Some rules (e.g., img-alt) pass with 'no images' rather than checking actual images from the page"
       ],
-      "summary": "The service returned an empty deliverable, failing to provide any per-rule findings or category breakdowns as promised."
+      "summary": "The deliverable successfully audits the provided SEO fields against 18 deterministic rules with category breakdowns, though it has minor data handling issues."
     },
     {
       "assessed": true,
-      "score": 0,
-      "matchesPromise": false,
+      "score": 8,
+      "matchesPromise": true,
       "issues": [
-        "empty deliverable",
-        "deliverable is not valid JSON despite schema deliverable type",
-        "Deliverable is empty (0 characters), no content returned"
+        "Word count rule incorrectly reports 0 words despite bodyText being provided",
+        "Some rules (e.g., img-alt) are scored as passed with a message that contradicts the rule intent",
+        "Categories array contains stringified JSON objects instead of native objects"
       ],
-      "summary": "The service returned an empty deliverable, failing to provide any SEO audit results as promised."
+      "summary": "Deliverable correctly applies 18 deterministic SEO rules with category breakdowns and per-rule findings, but has minor data formatting and accuracy issues."
     }
   ],
   "spentUsdc": 0.2,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-13506a9a-20260706074951.html",
-  "badgeUrl": "https://croocred.axiqo.xyz/badge/13506a9a-49cf-4748-9382-71698815dafa.svg"
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/13506a9a-49cf-4748-9382-71698815dafa.svg",
+  "rejudgedAt": "2026-07-06T09:55:59.362Z",
+  "rescoredAt": "2026-07-06T09:56:18.364Z"
 }

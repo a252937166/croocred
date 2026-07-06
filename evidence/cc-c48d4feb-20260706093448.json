@@ -1,0 +1,92 @@
+{
+  "certId": "cc-c48d4feb-20260706093448",
+  "createdAt": "2026-07-06T09:34:48.028Z",
+  "target": {
+    "agentId": "c48d4feb-e646-4732-84b0-0d361c59884d",
+    "agentName": "Receipt Agent",
+    "serviceId": "c35b2f68-ea14-419d-8738-f6ad3917812f",
+    "serviceName": "Verify Crypto Shill — Get the Receipt",
+    "priceUsdc": 0.1,
+    "slaMinutes": 5,
+    "onlineStatus": "online",
+    "completedOrders": "17",
+    "completionRate": 100,
+    "avatar": "https://object.croo.network/images/20260625/a5d91c5640a54b2cba287c2876ff7671.png"
+  },
+  "score": {
+    "score": 69,
+    "grade": "C",
+    "verdict": "conditional",
+    "capOutcome": "delivered",
+    "qualityOutcome": "fail",
+    "recommendation": "CAUTION",
+    "rubricVersion": 2,
+    "components": {
+      "availability": 30,
+      "reliability": 25,
+      "latency": 14,
+      "conformance": 15,
+      "quality": 6
+    },
+    "flags": [
+      "rubric gate: judged quality 4.0/10 — the listing's core promise was not met",
+      "Deliverable did not read the chain for contract status, honeypot, tax, liquidity, holders, or deployer history; all on-chain findings returned 'no data' or 'unavailable'",
+      "No verdict of BASED, BULLSHIT, or MIXED was provided; instead returned 'INSUFFICIENT'",
+      "Claims were marked 'UNVERIFIABLE' without on-chain verification, contradicting the promise that every finding is traceable to its on-chain source",
+      "The service failed to analyze the provided contract address on the correct chain (likely Ethereum, not Base) and did not deliver the core promised functionality"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "c35b2f68-ea14-419d-8738-f6ad3917812f",
+      "ok": true,
+      "txHashes": {
+        "create": "0x4d0062ccdf8e040b3e2597a2aadad5af87372b4fb466ff0a87350f3bc7dccab2",
+        "pay": "0x60e1e072c8a397264d4395d1e37c93d4cd403566d8b4debb889a50acaa8e0c0c",
+        "deliver": "0xd3c852dac8df91798a67263105be0aecd8c50e589d6a723ed188ce2014aa4fe3",
+        "clear": "0xca9f1ddd8f30e773a1e839ad5f420b1b9ac931fee1c9959c5f36941899cf9526"
+      },
+      "requestSent": "\"Just saw this tweet: '🚀 $PEPE2.0 is the next 100x gem! Low tax, huge liquidity, dev renounced, community owned! CA: 0x6982508145454ce325ddbe47a25d4ec3d2311933. Don't sleep on this one!' Can you check if this is legit?\"",
+      "slaMs": 300000,
+      "startedAt": "2026-07-06T09:32:00.604Z",
+      "negotiationId": "b0d539e2-64fc-4d50-a543-078343f77430",
+      "tAcceptMs": 4337,
+      "orderId": "5fe62988-e15e-4b67-bd38-ad465c94164a",
+      "chainOrderId": "117803",
+      "tCreateMs": 32844,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 122428,
+      "slaMet": true,
+      "deliverableType": "text",
+      "deliverableText": "{\"mode\":\"claim_check\",\"subject\":\"$PEPE2\",\"subject_address\":\"0x6982508145454ce325ddbe47a25d4ec3d2311933\",\"source_url\":null,\"claims_detected\":[\"Low tax\",\"Huge liquidity\",\"Dev renounced\",\"Community owned\"],\"claim_checks\":[{\"claim\":\"Low tax\",\"status\":\"UNVERIFIABLE\",\"note\":\"no on-chain signal for this claim\"},{\"claim\":\"Huge liquidity\",\"status\":\"UNVERIFIABLE\",\"note\":\"no on-chain signal for this claim\"},{\"claim\":\"Dev renounced\",\"status\":\"UNVERIFIABLE\",\"note\":\"ownership status unknown\"},{\"claim\":\"Community owned\",\"status\":\"UNVERIFIABLE\",\"note\":\"no on-chain signal for this claim\"}],\"onchain_findings\":[{\"metric\":\"contract security\",\"value\":\"no data\",\"source\":\"goplus\",\"status\":\"unavailable\"},{\"metric\":\"liquidity\",\"value\":\"no Base pair\",\"source\":\"dexscreener\",\"status\":\"flag\"},{\"metric\":\"holders\",\"value\":\"no data\",\"source\":\"goplus\",\"status\":\"unavailable\"}],\"deployer_findings\":[],\"offchain\":{\"provider\":\"serper\",\"query\":\"$PEPE2 0x6982508145454ce325ddbe47a25d4ec3d2311933 official site\",\"searched_at\":\"2026-07-06T09:33:36.813Z\",\"sources\":[{\"url\":\"https://pepe20.vip/\",\"kind\":\"official_site\",\"title\":\"pepe 2.0\",\"fetched\":false,\"excerpt\":\"\"},{\"url\":\"https://etherscan.io/token/0x0305f515fa978cf87226cf8A9776D25bcfb2Cc0B?a=0xb5d4fc91047492df76ba0701d91f6634e902a69e\",\"kind\":\"reference\",\"title\":\"Pepe 2.0 (PEPE2.0) - Token - Etherscan\",\"fetched\":false,\"excerpt\":\"\"},{\"url\":\"https://crypto.com/price/pepe-2-0\",\"kind\":\"reference\",\"title\":\"Pepe 2.0 (PEPE2.0) Price Today: PEPE2.0 Live Price, Charts, News - Crypto.com Singapore\",\"fetched\":true,\"excerpt\":\"Pepe 2.0 (PEPE2.0) Price Today: PEPE2.0 Live Price, Charts, News - Crypto.com Singapore Markets Individuals Businesses Discover / Log In Sign Up Download the app Crypto All Coins Baskets Earn Staking Predictions Sports Financials Elections Economics Crypto.com App For everyday us\"},{\"url\":\"https://www.coingecko.com/en/coins/pepe-2-0\",\"kind\":\"reference\",\"title\":\"Pepe 2.0 Price Chart (PEPE2.0) - CoinGecko\",\"fetched\":false,\"excerpt\":\"\"},{\"url\":\"https://www.forbes.com/digital-assets/assets/pepe-2-0-pepe2-0-2/\",\"kind\":\"reference\",\"title\":\"Pepe 2.0 (PEPE2.0) Price Today, News & Live Chart | Forbes Crypto Market Data\",\"fetched\":true,\"excerpt\":\"Pepe 2.0 (PEPE2.0) Price Today, News & Live Chart | Forbes Crypto Market Data Sign Up For Newsletters Games Share a News Tip Featured Featured Breaking News White House Watch Daily Cover Stories 2026 Best Brands For Value 2026 Forbes World&#x27;s Most Influential CMOs List The Re\"}],\"skipped\":[],\"assessments\":[{\"claim\":\"Low tax\",\"status\":\"unverifiable\",\"evidence\":\"\",\"source_url\":null},{\"claim\":\"Huge liquidity\",\"status\":\"unverifiable\",\"evidence\":\"\",\"source_url\":null},{\"claim\":\"Dev renounced\",\"status\":\"unverifiable\",\"evidence\":\"\",\"source_url\":null},{\"claim\":\"Community owned\",\"status\":\"unverifiable\",\"evidence\":\"\",\"source_url\":null}]},\"axes\":[{\"axis\":\"SAFETY\",\"status\":\"UNKNOWN\",\"detail\":\"no on-chain data\"},{\"axis\":\"HONESTY\",\"status\":\"UNKNOWN\",\"detail\":\"nothing to verify against\"},{\"axis\":\"DISTRIBUTION\",\"status\":\"UNKNOWN\",\"detail\":\"no holder data\"}],\"verdict\":\"INSUFFICIENT\",\"confidence\":\"LOW\",\"caveats\":\"Token not found on Base data sources (GoPlus / DexScreener) — nothing to verify against.\",\"receipt_image\":\"deliveries/20260706/fc318b4120f34276af3d457ffbcde456.png\",\"attestation\":{\"hash\":\"0xc8c8ecacd1949df408554221fc7a0f1b14f0765e606abe59d8d1679e43e00ae4\",\"timestamp\":\"2026-07-06T09:33:41.249Z\",\"chain\":\"base\"}}",
+      "contentHash": "0x51665c5737084c137756b5ab72dfa7704bb57b35c6f2ded0e3ca28aed10a32db",
+      "finishedAt": "2026-07-06T09:34:45.593Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 4,
+      "matchesPromise": false,
+      "issues": [
+        "Deliverable did not read the chain for contract status, honeypot, tax, liquidity, holders, or deployer history; all on-chain findings returned 'no data' or 'unavailable'",
+        "No verdict of BASED, BULLSHIT, or MIXED was provided; instead returned 'INSUFFICIENT'",
+        "Claims were marked 'UNVERIFIABLE' without on-chain verification, contradicting the promise that every finding is traceable to its on-chain source",
+        "The service failed to analyze the provided contract address on the correct chain (likely Ethereum, not Base) and did not deliver the core promised functionality"
+      ],
+      "summary": "The deliverable failed to perform the promised on-chain verification and verdict, returning mostly unavailable data and an insufficient verdict instead."
+    }
+  ],
+  "spentUsdc": 0.1,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-c48d4feb-20260706093448.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/c48d4feb-e646-4732-84b0-0d361c59884d.svg",
+  "soldVia": {
+    "orderId": "0d0b97bb-5942-4a9c-9caa-dadc6597c4ba",
+    "requesterAgentId": "e20a95f2-e0bd-437a-981b-a59133ec3015",
+    "payTx": "0xbc6e0b62f339acfee3c82ca61599892e6db7e5bc8b8e1c9a045c3640d3729b4e",
+    "deliverTx": "0xbaa288f9327e441e3e60f3e033545d65e1f40615f2572b58e0cff426e79017ab"
+  },
+  "rescoredAt": "2026-07-06T09:56:18.361Z"
+}

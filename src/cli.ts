@@ -112,8 +112,81 @@ async function main(): Promise<void> {
       console.log("built:", await buildSite());
       break;
     }
+    case "rejudge": {
+      // Fairness pass: paid runs recorded with an empty deliverable may have
+      // delivered real content in the `deliverableSchema` field (shopper read
+      // only `deliverableText` before 2026-07-06). Re-fetch each such
+      // delivery, recover the payload, re-judge it, recompute the score.
+      const { computeScore } = await import("./score.js");
+      const { saveRecord } = await import("./report.js");
+      const { judgeDeliverable } = await import("./judge.js");
+      const { resolveTarget } = await import("./publicApi.js");
+      const client = mainClient();
+      for (const rec of loadAllRecords()) {
+        const emptyPaid = rec.runs.filter(
+          (r) => r.mode === "paid" && r.ok && r.orderId && !(r.deliverableText ?? "").trim(),
+        );
+        if (!emptyPaid.length) continue;
+        // Listing context for the judge — live if possible, else the snapshot.
+        let agent = {
+          agentId: rec.target.agentId, name: rec.target.agentName, description: "",
+          onlineStatus: rec.target.onlineStatus, completedOrders: rec.target.completedOrders,
+          completionRate: rec.target.completionRate, avatar: rec.target.avatar,
+        } as Parameters<typeof judgeDeliverable>[0];
+        let service = {
+          serviceId: rec.target.serviceId, agentId: rec.target.agentId, name: rec.target.serviceName,
+          description: "", price: String(Math.round(rec.target.priceUsdc * 1e6)),
+          slaMinutes: rec.target.slaMinutes, requirementType: "", requirementText: "",
+          requirementSchema: "", deliverableType: "", deliverableText: "", deliverableSchema: "", orders7d: "",
+        } as unknown as Parameters<typeof judgeDeliverable>[1];
+        try {
+          const t = await resolveTarget(rec.target.serviceId);
+          agent = t.agent; service = t.service;
+        } catch { /* snapshot fallback */ }
+        let changed = false;
+        for (let i = 0; i < rec.runs.length; i++) {
+          const run = rec.runs[i];
+          if (!emptyPaid.includes(run)) continue;
+          try {
+            const d = await client.getDelivery(run.orderId!);
+            const content = ((d.deliverableText ?? "").trim() || (d.deliverableSchema ?? "").trim());
+            if (!content) { console.log(`${rec.certId} run#${run.runIndex}: genuinely empty — verdict stands`); continue; }
+            run.deliverableText = content;
+            run.deliverableType = d.deliverableType;
+            rec.verdicts[i] = await judgeDeliverable(agent, service, run);
+            changed = true;
+            console.log(`${rec.certId} run#${run.runIndex}: recovered ${content.length} chars from schema field → re-judged ${rec.verdicts[i].score}/10`);
+          } catch (err) {
+            console.log(`${rec.certId} run#${run.runIndex}: refetch failed — ${String(err).slice(0, 90)}`);
+          }
+        }
+        if (changed) {
+          rec.score = computeScore(agent, service, rec.runs, rec.verdicts);
+          (rec as unknown as Record<string, unknown>).rejudgedAt = new Date().toISOString();
+          saveRecord(rec);
+          console.log(`  ⇒ ${rec.target.agentName}: ${rec.score.grade}·${rec.score.score} ${rec.score.verdict} → ${rec.score.recommendation}`);
+        }
+      }
+      console.log("site:", await buildSite());
+      break;
+    }
+    case "rescore": {
+      // Replay every stored record through the current rubric (idempotent).
+      const { finalizeScore } = await import("./score.js");
+      const { saveRecord } = await import("./report.js");
+      for (const rec of loadAllRecords()) {
+        const before = `${rec.score.grade}·${rec.score.score} ${rec.score.verdict}`;
+        rec.score = finalizeScore(rec.score.components, rec.score.flags, rec.runs, rec.verdicts);
+        (rec as unknown as Record<string, unknown>).rescoredAt = new Date().toISOString();
+        saveRecord(rec);
+        const after = `${rec.score.grade}·${rec.score.score} ${rec.score.verdict} → ${rec.score.recommendation}`;
+        console.log(`${rec.certId}  ${rec.target.agentName.padEnd(22).slice(0, 22)}  ${before}  ⇒  ${after}`);
+      }
+      console.log("site:", await buildSite());
+      break;
+    }
     default:
-      console.log("commands: whoami | search <q> | inspect <id> | services [n] | certify <id> [runs] | buy <serviceId> | demo-buy <serviceId> '<req>' | records | site");
+      console.log("commands: whoami | search <q> | inspect <id> | services [n] | certify <id> [runs] | buy <serviceId> | demo-buy <serviceId> '<req>' | records | rescore | site");
   }
 }
 
