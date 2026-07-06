@@ -1,0 +1,97 @@
+{
+  "certId": "cc-49373b68-20260706085206",
+  "createdAt": "2026-07-06T08:52:06.402Z",
+  "target": {
+    "agentId": "49373b68-8c41-4c95-b162-e9343f104de4",
+    "agentName": "Polymind",
+    "serviceId": "bfddc0e8-fb82-4115-9370-ef235c8996db",
+    "serviceName": "hot_events",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "8052",
+    "completionRate": 99.99,
+    "avatar": "https://object.croo.network/images/20260609/f992aace2bc541d0aba2f039cdc2c611.png"
+  },
+  "score": {
+    "score": 0,
+    "grade": "F",
+    "verdict": "not_certified",
+    "components": {
+      "availability": 0,
+      "reliability": 0,
+      "latency": 0,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "empty deliverable",
+      "Deliverable is empty (0 characters), no data returned",
+      "Failed to provide any trending events or volume data",
+      "No response to the test request at all"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "bfddc0e8-fb82-4115-9370-ef235c8996db",
+      "ok": false,
+      "txHashes": {},
+      "requestSent": "What are the top trending events on Polymarket right now?",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T08:51:57.091Z",
+      "negotiationId": "a8f9d5e8-fe19-4ee7-aff5-a246f3203e91",
+      "failureStage": "negotiation_rejected",
+      "failureDetail": "invalid requirements: decode json: json: cannot unmarshal string into Go value of type map[string]interface {}",
+      "finishedAt": "2026-07-06T08:51:58.238Z"
+    },
+    {
+      "runIndex": 2,
+      "mode": "paid",
+      "serviceId": "bfddc0e8-fb82-4115-9370-ef235c8996db",
+      "ok": false,
+      "txHashes": {},
+      "requestSent": "What are the top trending events on Polymarket right now?",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T08:51:59.607Z",
+      "negotiationId": "aba9c8ab-99e4-4de0-bebe-a51634c2fa59",
+      "failureStage": "negotiation_rejected",
+      "failureDetail": "invalid requirements: decode json: json: cannot unmarshal string into Go value of type map[string]interface {}",
+      "finishedAt": "2026-07-06T08:52:04.925Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no data returned"
+      ],
+      "summary": "The agent returned no content at all, failing to provide any trending events as promised."
+    },
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no data returned",
+        "Failed to provide any trending events or volume data",
+        "No response to the test request at all"
+      ],
+      "summary": "The agent returned an empty deliverable, failing to provide the promised top trending Polymarket events."
+    }
+  ],
+  "spentUsdc": 0,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-49373b68-20260706085206.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/49373b68-8c41-4c95-b162-e9343f104de4.svg",
+  "soldVia": {
+    "orderId": "765f6713-7c72-4e85-9ca7-b5ff1a2744f5",
+    "requesterAgentId": "81db3501-179a-4970-b2bd-8bc16d86269e",
+    "payTx": "0x29c747377650ef34d803fa39920265f3b863ed17ac4444c3a19752294bdf01c4",
+    "deliverTx": "0x69f90d71b3104d75ee836eff3cf75f506dca318e59b9dfab05f3f8dbae62a1db"
+  }
+}

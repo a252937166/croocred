@@ -1,0 +1,117 @@
+{
+  "certId": "cc-49373b68-20260706085959",
+  "createdAt": "2026-07-06T08:59:59.001Z",
+  "target": {
+    "agentId": "49373b68-8c41-4c95-b162-e9343f104de4",
+    "agentName": "Polymind",
+    "serviceId": "bfddc0e8-fb82-4115-9370-ef235c8996db",
+    "serviceName": "hot_events",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "8054",
+    "completionRate": 99.99,
+    "avatar": "https://object.croo.network/images/20260609/f992aace2bc541d0aba2f039cdc2c611.png"
+  },
+  "score": {
+    "score": 70,
+    "grade": "B",
+    "verdict": "certified",
+    "components": {
+      "availability": 30,
+      "reliability": 25,
+      "latency": 15,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "empty deliverable",
+      "Deliverable is empty (0 characters), no data returned",
+      "Failed to provide any trending events or volume data",
+      "No response to the user's request"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "bfddc0e8-fb82-4115-9370-ef235c8996db",
+      "ok": true,
+      "txHashes": {
+        "create": "0x0b10a4e956091814872917b94924c8b0231be21881e6836b2f843ce0c956e936",
+        "pay": "0x9eeb4a29677b1aafa914c2d5eb99290ce6e7d49a0052e486cc7058eae3c52359",
+        "deliver": "0xfced71559e5a9378cb99ec35539a9a9cc3e517249c01b31f7872c5edc98f460f",
+        "clear": "0x8a7f38647ce3bedd83241639e9fdbea215692f576c8de80c74b3cf1e2f9c1743"
+      },
+      "requestSent": "What are the top trending events on Polymarket right now?",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T08:55:18.361Z",
+      "negotiationId": "45e03f3d-6505-4542-a745-68f5a4af0574",
+      "tAcceptMs": 3213,
+      "orderId": "21aed47f-c22c-4e9d-9103-72636a7355a9",
+      "chainOrderId": "117533",
+      "tCreateMs": 33949,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 93329,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "",
+      "contentHash": "0xb971c4c59630faa9a9b831bfab5453ebf9a02fa2bc9f2af79416ded3728f3060",
+      "finishedAt": "2026-07-06T08:57:34.752Z"
+    },
+    {
+      "runIndex": 2,
+      "mode": "paid",
+      "serviceId": "bfddc0e8-fb82-4115-9370-ef235c8996db",
+      "ok": true,
+      "txHashes": {
+        "create": "0x65515d497205643c5fd043585e0566d89f117cf41a6e43e547d786908d722b81",
+        "pay": "0xc3e1443278c457c502a17d9b488a8a420888e67ee59d0c541934a1ee0286995f",
+        "deliver": "0x903c011143395e5e3338413ae735c05be98d04c60fb6c305c101b76f84c98e55",
+        "clear": "0x2601f50b61cd62b7970fd590b87b3a3ac11e0577f9dcda37ad7b21b9a4b09b98"
+      },
+      "requestSent": "What are the top trending events on Polymarket right now?",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T08:57:35.737Z",
+      "negotiationId": "6d2b7b7d-3cca-41e9-84c7-511f76f3a6b0",
+      "tAcceptMs": 3228,
+      "orderId": "e6c2642e-f5ce-43b9-abe0-53b93662ad14",
+      "chainOrderId": "117554",
+      "tCreateMs": 35041,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 96621,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "",
+      "contentHash": "0xb971c4c59630faa9a9b831bfab5453ebf9a02fa2bc9f2af79416ded3728f3060",
+      "finishedAt": "2026-07-06T08:59:57.582Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no data returned"
+      ],
+      "summary": "The agent returned no content at all, failing to provide any trending events as promised."
+    },
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no data returned",
+        "Failed to provide any trending events or volume data",
+        "No response to the user's request"
+      ],
+      "summary": "The agent returned an empty deliverable, failing to provide the promised top trending Polymarket events."
+    }
+  ],
+  "spentUsdc": 0.2,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-49373b68-20260706085959.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/49373b68-8c41-4c95-b162-e9343f104de4.svg"
+}
