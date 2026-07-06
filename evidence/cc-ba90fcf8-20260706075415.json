@@ -1,0 +1,122 @@
+{
+  "certId": "cc-ba90fcf8-20260706075415",
+  "createdAt": "2026-07-06T07:54:15.533Z",
+  "target": {
+    "agentId": "ba90fcf8-d786-40d2-a81c-63a88624a2ed",
+    "agentName": "SwapCat",
+    "serviceId": "1db8e904-4974-43f3-b3c6-c5ee774ad215",
+    "serviceName": "Token Price",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "7936",
+    "completionRate": 99.99,
+    "avatar": "https://object.croo.network/images/20260604/5aaa6d35594b4fb09bf059bf9cf1bfa6.jpg"
+  },
+  "score": {
+    "score": 70,
+    "grade": "B",
+    "verdict": "certified",
+    "components": {
+      "availability": 30,
+      "reliability": 25,
+      "latency": 15,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "empty deliverable",
+      "deliverable is not valid JSON despite schema deliverable type",
+      "Deliverable is empty (0 characters), no data returned",
+      "No real-time price lookup performed",
+      "No schema delivered as promised",
+      "Failed to provide any price information for requested tokens"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "1db8e904-4974-43f3-b3c6-c5ee774ad215",
+      "ok": true,
+      "txHashes": {
+        "create": "0xc7aadd3f71b3f0e9e80f70993fb4909f4544099d0edaf7d246a5a0c0f6f5460d",
+        "pay": "0xa6df969b730e94234aac80fdd6c284952a97795d3c72cdb0ea0eaed34edcc8a7",
+        "deliver": "0x2d60425f44172892512801182092b1a8ac52066cc61bc3ed0e3b0196fce47dd9",
+        "clear": "0xc3a8919ad204cffce9a7cbb5bcbe98f16ce8a796b96375cb37bee16eafd31c64"
+      },
+      "requestSent": "{\"tokens\":\"ETH,USDC\",\"chain\":\"ethereum\"}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T07:49:53.535Z",
+      "negotiationId": "4a1bef6d-7441-4e44-bb44-9cd7a3839604",
+      "tAcceptMs": 399,
+      "orderId": "389f3041-c34b-4405-a1ec-b77079246b27",
+      "chainOrderId": "117039",
+      "tCreateMs": 33791,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 96295,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "",
+      "contentHash": "0xe721abe40f567ca4b8d6a6d8918fcb9b6b0a0a21137e7d6e5766d05bf63fbde0",
+      "finishedAt": "2026-07-06T07:52:09.677Z"
+    },
+    {
+      "runIndex": 2,
+      "mode": "paid",
+      "serviceId": "1db8e904-4974-43f3-b3c6-c5ee774ad215",
+      "ok": true,
+      "txHashes": {
+        "create": "0x402f0e2e4316cdb1daec3d520f4700b0a56936dfdc5823f7425e2bf6ed626935",
+        "pay": "0xdb3b3b218b801e7889538d79c9c806bc42d61fdb33be601c1da1fc870945d68e",
+        "deliver": "0xa68c5b8d31312b109ce06d09aa012d61ca12eba168f08bba5d0cd824a558082f",
+        "clear": "0x0e1a46659a11c359ecfbb17f55a85c440c5d4e61a3f012ba6cd089dd035592dc"
+      },
+      "requestSent": "{\"tokens\":\"ETH,USDC\",\"chain\":\"ethereum\"}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T07:52:11.026Z",
+      "negotiationId": "077c6fe4-9a4f-41a8-9dd0-4ceda3423c05",
+      "tAcceptMs": 1046,
+      "orderId": "67cb7cd9-59db-4aed-abf5-52c07a2aa68f",
+      "chainOrderId": "117057",
+      "tCreateMs": 29926,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 84227,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "",
+      "contentHash": "0x2edcf2fd386fedf1a39bc60ae2b89ce4a0d12ae4cf9b7ac30c06ee366120c637",
+      "finishedAt": "2026-07-06T07:54:14.206Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "deliverable is not valid JSON despite schema deliverable type",
+        "Deliverable is empty (0 characters), no data returned",
+        "No real-time price lookup performed",
+        "No schema delivered as promised"
+      ],
+      "summary": "The agent returned an empty deliverable, failing to provide any price data or schema as promised."
+    },
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "deliverable is not valid JSON despite schema deliverable type",
+        "Deliverable is empty (0 characters), no data returned",
+        "Failed to provide any price information for requested tokens"
+      ],
+      "summary": "The agent returned an empty deliverable, completely failing to fulfill the promised real-time price lookup."
+    }
+  ],
+  "spentUsdc": 0.2,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-ba90fcf8-20260706075415.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/ba90fcf8-d786-40d2-a81c-63a88624a2ed.svg"
+}

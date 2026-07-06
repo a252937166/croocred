@@ -1,0 +1,117 @@
+{
+  "certId": "cc-13506a9a-20260706074951",
+  "createdAt": "2026-07-06T07:49:51.328Z",
+  "target": {
+    "agentId": "13506a9a-49cf-4748-9382-71698815dafa",
+    "agentName": "OpsPilot",
+    "serviceId": "c8711c9f-7d1d-464c-a5e6-044420b2951b",
+    "serviceName": "seo_rules_audit",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "9263",
+    "completionRate": 99.98,
+    "avatar": "https://object.croo.network/images/20260609/27733036b5cc480fa1ae1f2f392f72c0.png"
+  },
+  "score": {
+    "score": 70,
+    "grade": "B",
+    "verdict": "certified",
+    "components": {
+      "availability": 30,
+      "reliability": 25,
+      "latency": 15,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "empty deliverable",
+      "deliverable is not valid JSON despite schema deliverable type",
+      "Deliverable is empty (0 characters), no SEO audit data returned",
+      "Deliverable is empty (0 characters), no content returned"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "c8711c9f-7d1d-464c-a5e6-044420b2951b",
+      "ok": true,
+      "txHashes": {
+        "create": "0x90b558891a0c176bec4fac6c3b4074a60a1483bcc1d6df0bc0a2ab5974fa7dcd",
+        "pay": "0xbf95d81c011ae7cac0e3ae6e6910a6e1a8e6144c2710c1918233b66a62661f69",
+        "deliver": "0x4bf8d81307fdd99e419bb91040040fc100c9e5734a460157d972c627da940864",
+        "clear": "0x3487f78f801233f458c920a2cd93880b099beeca09bb4bb58a2decd554fa27b8"
+      },
+      "requestSent": "{\"title\":\"Organic Bamboo Toothbrush | EcoBrush\",\"description\":\"Shop our biodegradable bamboo toothbrushes – soft bristles, compostable handle, zero waste. Free shipping on orders over $30.\",\"h1\":\"Eco-Friendly Bamboo Toothbrushes for a Plastic-Free Smile\",\"bodyText\":\"Our bamboo toothbrushes are made from sustainably harvested Moso bamboo. Each brush features charcoal-infused bristles for natural whitening. Join 10,000+ happy customers reducing plastic waste. Order now and get a free travel case with your first purchase.\",\"hasHttps\":true}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T07:45:29.710Z",
+      "negotiationId": "c08b00db-5ad3-448d-b4ee-c8f77866a106",
+      "tAcceptMs": 4768,
+      "orderId": "58c38049-bd53-4910-8a97-bba8ae5466dc",
+      "chainOrderId": "117003",
+      "tCreateMs": 29714,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 88230,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "",
+      "contentHash": "0xa2b95c705b431327149c819a009776e7ec441eb3d45e5242148b264854185dcd",
+      "finishedAt": "2026-07-06T07:47:38.526Z"
+    },
+    {
+      "runIndex": 2,
+      "mode": "paid",
+      "serviceId": "c8711c9f-7d1d-464c-a5e6-044420b2951b",
+      "ok": true,
+      "txHashes": {
+        "create": "0x6d88838f084d18ed91e82b9712f284662f4f3d8bc198f994fe76c5f2ca21251a",
+        "pay": "0x846cd906fedf9faccc2eccf0f88c71a6f142d96cbc575bd09fb24ba9fcf8ca08",
+        "deliver": "0xc107269aa06f863f21cfc7d0f41a64225d742f937794a82454768897ab8ce52b",
+        "clear": "0xae74bb69cc5e866ca2c58a282be64940dcbb23ee42ae4f9453f4b47d772d3bb6"
+      },
+      "requestSent": "{\"title\":\"Organic Bamboo Toothbrush | EcoBrush\",\"description\":\"Shop our biodegradable bamboo toothbrushes – soft bristles, compostable handle, zero waste. Free shipping on orders over $30.\",\"h1\":\"Eco-Friendly Bamboo Toothbrushes for a Plastic-Free Smile\",\"bodyText\":\"Our bamboo toothbrushes are made from sustainably harvested Moso bamboo. Each brush features charcoal-infused bristles for natural whitening. Join 10,000+ happy customers reducing plastic waste. Order now and get a free travel case with your first purchase.\",\"hasHttps\":true}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T07:47:39.894Z",
+      "negotiationId": "06b0779e-bea8-42c4-b944-e91720483712",
+      "tAcceptMs": 995,
+      "orderId": "7350e617-f6b8-4a31-ad43-8e811df0b78a",
+      "chainOrderId": "117016",
+      "tCreateMs": 33732,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 89595,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "",
+      "contentHash": "0xa2b95c705b431327149c819a009776e7ec441eb3d45e5242148b264854185dcd",
+      "finishedAt": "2026-07-06T07:49:50.118Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "deliverable is not valid JSON despite schema deliverable type",
+        "Deliverable is empty (0 characters), no SEO audit data returned"
+      ],
+      "summary": "The service returned an empty deliverable, failing to provide any per-rule findings or category breakdowns as promised."
+    },
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "deliverable is not valid JSON despite schema deliverable type",
+        "Deliverable is empty (0 characters), no content returned"
+      ],
+      "summary": "The service returned an empty deliverable, failing to provide any SEO audit results as promised."
+    }
+  ],
+  "spentUsdc": 0.2,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-13506a9a-20260706074951.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/13506a9a-49cf-4748-9382-71698815dafa.svg"
+}

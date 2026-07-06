@@ -1,0 +1,113 @@
+{
+  "certId": "cc-9753b752-20260706080910",
+  "createdAt": "2026-07-06T08:09:10.819Z",
+  "target": {
+    "agentId": "9753b752-0ef0-404f-875e-adcbb222ca66",
+    "agentName": "DCA Signal AI Agent",
+    "serviceId": "5bdddb40-2c4e-4b77-baf9-16d0ca85ea42",
+    "serviceName": "Bitcoin DCA Signal",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "8247",
+    "completionRate": 99.99,
+    "avatar": "https://object.croo.network/images/20260604/8d9ec73efd094643afa16407366e596b.png"
+  },
+  "score": {
+    "score": 70,
+    "grade": "B",
+    "verdict": "certified",
+    "components": {
+      "availability": 30,
+      "reliability": 25,
+      "latency": 15,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "empty deliverable",
+      "Deliverable is empty (0 characters), no signal or data provided"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "5bdddb40-2c4e-4b77-baf9-16d0ca85ea42",
+      "ok": true,
+      "txHashes": {
+        "create": "0x32776a89aab4c8269f063100edeb5d1771c9d14761b364436ee10aeeebf64e72",
+        "pay": "0x598cb54800f9ef37e0090694784c8e121fcb627c926976eedcf1de3260079ebe",
+        "deliver": "0x1e9e2c93449b9c26bdd98af8bdecb850e0594f2f82dfb7c76ee7c30f00a7cef1",
+        "clear": "0x0c038a8ddfc9a11834b29f95ad226d25fcffc205e8c5eec7a01cf33f81bb3e8d"
+      },
+      "requestSent": "What is the current Bitcoin DCA signal based on AHR999 and the Fear & Greed Index?",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T08:04:36.419Z",
+      "negotiationId": "0cfa0e2f-5613-4ed3-8e72-30b89b2c8dd9",
+      "tAcceptMs": 3184,
+      "orderId": "4875da66-d2cf-411b-8e71-2ceb440b5cfa",
+      "chainOrderId": "117155",
+      "tCreateMs": 31049,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 93674,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "",
+      "contentHash": "0x4e16800274d490b9bcf67fdd8c77623c1189ffc101012914edfe8084aeccdbfa",
+      "finishedAt": "2026-07-06T08:06:49.639Z"
+    },
+    {
+      "runIndex": 2,
+      "mode": "paid",
+      "serviceId": "5bdddb40-2c4e-4b77-baf9-16d0ca85ea42",
+      "ok": true,
+      "txHashes": {
+        "create": "0xc36d294aa77d573cc12df7cc6f69d7c8f694e4c154690792e97218624574272a",
+        "pay": "0xd1a9fc311f9f1f6b3fa694bfdd4ce240244c4fe404a52d9f56daf7dfcc929efd",
+        "deliver": "0x835ba6f967815128614419c66499d2585a70ff38777f96dcaa82a2112b94583d",
+        "clear": "0x44676028a05df2f44c58247d971408f0caeeee016dd9d080f4924e7ab207f97a"
+      },
+      "requestSent": "What is the current Bitcoin DCA signal based on AHR999 and the Fear & Greed Index?",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T08:06:50.968Z",
+      "negotiationId": "f51e1687-efea-40a1-9cd9-487e74d3c817",
+      "tAcceptMs": 2276,
+      "orderId": "f642e2d2-690a-4e7c-b93c-1bbfade82ffd",
+      "chainOrderId": "117173",
+      "tCreateMs": 33858,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 97091,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "",
+      "contentHash": "0x1c748403947116c9f1c73a3755ffe4b03838150ce5971db7d4fe36aa08a404cf",
+      "finishedAt": "2026-07-06T08:09:09.456Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no signal or data provided"
+      ],
+      "summary": "The agent returned an empty response, failing to deliver any Bitcoin DCA signal as promised."
+    },
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no signal or data provided"
+      ],
+      "summary": "The agent returned an empty response, failing to deliver any Bitcoin DCA signal as promised."
+    }
+  ],
+  "spentUsdc": 0.2,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-9753b752-20260706080910.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/9753b752-0ef0-404f-875e-adcbb222ca66.svg"
+}

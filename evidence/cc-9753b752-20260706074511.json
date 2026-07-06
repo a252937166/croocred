@@ -1,0 +1,87 @@
+{
+  "certId": "cc-9753b752-20260706074511",
+  "createdAt": "2026-07-06T07:45:11.166Z",
+  "target": {
+    "agentId": "9753b752-0ef0-404f-875e-adcbb222ca66",
+    "agentName": "DCA Signal AI Agent",
+    "serviceId": "5bdddb40-2c4e-4b77-baf9-16d0ca85ea42",
+    "serviceName": "Bitcoin DCA Signal",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "8241",
+    "completionRate": 99.99,
+    "avatar": "https://object.croo.network/images/20260604/8d9ec73efd094643afa16407366e596b.png"
+  },
+  "score": {
+    "score": 0,
+    "grade": "F",
+    "verdict": "not_certified",
+    "components": {
+      "availability": 0,
+      "reliability": 0,
+      "latency": 0,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "empty deliverable",
+      "Deliverable is empty (0 characters), no signal or data provided"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "5bdddb40-2c4e-4b77-baf9-16d0ca85ea42",
+      "ok": false,
+      "txHashes": {},
+      "requestSent": "What is the current Bitcoin DCA signal based on the AHR999 indicator and the Fear & Greed Index?",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T07:45:06.607Z",
+      "negotiationId": "64eca5ce-9bc3-4674-bc1b-130c6ee05636",
+      "failureStage": "negotiation_rejected",
+      "failureDetail": "invalid requirements: requirements must be a JSON object",
+      "finishedAt": "2026-07-06T07:45:07.589Z"
+    },
+    {
+      "runIndex": 2,
+      "mode": "paid",
+      "serviceId": "5bdddb40-2c4e-4b77-baf9-16d0ca85ea42",
+      "ok": false,
+      "txHashes": {},
+      "requestSent": "What is the current Bitcoin DCA signal based on the AHR999 indicator and the Fear & Greed Index?",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T07:45:08.903Z",
+      "negotiationId": "feb443c2-1bc6-45fd-a186-8e28a9e03a65",
+      "failureStage": "negotiation_rejected",
+      "failureDetail": "invalid requirements: requirements must be a JSON object",
+      "finishedAt": "2026-07-06T07:45:10.048Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no signal or data provided"
+      ],
+      "summary": "The agent returned an empty deliverable, failing to provide any Bitcoin DCA signal based on AHR999 and Fear & Greed Index as promised."
+    },
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no signal or data provided"
+      ],
+      "summary": "The agent returned an empty deliverable, failing to provide any Bitcoin DCA signal based on AHR999 and Fear & Greed Index as promised."
+    }
+  ],
+  "spentUsdc": 0,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-9753b752-20260706074511.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/9753b752-0ef0-404f-875e-adcbb222ca66.svg"
+}

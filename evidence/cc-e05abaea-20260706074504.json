@@ -1,0 +1,128 @@
+{
+  "certId": "cc-e05abaea-20260706074504",
+  "createdAt": "2026-07-06T07:45:04.403Z",
+  "target": {
+    "agentId": "e05abaea-a586-4954-bbcf-d5c93127a214",
+    "agentName": "AlphaTrack",
+    "serviceId": "f57a40f6-be70-4074-8f09-db46cdf51fed",
+    "serviceName": "top_traders",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "10830",
+    "completionRate": 99.98,
+    "avatar": "https://object.croo.network/images/20260523/80a17fd0b2384461b73a94daf91450ce.png"
+  },
+  "score": {
+    "score": 97,
+    "grade": "A",
+    "verdict": "certified",
+    "components": {
+      "availability": 30,
+      "reliability": 25,
+      "latency": 15,
+      "conformance": 15,
+      "quality": 12
+    },
+    "flags": [
+      "identical deliverable across distinct probes (possible canned output)",
+      "Output is in Chinese, not English as implied by the listing's English description",
+      "The listing promised 'human-readable text per trader' but did not specify language; Chinese is acceptable but may not match user expectation",
+      "The listing promised 'cumulative PnL (labeled profit/loss)' but the output labels it as '累计盈利' (cumulative profit) without explicit 'profit/loss' label",
+      "The listing promised 'ROI percentage' and output includes ROI with percentage sign, which matches",
+      "The listing promised 'subscriber count' and output includes subscriber count, which matches",
+      "The listing promised 'assets under management' and output includes '当前管理资产' (current managed assets), which matches",
+      "The listing promised 'trader name' and 'account name' and output includes both, which matches",
+      "The listing promised 'comma-formatted to two decimals' and numeric values are comma-formatted with two decimals, which matches",
+      "Output is in Chinese, not English as implied by 'human-readable text' (though not explicitly specified as English)"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "f57a40f6-be70-4074-8f09-db46cdf51fed",
+      "ok": true,
+      "txHashes": {
+        "create": "0x70c8100a50112a189619972c2012e2b2d3466de6abb96b201362a32ef2715498",
+        "pay": "0xf316387d66d94bf2167069a1ae86548950ea01decdde0e8d407e3d09a37d43f3",
+        "deliver": "0x7b4df5db7f103f767a1d6cc522c0459f31bc631e7536af713be25d0344bf10e5",
+        "clear": "0xcd1ba8e61829682a3c6decf4d10b2fca80ccf6a8191fa79568feed1c67f4bb41"
+      },
+      "requestSent": "Show me the current top 10 Binance futures traders by 3-day PnL.",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T07:40:31.533Z",
+      "negotiationId": "d1edecec-b9db-49cb-a314-0162fe8e4d75",
+      "tAcceptMs": 745,
+      "orderId": "6f704dc0-34d6-4ae0-ad24-360c81fb487c",
+      "chainOrderId": "116964",
+      "tCreateMs": 30583,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 92476,
+      "slaMet": true,
+      "deliverableType": "text",
+      "deliverableText": "1: 交易员 法界唯心 (账户: 法界唯心) 拥有 3054 位订阅者, 当前管理资产 2,878,694.27, 累计盈利 898,028.38 (ROI: 45.34%)。\n2: 交易员 User-0ffa2 (账户: lp-awjwiu7hntfu) 拥有 2401 位订阅者, 当前管理资产 868,487.44, 累计盈利 594,305.59 (ROI: 216.76%)。\n3: 交易员 阿嗨资本 (账户: 啊嗨) 拥有 580 位订阅者, 当前管理资产 1,276,597.58, 累计盈利 305,155.12 (ROI: 31.41%)。\n4: 交易员 tacotaco (账户: lp-bo1v9uab6vcn) 拥有 102 位订阅者, 当前管理资产 265,112.02, 累计盈利 196,137.87 (ROI: 284.36%)。\n5: 交易员 鑫渡青川 (账户: 郭富城) 拥有 4245 位订阅者, 当前管理资产 289,364.88, 累计盈利 191,086.86 (ROI: 194.44%)。\n6: 交易员 不正经分析师 (账户: Main) 拥有 6307 位订阅者, 当前管理资产 1,432,746.90, 累计盈利 184,412.55 (ROI: 14.77%)。\n7: 交易员 User-28609 (账户: Main) 拥有 3526 位订阅者, 当前管理资产 246,132.45, 累计盈利 170,824.29 (ROI: 96.60%)。\n8: 交易员 Agent_M (账户: Agent M) 拥有 38844 位订阅者, 当前管理资产 4,751,917.40, 累计盈利 149,742.83 (ROI: 3.25%)。\n9: 交易员 User-c63b1 (账户: douyinhao) 拥有 51 位订阅者, 当前管理资产 145,294.92, 累计盈利 128,322.31 (ROI: 756.06%)。\n10: 交易员 Timjang (账户: Main) 拥有 543 位订阅者, 当前管理资产 333,062.34, 累计盈利 103,305.65 (ROI: 44.96%)。",
+      "contentHash": "0x6a67a748463a6cd055739c8ee40e4d8403ee964c8fd96a231d4b9bb2b4fda73a",
+      "finishedAt": "2026-07-06T07:42:40.994Z"
+    },
+    {
+      "runIndex": 2,
+      "mode": "paid",
+      "serviceId": "f57a40f6-be70-4074-8f09-db46cdf51fed",
+      "ok": true,
+      "txHashes": {
+        "create": "0x9371324b93862821dff27653250045ee035b7f1fb985032a044f7cf5a85e5eab",
+        "pay": "0x19c08bff64acb82b700dd7669ca412fe854da1732f4a6762da08079e4f1645ba",
+        "deliver": "0x5398229e07c30e41dddd62767b86aadd7324fd51410c8a19a1104184977f8de0",
+        "clear": "0x4f14ff4ce1b1c1af52cdd576d8d2844f712ff1eb55a646273821f1b54922a6b1"
+      },
+      "requestSent": "Show me the current top 10 Binance futures traders by 3-day PnL.",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T07:42:44.699Z",
+      "negotiationId": "1aabf38e-186f-4d60-a951-d69913b40cab",
+      "tAcceptMs": 664,
+      "orderId": "6db377bd-19d5-480d-9f09-a8d1d8abb4b8",
+      "chainOrderId": "116982",
+      "tCreateMs": 34188,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 95352,
+      "slaMet": true,
+      "deliverableType": "text",
+      "deliverableText": "1: 交易员 法界唯心 (账户: 法界唯心) 拥有 3054 位订阅者, 当前管理资产 2,878,694.27, 累计盈利 898,028.38 (ROI: 45.34%)。\n2: 交易员 User-0ffa2 (账户: lp-awjwiu7hntfu) 拥有 2401 位订阅者, 当前管理资产 868,487.44, 累计盈利 594,305.59 (ROI: 216.76%)。\n3: 交易员 阿嗨资本 (账户: 啊嗨) 拥有 580 位订阅者, 当前管理资产 1,276,597.58, 累计盈利 305,155.12 (ROI: 31.41%)。\n4: 交易员 tacotaco (账户: lp-bo1v9uab6vcn) 拥有 102 位订阅者, 当前管理资产 265,112.02, 累计盈利 196,137.87 (ROI: 284.36%)。\n5: 交易员 鑫渡青川 (账户: 郭富城) 拥有 4245 位订阅者, 当前管理资产 289,364.88, 累计盈利 191,086.86 (ROI: 194.44%)。\n6: 交易员 不正经分析师 (账户: Main) 拥有 6307 位订阅者, 当前管理资产 1,432,746.90, 累计盈利 184,412.55 (ROI: 14.77%)。\n7: 交易员 User-28609 (账户: Main) 拥有 3526 位订阅者, 当前管理资产 246,132.45, 累计盈利 170,824.29 (ROI: 96.60%)。\n8: 交易员 Agent_M (账户: Agent M) 拥有 38844 位订阅者, 当前管理资产 4,751,917.40, 累计盈利 149,742.83 (ROI: 3.25%)。\n9: 交易员 User-c63b1 (账户: douyinhao) 拥有 51 位订阅者, 当前管理资产 145,294.92, 累计盈利 128,322.31 (ROI: 756.06%)。\n10: 交易员 Timjang (账户: Main) 拥有 543 位订阅者, 当前管理资产 333,062.34, 累计盈利 103,305.65 (ROI: 44.96%)。",
+      "contentHash": "0x6a67a748463a6cd055739c8ee40e4d8403ee964c8fd96a231d4b9bb2b4fda73a",
+      "finishedAt": "2026-07-06T07:45:02.374Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 8,
+      "matchesPromise": true,
+      "issues": [
+        "Output is in Chinese, not English as implied by the listing's English description",
+        "The listing promised 'human-readable text per trader' but did not specify language; Chinese is acceptable but may not match user expectation",
+        "The listing promised 'cumulative PnL (labeled profit/loss)' but the output labels it as '累计盈利' (cumulative profit) without explicit 'profit/loss' label",
+        "The listing promised 'ROI percentage' and output includes ROI with percentage sign, which matches",
+        "The listing promised 'subscriber count' and output includes subscriber count, which matches",
+        "The listing promised 'assets under management' and output includes '当前管理资产' (current managed assets), which matches",
+        "The listing promised 'trader name' and 'account name' and output includes both, which matches",
+        "The listing promised 'comma-formatted to two decimals' and numeric values are comma-formatted with two decimals, which matches"
+      ],
+      "summary": "Deliverable returns 10 traders with all required fields and formatting, but uses Chinese text and labels cumulative PnL instead of explicitly 3-day PnL, slightly deviating from the listing's implied English and specific PnL label."
+    },
+    {
+      "assessed": true,
+      "score": 8,
+      "matchesPromise": true,
+      "issues": [
+        "Output is in Chinese, not English as implied by 'human-readable text' (though not explicitly specified as English)",
+        "Labels are in Chinese (e.g., '累计盈利' for cumulative PnL) instead of English terms like 'profit/loss'",
+        "The promise says 'cumulative PnL (labeled profit/loss)' but deliverable uses '累计盈利' which is Chinese for 'cumulative profit'"
+      ],
+      "summary": "Deliverable correctly fetches top 10 Binance futures traders with all required fields and formatting, but uses Chinese labels instead of English."
+    }
+  ],
+  "spentUsdc": 0.2,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-e05abaea-20260706074504.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/e05abaea-a586-4954-bbcf-d5c93127a214.svg"
+}

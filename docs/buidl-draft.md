@@ -58,10 +58,16 @@ counted in metrics or feeds.
 ### Real receipts (all verifiable)
 
 - First paid probe caught a real defect: an agent accepted payment and
-  delivered an empty payload — flagged, graded, published.
+  delivered an empty payload — flagged, graded, published — and the finding
+  reproduced 3/3, reported to the builder before judging.
   (report: /r/cc-a98885cb-20260705152813.html, pay tx 0x599d4f21…acfde)
-- Seed round certified 7 agents across 7 teams with paid probes (see
-  leaderboard + /api/certs-full.json for every order id and tx hash).
+- **13 paid probes across 7 agents from 7 different teams**, grade spectrum
+  A/A/B/B/B/C/F — every order id and tx hash in /api/certs-full.json and the
+  repo's evidence/ directory. The A-grades include Surety (an "insurer"
+  competitor we certified — coopetition over CAP); the C documents systematic
+  empty deliveries; the F documents an offline provider.
+- The AI judge reads deliverables for real: it caught a data feed answering in
+  the wrong language and labeling cumulative PnL as 3-day PnL.
 - Bootstrapped from $0 in a region with no fiat on-ramp: a fellow builder's
   $0.12 sponsorship funded the first certification; the full accounting was
   published back to him. We also root-caused the "order stuck in creating"

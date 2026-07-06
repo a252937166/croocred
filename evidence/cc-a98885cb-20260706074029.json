@@ -1,0 +1,121 @@
+{
+  "certId": "cc-a98885cb-20260706074029",
+  "createdAt": "2026-07-06T07:40:29.046Z",
+  "target": {
+    "agentId": "a98885cb-1b74-4b86-8d43-8cf403b5dd3f",
+    "agentName": "Axion",
+    "serviceId": "97a66096-4acd-4837-909a-4721cb8c38a3",
+    "serviceName": "Multi Agent Prediction Accuracy Consensus",
+    "priceUsdc": 0.1,
+    "slaMinutes": 5,
+    "onlineStatus": "online",
+    "completedOrders": "4",
+    "completionRate": 100,
+    "avatar": "https://object.croo.network/images/20260630/e2bc674082cb48aaaddb2f10577a962e.png"
+  },
+  "score": {
+    "score": 69,
+    "grade": "C",
+    "verdict": "conditional",
+    "components": {
+      "availability": 30,
+      "reliability": 25,
+      "latency": 14,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "thin track record (<10 completed orders)",
+      "empty deliverable",
+      "Deliverable is empty (0 characters)",
+      "No prediction or rationale provided",
+      "No evidence of multi-agent consensus or on-chain grading",
+      "No prediction or rationale returned"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "97a66096-4acd-4837-909a-4721cb8c38a3",
+      "ok": true,
+      "txHashes": {
+        "create": "0xb7eec0c75a5824205a1218d4270a8cb0f2eccf5349b68502425815677585f149",
+        "pay": "0x500923c5d41068820773caa37519725aaed365d5e704e7f83695723a385447cd",
+        "deliver": "0x3b77a88b643d335c80f36d63db982ab01a11280c707d55fe8b334c629266388f",
+        "clear": "0x8c73981fa046ae980170b9f9b489301b4e4a85f48ff129ac6bf2afa67b0b0f1b"
+      },
+      "requestSent": "Predict ETH price direction in the next 60 seconds.",
+      "slaMs": 300000,
+      "startedAt": "2026-07-06T07:31:00.660Z",
+      "negotiationId": "6f6e2184-548d-4151-9e55-9929edecae89",
+      "tAcceptMs": 4900,
+      "orderId": "d2b8905a-37c4-4dfe-8d75-b8c7209ee08c",
+      "chainOrderId": "116923",
+      "tCreateMs": 323981,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 93205,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "",
+      "contentHash": "0x04daf0ba2f02b9f07624cad07f75f239fdfb0b60a8f0cd1cd7d9709ce5c2bf25",
+      "finishedAt": "2026-07-06T07:38:08.715Z"
+    },
+    {
+      "runIndex": 2,
+      "mode": "paid",
+      "serviceId": "97a66096-4acd-4837-909a-4721cb8c38a3",
+      "ok": true,
+      "txHashes": {
+        "create": "0x0d4bc94b994d05eb1f9d5b7ee67e77e428d67e1b8f30381085832cccfc7c30bd",
+        "pay": "0x611ae210b7ecd8a6bb0700f80f7d5250d21d7de1dd487935276e94fed562d4a9",
+        "deliver": "0xa9ec833e5816cc18f3fc9de7adae2149ff9ca521e87e8357db9b6117c50a5b17",
+        "clear": "0x53223322f0bbbebda0e8c6f7b00f8df85685a01542c674fc3cd85d685eee9801"
+      },
+      "requestSent": "Predict ETH price direction in the next 60 seconds.",
+      "slaMs": 300000,
+      "startedAt": "2026-07-06T07:38:10.452Z",
+      "negotiationId": "892250c6-dec3-4547-bfe1-71b896d1c489",
+      "tAcceptMs": 1281,
+      "orderId": "7ce11525-20bb-4759-baf9-938ec937c1d1",
+      "chainOrderId": "116948",
+      "tCreateMs": 33905,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 96513,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "",
+      "contentHash": "0x04daf0ba2f02b9f07624cad07f75f239fdfb0b60a8f0cd1cd7d9709ce5c2bf25",
+      "finishedAt": "2026-07-06T07:40:27.726Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters)",
+        "No prediction or rationale provided",
+        "No evidence of multi-agent consensus or on-chain grading"
+      ],
+      "summary": "The service returned an empty deliverable, failing to provide any prediction, rationale, or evidence of the promised multi-agent consensus."
+    },
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters)",
+        "No prediction or rationale returned",
+        "No evidence of multi-agent consensus or on-chain grading"
+      ],
+      "summary": "The service returned an empty deliverable, failing to provide any prediction or rationale as promised."
+    }
+  ],
+  "spentUsdc": 0.2,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-a98885cb-20260706074029.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/a98885cb-1b74-4b86-8d43-8cf403b5dd3f.svg"
+}

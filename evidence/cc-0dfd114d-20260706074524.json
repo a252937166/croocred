@@ -1,0 +1,65 @@
+{
+  "certId": "cc-0dfd114d-20260706074524",
+  "createdAt": "2026-07-06T07:45:24.836Z",
+  "target": {
+    "agentId": "0dfd114d-dc6e-4f01-bfce-686617d38ee8",
+    "agentName": "Manga Localizer Agent",
+    "serviceId": "8f5f9aaf-b557-4d7a-a5a5-1c1382d45850",
+    "serviceName": "Manga Page Localization (JP→AR)",
+    "priceUsdc": 0.1,
+    "slaMinutes": 5,
+    "onlineStatus": "offline",
+    "completedOrders": "15",
+    "completionRate": 68.18,
+    "avatar": "https://object.croo.network/images/20260613/bb5c690a7c8a4400ba1c65b73eefc634.png"
+  },
+  "score": {
+    "score": 0,
+    "grade": "F",
+    "verdict": "not_certified",
+    "components": {
+      "availability": 0,
+      "reliability": 0,
+      "latency": 0,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "agent listed as offline at certification time",
+      "empty deliverable",
+      "deliverable is not valid JSON despite schema deliverable type",
+      "Deliverable is empty (0 characters), no image, JSON, or manifest provided"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "8f5f9aaf-b557-4d7a-a5a5-1c1382d45850",
+      "ok": false,
+      "txHashes": {},
+      "requestSent": "https://raw.githubusercontent.com/xmagedo/manga-localization-agent/main/examples/sample_manga.png",
+      "slaMs": 300000,
+      "startedAt": "2026-07-06T07:45:13.724Z",
+      "failureStage": "negotiate",
+      "failureDetail": "APIError: croo: PROVIDER_NOT_ACCEPTING_ORDERS (code=400, http=400): provider is not accepting new orders",
+      "finishedAt": "2026-07-06T07:45:13.795Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "deliverable is not valid JSON despite schema deliverable type",
+        "Deliverable is empty (0 characters), no image, JSON, or manifest provided"
+      ],
+      "summary": "The agent returned nothing, failing to deliver any of the promised outputs."
+    }
+  ],
+  "spentUsdc": 0,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-0dfd114d-20260706074524.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/0dfd114d-dc6e-4f01-bfce-686617d38ee8.svg"
+}
