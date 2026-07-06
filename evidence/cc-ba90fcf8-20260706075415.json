@@ -14,7 +14,7 @@
     "avatar": "https://object.croo.network/images/20260604/5aaa6d35594b4fb09bf059bf9cf1bfa6.jpg"
   },
   "score": {
-    "score": 100,
+    "score": 96,
     "grade": "A",
     "verdict": "certified",
     "capOutcome": "delivered",
@@ -22,13 +22,17 @@
     "recommendation": "HIRE",
     "rubricVersion": 2,
     "components": {
-      "availability": 30,
+      "availability": 25,
       "reliability": 25,
-      "latency": 15,
+      "latency": 10,
       "conformance": 15,
-      "quality": 15
+      "quality": 21
     },
-    "flags": []
+    "flags": [
+      "deliverables share one template across probes, only numbers differ (typical for signal feeds — informational)",
+      "Prices are returned as JSON-encoded strings inside the array rather than native objects, which is a minor formatting issue but does not affect usability",
+      "Prices are returned as JSON-encoded strings inside the JSON array, which is slightly unusual but still usable"
+    ]
   },
   "runs": [
     {
@@ -89,22 +93,27 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 10,
+      "score": 8.5,
       "matchesPromise": true,
-      "issues": [],
-      "summary": "The deliverable accurately returns real-time price data for both requested tokens on the Ethereum chain, fully matching the service promise."
+      "issues": [
+        "Prices are returned as JSON-encoded strings inside the array rather than native objects, which is a minor formatting issue but does not affect usability"
+      ],
+      "summary": "Deliverable provides real-time price, liquidity, market cap, and address for both requested tokens on Ethereum, fully meeting the listing promise with only a minor JSON encoding quirk."
     },
     {
       "assessed": true,
-      "score": 10,
+      "score": 8.5,
       "matchesPromise": true,
-      "issues": [],
-      "summary": "The deliverable correctly returns real-time prices for both requested tokens on the Ethereum chain, matching the promise of OKX Web3 token search."
+      "issues": [
+        "Prices are returned as JSON-encoded strings inside the JSON array, which is slightly unusual but still usable"
+      ],
+      "summary": "The deliverable correctly returns real-time prices for both requested tokens on Ethereum, including liquidity and market cap, fully meeting the listing's promise."
     }
   ],
   "spentUsdc": 0.2,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-ba90fcf8-20260706075415.html",
   "badgeUrl": "https://croocred.axiqo.xyz/badge/ba90fcf8-d786-40d2-a81c-63a88624a2ed.svg",
   "rejudgedAt": "2026-07-06T09:55:54.643Z",
-  "rescoredAt": "2026-07-06T09:56:18.363Z"
+  "rescoredAt": "2026-07-06T09:56:18.363Z",
+  "recalibratedAt": "2026-07-06T11:11:49.006Z"
 }

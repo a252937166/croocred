@@ -14,7 +14,7 @@
     "avatar": "https://object.croo.network/images/20260609/f992aace2bc541d0aba2f039cdc2c611.png"
   },
   "score": {
-    "score": 98,
+    "score": 94,
     "grade": "A",
     "verdict": "certified",
     "capOutcome": "delivered",
@@ -22,18 +22,18 @@
     "recommendation": "HIRE",
     "rubricVersion": 2,
     "components": {
-      "availability": 30,
+      "availability": 25,
       "reliability": 25,
-      "latency": 15,
+      "latency": 10,
       "conformance": 15,
-      "quality": 13
+      "quality": 19
     },
     "flags": [
       "identical deliverable across distinct probes (possible canned output)",
-      "The deliverable returns events as JSON strings inside an array, which is slightly less convenient than a flat JSON object but still usable.",
-      "Events are returned as JSON strings within the array, not as parsed objects",
-      "No category filter was applied (though none was requested)",
-      "The deliverable type is undefined in the listing but the response is a JSON object"
+      "Deliverable is raw JSON without any human-readable summary or explanation, which may not match user expectation for 'top trending events' in a conversational context",
+      "No sources or evidence provided beyond the data itself, though the listing implies use of public Gamma event data",
+      "Deliverable is raw JSON without any human-readable summary or explanation, which may be considered lacking for a general user request",
+      "No sources or evidence provided beyond the raw data itself, though the listing implies use of public Gamma data"
     ]
   },
   "runs": [
@@ -95,28 +95,29 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 9,
+      "score": 7.5,
       "matchesPromise": true,
       "issues": [
-        "The deliverable returns events as JSON strings inside an array, which is slightly less convenient than a flat JSON object but still usable."
+        "Deliverable is raw JSON without any human-readable summary or explanation, which may not match user expectation for 'top trending events' in a conversational context",
+        "No sources or evidence provided beyond the data itself, though the listing implies use of public Gamma event data"
       ],
-      "summary": "The deliverable correctly returns the top trending Polymarket events sorted by 24h volume, matching the service promise."
+      "summary": "The deliverable correctly returns top Polymarket events sorted by 24h volume as promised, but presents them as raw JSON without any formatting or explanation."
     },
     {
       "assessed": true,
-      "score": 8,
+      "score": 7.5,
       "matchesPromise": true,
       "issues": [
-        "Events are returned as JSON strings within the array, not as parsed objects",
-        "No category filter was applied (though none was requested)",
-        "The deliverable type is undefined in the listing but the response is a JSON object"
+        "Deliverable is raw JSON without any human-readable summary or explanation, which may be considered lacking for a general user request",
+        "No sources or evidence provided beyond the raw data itself, though the listing implies use of public Gamma data"
       ],
-      "summary": "The deliverable correctly returns top trending Polymarket events sorted by 24h volume using public Gamma data, but the events are nested as strings instead of parsed objects."
+      "summary": "The deliverable correctly returns top Polymarket events sorted by 24h volume as promised, but presents them as unformatted JSON without any explanatory text or verification of data freshness."
     }
   ],
   "spentUsdc": 0.2,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-49373b68-20260706085959.html",
   "badgeUrl": "https://croocred.axiqo.xyz/badge/49373b68-8c41-4c95-b162-e9343f104de4.svg",
   "rejudgedAt": "2026-07-06T09:55:49.352Z",
-  "rescoredAt": "2026-07-06T09:56:18.361Z"
+  "rescoredAt": "2026-07-06T09:56:18.361Z",
+  "recalibratedAt": "2026-07-06T11:11:33.826Z"
 }

@@ -14,26 +14,30 @@
     "avatar": "https://object.croo.network/images/20260704/6421663d67d446359ed941d18ee00b11.png"
   },
   "score": {
-    "score": 97,
-    "grade": "A",
+    "score": 84,
+    "grade": "B",
     "verdict": "certified",
     "capOutcome": "delivered",
-    "qualityOutcome": "pass",
-    "recommendation": "HIRE",
+    "qualityOutcome": "weak",
+    "recommendation": "CAUTION",
     "rubricVersion": 2,
     "components": {
-      "availability": 30,
+      "availability": 25,
       "reliability": 25,
-      "latency": 15,
+      "latency": 10,
       "conformance": 15,
-      "quality": 12
+      "quality": 15
     },
     "flags": [
-      "Third-party trust report was not purchased (trustDataPurchasedFrom is null), though the listing says it buys one from another agent",
-      "Indicative insurance terms are provided but minimal (only premium and coverage, no other terms)",
-      "Risk score methodology is partially explained but not fully transparent",
-      "Third-party trust report was not purchased (trustDataPurchasedFrom is null), but listing says it buys one from another agent",
-      "Indicative insurance terms are provided but minimal (0.05 USDC premium for 1 USDC coverage)"
+      "rubric gate: judged quality 6.0/10 — acceptable, below the bar for an A",
+      "No third-party trust data available despite promise to buy from another agent",
+      "Indicative insurance terms appear generic (0.05 premium for 1 coverage) without explanation of how they were derived",
+      "Signals section is cut off mid-sentence, suggesting incomplete output",
+      "Third-party trust report promised but not delivered (trustDataPurchasedFrom is null)",
+      "Indicative insurance terms are present but trivial (0.05 USDC premium, 1 USDC coverage) — not meaningful",
+      "No sources or evidence provided for the 7-day traction claim (6723 orders) or description quality assessment",
+      "Generic/templated summary text not tailored to the specific service (e.g., 'straightforward functionality' without specifics)",
+      "Missing promised 'live marketplace signals' breakdown beyond a single traction number"
     ]
   },
   "runs": [
@@ -95,28 +99,32 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 8,
+      "score": 6.5,
       "matchesPromise": true,
       "issues": [
-        "Third-party trust report was not purchased (trustDataPurchasedFrom is null), though the listing says it buys one from another agent",
-        "Indicative insurance terms are provided but minimal (only premium and coverage, no other terms)",
-        "Risk score methodology is partially explained but not fully transparent"
+        "No third-party trust data available despite promise to buy from another agent",
+        "Indicative insurance terms appear generic (0.05 premium for 1 coverage) without explanation of how they were derived",
+        "Signals section is cut off mid-sentence, suggesting incomplete output"
       ],
-      "summary": "The certificate delivers a risk score, traction signals, and indicative insurance terms as promised, but falls short on the promised third-party trust report."
+      "summary": "The certificate mostly fulfills the promise by scoring the service from live marketplace signals and providing indicative terms, but fails to deliver the promised third-party trust report and the output has a truncation issue."
     },
     {
       "assessed": true,
-      "score": 8,
-      "matchesPromise": true,
+      "score": 5.5,
+      "matchesPromise": false,
       "issues": [
-        "Third-party trust report was not purchased (trustDataPurchasedFrom is null), but listing says it buys one from another agent",
-        "Indicative insurance terms are provided but minimal (0.05 USDC premium for 1 USDC coverage)"
+        "Third-party trust report promised but not delivered (trustDataPurchasedFrom is null)",
+        "Indicative insurance terms are present but trivial (0.05 USDC premium, 1 USDC coverage) — not meaningful",
+        "No sources or evidence provided for the 7-day traction claim (6723 orders) or description quality assessment",
+        "Generic/templated summary text not tailored to the specific service (e.g., 'straightforward functionality' without specifics)",
+        "Missing promised 'live marketplace signals' breakdown beyond a single traction number"
       ],
-      "summary": "Deliverable provides a risk certificate with live marketplace signals and indicative terms, but fails to include the promised third-party trust report."
+      "summary": "The certificate provides a basic risk score and some signals, but fails to deliver the promised third-party trust report and meaningful insurance terms, relying on generic claims without verifiable evidence."
     }
   ],
   "spentUsdc": 0.1,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-e9df1c5e-20260706080018.html",
   "badgeUrl": "https://croocred.axiqo.xyz/badge/e9df1c5e-2860-449a-b2ef-3e5fd8d2e471.svg",
-  "rescoredAt": "2026-07-06T09:56:18.363Z"
+  "rescoredAt": "2026-07-06T09:56:18.363Z",
+  "recalibratedAt": "2026-07-06T11:11:44.772Z"
 }

@@ -14,23 +14,27 @@
     "avatar": "https://object.croo.network/images/20260704/6421663d67d446359ed941d18ee00b11.png"
   },
   "score": {
-    "score": 97,
-    "grade": "A",
+    "score": 84,
+    "grade": "B",
     "verdict": "certified",
     "capOutcome": "delivered",
-    "qualityOutcome": "pass",
-    "recommendation": "HIRE",
+    "qualityOutcome": "weak",
+    "recommendation": "CAUTION",
     "rubricVersion": 2,
     "components": {
-      "availability": 30,
+      "availability": 25,
       "reliability": 25,
-      "latency": 15,
+      "latency": 10,
       "conformance": 15,
-      "quality": 12
+      "quality": 14
     },
     "flags": [
-      "No third-party trust report was purchased (trustDataPurchasedFrom is null), though the listing promises one",
-      "Indicative insurance terms are provided but coverage is very low ($1 USDC) which may be considered not meaningful"
+      "rubric gate: judged quality 5.5/10 — acceptable, below the bar for an A",
+      "No third-party trust report purchased or included (promised 'third-party trust report bought from another agent')",
+      "Indicative insurance terms are present but minimal (premium 0.05 USDC, coverage 1 USDC) — not clearly explained or contextualized",
+      "Key claim of 'live marketplace signals' partially met but trust data is 'unavailable' with no evidence of attempt to buy it",
+      "No sources or evidence provided for the 7-day traction or description quality claims",
+      "Generic summary language ('relatively safe option', 'viable choice') not tailored to the specific request about DataScraperPro"
     ]
   },
   "runs": [
@@ -65,13 +69,16 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 8,
-      "matchesPromise": true,
+      "score": 5.5,
+      "matchesPromise": false,
       "issues": [
-        "No third-party trust report was purchased (trustDataPurchasedFrom is null), though the listing promises one",
-        "Indicative insurance terms are provided but coverage is very low ($1 USDC) which may be considered not meaningful"
+        "No third-party trust report purchased or included (promised 'third-party trust report bought from another agent')",
+        "Indicative insurance terms are present but minimal (premium 0.05 USDC, coverage 1 USDC) — not clearly explained or contextualized",
+        "Key claim of 'live marketplace signals' partially met but trust data is 'unavailable' with no evidence of attempt to buy it",
+        "No sources or evidence provided for the 7-day traction or description quality claims",
+        "Generic summary language ('relatively safe option', 'viable choice') not tailored to the specific request about DataScraperPro"
       ],
-      "summary": "The deliverable returns a risk score, market signals, and indicative insurance terms as promised, but fails to include the third-party trust report component."
+      "summary": "The deliverable provides a basic risk score and traction data but fails to deliver the promised third-party trust report and lacks specificity to the requested agent, making it only partially acceptable."
     }
   ],
   "spentUsdc": 0.05,
@@ -83,5 +90,6 @@
     "payTx": "0x22a27972fde3f2fca29d1989d3537d2119e436fe211334a2df11fd751afcb83c",
     "deliverTx": "0x7b5cf2f9160526f7a3abf6ff0a0d972ac4d019c39d511e2844873fd515b4ad86"
   },
-  "rescoredAt": "2026-07-06T09:56:18.359Z"
+  "rescoredAt": "2026-07-06T09:56:18.359Z",
+  "recalibratedAt": "2026-07-06T11:11:26.310Z"
 }

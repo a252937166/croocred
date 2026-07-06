@@ -14,28 +14,31 @@
     "avatar": "https://object.croo.network/images/20260609/27733036b5cc480fa1ae1f2f392f72c0.png"
   },
   "score": {
-    "score": 97,
-    "grade": "A",
+    "score": 84,
+    "grade": "B",
     "verdict": "certified",
     "capOutcome": "delivered",
-    "qualityOutcome": "pass",
-    "recommendation": "HIRE",
+    "qualityOutcome": "weak",
+    "recommendation": "CAUTION",
     "rubricVersion": 2,
     "components": {
-      "availability": 30,
+      "availability": 25,
       "reliability": 25,
-      "latency": 15,
+      "latency": 10,
       "conformance": 15,
-      "quality": 12
+      "quality": 14
     },
     "flags": [
+      "rubric gate: judged quality 5.5/10 — acceptable, below the bar for an A",
       "identical deliverable across distinct probes (possible canned output)",
-      "Deliverable is a JSON string containing serialized category objects, not a clean JSON object as might be expected",
-      "Word count rule incorrectly reports 0 words despite bodyText being provided in the test request",
-      "Some rules (e.g., img-alt) pass with 'no images' rather than checking actual images from the page",
-      "Word count rule incorrectly reports 0 words despite bodyText being provided",
-      "Some rules (e.g., img-alt) are scored as passed with a message that contradicts the rule intent",
-      "Categories array contains stringified JSON objects instead of native objects"
+      "Key claims left unverified: deliverable states 'No images on the page' and 'Body text is only 0 words' despite test request providing bodyText; deliverable appears to have not actually analyzed the provided content",
+      "Generic/templated content not tailored to the specific request: word count reported as 0 despite bodyText being provided, suggesting a template response",
+      "Promised output fields missing: deliverable does not include per-rule findings for all 18 deterministic rules (only 16 rules shown across categories, missing links category entirely)",
+      "No sources/evidence where the listing implies them: no actual page crawl or verification, just assumptions based on provided fields",
+      "Key claims left unverified: deliverable claims 'No images on the page' and 'Body text is only 0 words' but test request provided bodyText with ~50 words and no image info was given, so these are assumptions not verified from input",
+      "Generic/templated content not tailored to the specific request: rules like 'H2 Subheadings Exist' and 'Word Count ≥ 300' are applied without checking actual provided bodyText content (word count miscalculated as 0)",
+      "Promised output fields missing: deliverable lacks per-rule findings for all 18 rules (only 15 rules shown), and category breakdowns are provided as JSON strings not structured objects as implied",
+      "No sources/evidence where the listing implies them: no actual page crawl or verification, just scoring based on provided fields without confirming real page state"
     ]
   },
   "runs": [
@@ -97,30 +100,33 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 8,
-      "matchesPromise": true,
+      "score": 5.5,
+      "matchesPromise": false,
       "issues": [
-        "Deliverable is a JSON string containing serialized category objects, not a clean JSON object as might be expected",
-        "Word count rule incorrectly reports 0 words despite bodyText being provided in the test request",
-        "Some rules (e.g., img-alt) pass with 'no images' rather than checking actual images from the page"
+        "Key claims left unverified: deliverable states 'No images on the page' and 'Body text is only 0 words' despite test request providing bodyText; deliverable appears to have not actually analyzed the provided content",
+        "Generic/templated content not tailored to the specific request: word count reported as 0 despite bodyText being provided, suggesting a template response",
+        "Promised output fields missing: deliverable does not include per-rule findings for all 18 deterministic rules (only 16 rules shown across categories, missing links category entirely)",
+        "No sources/evidence where the listing implies them: no actual page crawl or verification, just assumptions based on provided fields"
       ],
-      "summary": "The deliverable successfully audits the provided SEO fields against 18 deterministic rules with category breakdowns, though it has minor data handling issues."
+      "summary": "The deliverable partially follows the promised format but fails to properly analyze the provided test data, reports incorrect word count and image count, and omits the links category entirely, making it only partially reliable."
     },
     {
       "assessed": true,
-      "score": 8,
-      "matchesPromise": true,
+      "score": 5.5,
+      "matchesPromise": false,
       "issues": [
-        "Word count rule incorrectly reports 0 words despite bodyText being provided",
-        "Some rules (e.g., img-alt) are scored as passed with a message that contradicts the rule intent",
-        "Categories array contains stringified JSON objects instead of native objects"
+        "Key claims left unverified: deliverable claims 'No images on the page' and 'Body text is only 0 words' but test request provided bodyText with ~50 words and no image info was given, so these are assumptions not verified from input",
+        "Generic/templated content not tailored to the specific request: rules like 'H2 Subheadings Exist' and 'Word Count ≥ 300' are applied without checking actual provided bodyText content (word count miscalculated as 0)",
+        "Promised output fields missing: deliverable lacks per-rule findings for all 18 rules (only 15 rules shown), and category breakdowns are provided as JSON strings not structured objects as implied",
+        "No sources/evidence where the listing implies them: no actual page crawl or verification, just scoring based on provided fields without confirming real page state"
       ],
-      "summary": "Deliverable correctly applies 18 deterministic SEO rules with category breakdowns and per-rule findings, but has minor data formatting and accuracy issues."
+      "summary": "The deliverable partially scores provided SEO fields against some rules but fails to fully verify input data, omits several promised rules, and presents generic assumptions rather than tailored analysis."
     }
   ],
   "spentUsdc": 0.2,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-13506a9a-20260706074951.html",
   "badgeUrl": "https://croocred.axiqo.xyz/badge/13506a9a-49cf-4748-9382-71698815dafa.svg",
   "rejudgedAt": "2026-07-06T09:55:59.362Z",
-  "rescoredAt": "2026-07-06T09:56:18.364Z"
+  "rescoredAt": "2026-07-06T09:56:18.364Z",
+  "recalibratedAt": "2026-07-06T11:11:56.394Z"
 }

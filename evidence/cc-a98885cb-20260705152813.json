@@ -14,25 +14,26 @@
     "avatar": "https://object.croo.network/images/20260630/e2bc674082cb48aaaddb2f10577a962e.png"
   },
   "score": {
-    "score": 96,
-    "grade": "A",
+    "score": 84,
+    "grade": "B",
     "verdict": "certified",
     "capOutcome": "delivered",
-    "qualityOutcome": "pass",
-    "recommendation": "HIRE",
+    "qualityOutcome": "weak",
+    "recommendation": "CAUTION",
     "rubricVersion": 2,
     "components": {
-      "availability": 30,
+      "availability": 25,
       "reliability": 25,
-      "latency": 14,
+      "latency": 9,
       "conformance": 15,
-      "quality": 12
+      "quality": 16
     },
     "flags": [
+      "rubric gate: judged quality 6.5/10 — acceptable, below the bar for an A",
       "thin track record (<10 completed orders)",
-      "The deliverable returns a prediction and rationale as promised",
-      "The rationale mentions three theses (momentum, value, microstructure) and on-chain vs Pyth grading",
-      "The prediction value ($0.73) is provided but the unit is ambiguous (dollars vs percentage) and the deliverable does not explicitly confirm the deadlineSeconds parameter was honored"
+      "Key claims left unverified: 'live volatility' and 'graded on-chain vs Pyth each round' are stated but no evidence or data provided to confirm grading actually occurred",
+      "Generic/templated content: rationale reads like a template with placeholder details (e.g., 'agent-b525 at $1.05 avg error over 3 graded rounds' is not clearly tied to this specific 60-second request)",
+      "No sources/evidence where listing implies them: listing promises grading on-chain vs Pyth, but deliverable offers no raw data, comparison, or proof of grading"
     ]
   },
   "runs": [
@@ -67,19 +68,20 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 8,
+      "score": 6.5,
       "matchesPromise": true,
       "issues": [
-        "The deliverable returns a prediction and rationale as promised",
-        "The rationale mentions three theses (momentum, value, microstructure) and on-chain vs Pyth grading",
-        "The prediction value ($0.73) is provided but the unit is ambiguous (dollars vs percentage) and the deliverable does not explicitly confirm the deadlineSeconds parameter was honored"
+        "Key claims left unverified: 'live volatility' and 'graded on-chain vs Pyth each round' are stated but no evidence or data provided to confirm grading actually occurred",
+        "Generic/templated content: rationale reads like a template with placeholder details (e.g., 'agent-b525 at $1.05 avg error over 3 graded rounds' is not clearly tied to this specific 60-second request)",
+        "No sources/evidence where listing implies them: listing promises grading on-chain vs Pyth, but deliverable offers no raw data, comparison, or proof of grading"
       ],
-      "summary": "The deliverable provides the aggregated prediction and rationale with reference to the three theses and grading, meeting the core promise, though the unit clarity and deadline confirmation are minor gaps."
+      "summary": "Deliverable returns the promised prediction and rationale fields with a specific move-size forecast, but lacks verification of the claimed on-chain vs Pyth grading and feels partially generic."
     }
   ],
   "spentUsdc": 0.1,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-a98885cb-20260705152813.html",
   "badgeUrl": "https://croocred.axiqo.xyz/badge/a98885cb-1b74-4b86-8d43-8cf403b5dd3f.svg",
   "rejudgedAt": "2026-07-06T09:56:06.207Z",
-  "rescoredAt": "2026-07-06T09:56:18.369Z"
+  "rescoredAt": "2026-07-06T09:56:18.369Z",
+  "recalibratedAt": "2026-07-06T11:12:10.095Z"
 }

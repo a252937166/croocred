@@ -14,7 +14,7 @@
     "avatar": "https://object.croo.network/images/20260604/8d9ec73efd094643afa16407366e596b.png"
   },
   "score": {
-    "score": 100,
+    "score": 96,
     "grade": "A",
     "verdict": "certified",
     "capOutcome": "delivered",
@@ -22,13 +22,18 @@
     "recommendation": "HIRE",
     "rubricVersion": 2,
     "components": {
-      "availability": 30,
+      "availability": 25,
       "reliability": 25,
-      "latency": 15,
+      "latency": 10,
       "conformance": 15,
-      "quality": 15
+      "quality": 21
     },
-    "flags": []
+    "flags": [
+      "deliverables share one template across probes, only numbers differ (typical for signal feeds — informational)",
+      "timestamp appears to be in milliseconds (1783325143100) which would be year 2026, likely stale or incorrect data",
+      "timestamp appears to be in the future (1783325279968) suggesting a stale or simulated data point",
+      "no explicit source or evidence provided for AHR999 and Fear & Greed values"
+    ]
   },
   "runs": [
     {
@@ -89,22 +94,28 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 10,
+      "score": 8.5,
       "matchesPromise": true,
-      "issues": [],
-      "summary": "The deliverable provides a complete Bitcoin DCA signal with AHR999 value, Fear & Greed Index, and clear buy advice, fully matching the service promise."
+      "issues": [
+        "timestamp appears to be in milliseconds (1783325143100) which would be year 2026, likely stale or incorrect data"
+      ],
+      "summary": "Deliverable provides a clear, well-structured Bitcoin DCA signal with AHR999 and Fear & Greed Index values, fully matching the promise, though the timestamp suggests potentially stale data."
     },
     {
       "assessed": true,
-      "score": 10,
+      "score": 8.5,
       "matchesPromise": true,
-      "issues": [],
-      "summary": "The deliverable provides a clear Bitcoin DCA signal with both AHR999 and Fear & Greed Index values, exactly as promised."
+      "issues": [
+        "timestamp appears to be in the future (1783325279968) suggesting a stale or simulated data point",
+        "no explicit source or evidence provided for AHR999 and Fear & Greed values"
+      ],
+      "summary": "The deliverable fully delivers the promised DCA signal with AHR999 and Fear & Greed Index, providing clear advice and scores, but the implausible timestamp and lack of source verification slightly reduce confidence."
     }
   ],
   "spentUsdc": 0.2,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-9753b752-20260706080910.html",
   "badgeUrl": "https://croocred.axiqo.xyz/badge/9753b752-0ef0-404f-875e-adcbb222ca66.svg",
   "rejudgedAt": "2026-07-06T09:55:51.998Z",
-  "rescoredAt": "2026-07-06T09:56:18.362Z"
+  "rescoredAt": "2026-07-06T09:56:18.362Z",
+  "recalibratedAt": "2026-07-06T11:11:39.355Z"
 }

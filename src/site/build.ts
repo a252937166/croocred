@@ -377,7 +377,7 @@ function reportPage(rec: CertRecord, generatedAt: string): string {
   const livenessOnly = rec.runs.every((r) => r.mode === "liveness");
   const weightScale: Record<string, number> = livenessOnly
     ? { availability: 60, latency: 40 }
-    : { availability: 32, reliability: 28, latency: 17, conformance: 23, quality: 15 };
+    : { availability: 28, reliability: 28, latency: 12, conformance: 32, quality: 25 };
   const comp = Object.entries(rec.score.components)
     .filter(([k]) => weightScale[k] !== undefined)
     .map(([k, v]) => {

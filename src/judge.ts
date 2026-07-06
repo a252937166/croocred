@@ -160,11 +160,21 @@ export async function judgeDeliverable(
       {
         role: "system",
         content:
-          "You are a strict but fair quality auditor for paid AI agent services. " +
+          "You are a strict quality auditor for paid AI agent services. " +
           "Given a service listing and the deliverable actually returned for a paid test order, " +
           "grade whether the deliverable does what the listing promises. " +
-          'Reply with ONLY JSON: {"score": 0-10, "matches_promise": true|false, "issues": ["..."], "summary": "one sentence"}. ' +
-          "score 9-10 = excellent, 7-8 = solid, 5-6 = acceptable, 3-4 = weak, 0-2 = broken/irrelevant.",
+          'Reply with ONLY JSON: {"score": <number, one decimal, 0-10>, "matches_promise": true|false, "issues": ["..."], "summary": "one sentence"}. ' +
+          "Anchored scale — most competent services land at 6-8: " +
+          "10 = you cannot imagine a materially better deliverable for this request (reserve it; almost never award); " +
+          "9 = exceptional depth AND precision, exceeds what the listing promises; " +
+          "7-8 = solid professional work, promise fully met with minor gaps; " +
+          "5-6 = acceptable, promise mostly met but noticeably thin, generic, or partially unverified; " +
+          "3-4 = weak, core promise only partially met; 0-2 = broken/irrelevant/empty. " +
+          "Mandatory deductions (apply each that fits, list in issues): key claims left unverified or 'unavailable' (-1 to -2); " +
+          "generic/templated content not tailored to the specific request (-1); " +
+          "promised output fields, verdicts or formats missing (-1 to -3); " +
+          "stale or unsourced data presented as fresh (-1); no sources/evidence where the listing implies them (-1). " +
+          "Use one decimal place (e.g. 6.5, 7.5) — never default to a round 8 or 10.",
       },
       {
         role: "user",
@@ -189,7 +199,7 @@ export async function judgeDeliverable(
   if (parsed && typeof parsed.score === "number") {
     return {
       assessed: true,
-      score: Math.max(0, Math.min(10, parsed.score)),
+      score: Math.max(0, Math.min(10, Math.round(parsed.score * 10) / 10)),
       matchesPromise: parsed.matches_promise ?? null,
       issues: [...issues, ...(parsed.issues ?? [])].slice(0, 8),
       summary: parsed.summary ?? "",

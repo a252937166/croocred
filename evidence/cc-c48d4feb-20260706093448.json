@@ -22,18 +22,18 @@
     "recommendation": "CAUTION",
     "rubricVersion": 2,
     "components": {
-      "availability": 30,
+      "availability": 25,
       "reliability": 25,
-      "latency": 14,
+      "latency": 9,
       "conformance": 15,
-      "quality": 6
+      "quality": 11
     },
     "flags": [
-      "rubric gate: judged quality 4.0/10 — the listing's core promise was not met",
-      "Deliverable did not read the chain for contract status, honeypot, tax, liquidity, holders, or deployer history; all on-chain findings returned 'no data' or 'unavailable'",
-      "No verdict of BASED, BULLSHIT, or MIXED was provided; instead returned 'INSUFFICIENT'",
-      "Claims were marked 'UNVERIFIABLE' without on-chain verification, contradicting the promise that every finding is traceable to its on-chain source",
-      "The service failed to analyze the provided contract address on the correct chain (likely Ethereum, not Base) and did not deliver the core promised functionality"
+      "rubric gate: judged quality 4.5/10 — the listing's core promise was not met",
+      "Key claims left unverified or 'unavailable' (-2): all on-chain findings returned 'no data' or 'unavailable', failing to read the chain as promised",
+      "Promised output fields missing (-2): no honeypot check, no tax data, no liquidity data, no holder count, no deployer history, and no verdict of BASED, BULLSHIT, or MIXED",
+      "Generic/templated content not tailored to the specific request (-1): deliverable is a generic 'unverifiable' response without actual on-chain analysis",
+      "No sources/evidence where the listing implies them (-1): on-chain sources (GoPlus, DexScreener) returned no data, and off-chain sources are mostly unfetched or irrelevant"
     ]
   },
   "runs": [
@@ -68,15 +68,15 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 4,
+      "score": 4.5,
       "matchesPromise": false,
       "issues": [
-        "Deliverable did not read the chain for contract status, honeypot, tax, liquidity, holders, or deployer history; all on-chain findings returned 'no data' or 'unavailable'",
-        "No verdict of BASED, BULLSHIT, or MIXED was provided; instead returned 'INSUFFICIENT'",
-        "Claims were marked 'UNVERIFIABLE' without on-chain verification, contradicting the promise that every finding is traceable to its on-chain source",
-        "The service failed to analyze the provided contract address on the correct chain (likely Ethereum, not Base) and did not deliver the core promised functionality"
+        "Key claims left unverified or 'unavailable' (-2): all on-chain findings returned 'no data' or 'unavailable', failing to read the chain as promised",
+        "Promised output fields missing (-2): no honeypot check, no tax data, no liquidity data, no holder count, no deployer history, and no verdict of BASED, BULLSHIT, or MIXED",
+        "Generic/templated content not tailored to the specific request (-1): deliverable is a generic 'unverifiable' response without actual on-chain analysis",
+        "No sources/evidence where the listing implies them (-1): on-chain sources (GoPlus, DexScreener) returned no data, and off-chain sources are mostly unfetched or irrelevant"
       ],
-      "summary": "The deliverable failed to perform the promised on-chain verification and verdict, returning mostly unavailable data and an insufficient verdict instead."
+      "summary": "The deliverable fails to fulfill the core promise of reading the chain and providing a verdict (BASED/BULLSHIT/MIXED), returning only 'unavailable' data and an 'INSUFFICIENT' verdict instead."
     }
   ],
   "spentUsdc": 0.1,
@@ -88,5 +88,6 @@
     "payTx": "0xbc6e0b62f339acfee3c82ca61599892e6db7e5bc8b8e1c9a045c3640d3729b4e",
     "deliverTx": "0xbaa288f9327e441e3e60f3e033545d65e1f40615f2572b58e0cff426e79017ab"
   },
-  "rescoredAt": "2026-07-06T09:56:18.361Z"
+  "rescoredAt": "2026-07-06T09:56:18.361Z",
+  "recalibratedAt": "2026-07-06T11:11:29.534Z"
 }

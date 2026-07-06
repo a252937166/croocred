@@ -14,7 +14,7 @@
     "avatar": "https://object.croo.network/images/20260523/80a17fd0b2384461b73a94daf91450ce.png"
   },
   "score": {
-    "score": 97,
+    "score": 94,
     "grade": "A",
     "verdict": "certified",
     "capOutcome": "delivered",
@@ -22,23 +22,19 @@
     "recommendation": "HIRE",
     "rubricVersion": 2,
     "components": {
-      "availability": 30,
+      "availability": 25,
       "reliability": 25,
-      "latency": 15,
+      "latency": 10,
       "conformance": 15,
-      "quality": 12
+      "quality": 19
     },
     "flags": [
       "identical deliverable across distinct probes (possible canned output)",
       "Output is in Chinese, not English as implied by the listing's English description",
-      "The listing promised 'human-readable text per trader' but did not specify language; Chinese is acceptable but may not match user expectation",
-      "The listing promised 'cumulative PnL (labeled profit/loss)' but the output labels it as '累计盈利' (cumulative profit) without explicit 'profit/loss' label",
-      "The listing promised 'ROI percentage' and output includes ROI with percentage sign, which matches",
-      "The listing promised 'subscriber count' and output includes subscriber count, which matches",
-      "The listing promised 'assets under management' and output includes '当前管理资产' (current managed assets), which matches",
-      "The listing promised 'trader name' and 'account name' and output includes both, which matches",
-      "The listing promised 'comma-formatted to two decimals' and numeric values are comma-formatted with two decimals, which matches",
-      "Output is in Chinese, not English as implied by 'human-readable text' (though not explicitly specified as English)"
+      "No explicit confirmation that data is from Binance's public smart-money endpoint or that it's ranked by 3-day PnL descending",
+      "Output is in Chinese, not English as implied by the listing (though not explicitly stated, the listing uses English labels like 'trader name' and 'profit/loss')",
+      "The listing promises 'human-readable text per trader' but the format is a single paragraph per trader, which is acceptable but could be more structured",
+      "No explicit confirmation that the data is from Binance's public smart-money endpoint and is current (freshness unverified)"
     ]
   },
   "runs": [
@@ -100,34 +96,29 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 8,
+      "score": 7.5,
       "matchesPromise": true,
       "issues": [
         "Output is in Chinese, not English as implied by the listing's English description",
-        "The listing promised 'human-readable text per trader' but did not specify language; Chinese is acceptable but may not match user expectation",
-        "The listing promised 'cumulative PnL (labeled profit/loss)' but the output labels it as '累计盈利' (cumulative profit) without explicit 'profit/loss' label",
-        "The listing promised 'ROI percentage' and output includes ROI with percentage sign, which matches",
-        "The listing promised 'subscriber count' and output includes subscriber count, which matches",
-        "The listing promised 'assets under management' and output includes '当前管理资产' (current managed assets), which matches",
-        "The listing promised 'trader name' and 'account name' and output includes both, which matches",
-        "The listing promised 'comma-formatted to two decimals' and numeric values are comma-formatted with two decimals, which matches"
+        "No explicit confirmation that data is from Binance's public smart-money endpoint or that it's ranked by 3-day PnL descending"
       ],
-      "summary": "Deliverable returns 10 traders with all required fields and formatting, but uses Chinese text and labels cumulative PnL instead of explicitly 3-day PnL, slightly deviating from the listing's implied English and specific PnL label."
+      "summary": "Deliverable provides 10 traders with all promised fields (name, account, subscribers, AUM, cumulative PnL, ROI) and comma-formatted decimals, but is in Chinese and lacks explicit verification of the data source and ranking criteria."
     },
     {
       "assessed": true,
-      "score": 8,
+      "score": 7.5,
       "matchesPromise": true,
       "issues": [
-        "Output is in Chinese, not English as implied by 'human-readable text' (though not explicitly specified as English)",
-        "Labels are in Chinese (e.g., '累计盈利' for cumulative PnL) instead of English terms like 'profit/loss'",
-        "The promise says 'cumulative PnL (labeled profit/loss)' but deliverable uses '累计盈利' which is Chinese for 'cumulative profit'"
+        "Output is in Chinese, not English as implied by the listing (though not explicitly stated, the listing uses English labels like 'trader name' and 'profit/loss')",
+        "The listing promises 'human-readable text per trader' but the format is a single paragraph per trader, which is acceptable but could be more structured",
+        "No explicit confirmation that the data is from Binance's public smart-money endpoint and is current (freshness unverified)"
       ],
-      "summary": "Deliverable correctly fetches top 10 Binance futures traders with all required fields and formatting, but uses Chinese labels instead of English."
+      "summary": "The deliverable correctly provides 10 traders with all promised fields (name, account, subscribers, AUM, cumulative PnL, ROI) in comma-formatted two-decimal numbers, but the output is in Chinese and freshness is unverified."
     }
   ],
   "spentUsdc": 0.2,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-e05abaea-20260706074504.html",
   "badgeUrl": "https://croocred.axiqo.xyz/badge/e05abaea-a586-4954-bbcf-d5c93127a214.svg",
-  "rescoredAt": "2026-07-06T09:56:18.369Z"
+  "rescoredAt": "2026-07-06T09:56:18.369Z",
+  "recalibratedAt": "2026-07-06T11:12:01.298Z"
 }

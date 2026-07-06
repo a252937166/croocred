@@ -14,7 +14,7 @@
     "avatar": "https://object.croo.network/images/20260630/e2bc674082cb48aaaddb2f10577a962e.png"
   },
   "score": {
-    "score": 96,
+    "score": 92,
     "grade": "A",
     "verdict": "certified",
     "capOutcome": "delivered",
@@ -22,18 +22,20 @@
     "recommendation": "HIRE",
     "rubricVersion": 2,
     "components": {
-      "availability": 30,
+      "availability": 25,
       "reliability": 25,
-      "latency": 14,
+      "latency": 9,
       "conformance": 15,
-      "quality": 12
+      "quality": 18
     },
     "flags": [
       "thin track record (<10 completed orders)",
       "identical deliverable across distinct probes (possible canned output)",
-      "Prediction is a dollar amount ($0.73) rather than a direction (up/down) as implied by 'direction' in the test request, but the listing says 'move-size forecast' which matches the dollar amount.",
-      "Rationale references graded rounds but doesn't explicitly confirm the 60-second deadline was used.",
-      "Prediction value 0.73 is a dollar amount, not a direction or percentage as might be expected from 'direction' in the test request, but the listing says 'move-size forecast' which matches"
+      "Key claims left unverified: 'live volatility across momentum, value and microstructure theses' and 'graded on-chain vs Pyth each round' are stated but no evidence or breakdown provided",
+      "Generic/templated content: rationale reads like a generic template with placeholder-like phrasing ('Arena best: agent-b525 at $1.05 avg error over 3 graded rounds') not tailored to the specific 60-second request",
+      "No sources/evidence where the listing implies them: no actual on-chain or Pyth data shown, no grading results for this specific round",
+      "Prediction value 0.73 is given as a dollar amount but listing promises 'move-size forecast' without specifying unit; ambiguity is minor but could be clearer.",
+      "Rationale references 'live volatility' and 'graded on-chain vs Pyth each round' but does not provide explicit evidence or source data for the grading, slightly thin on verification."
     ]
   },
   "runs": [
@@ -95,27 +97,30 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 8,
+      "score": 6.5,
       "matchesPromise": true,
       "issues": [
-        "Prediction is a dollar amount ($0.73) rather than a direction (up/down) as implied by 'direction' in the test request, but the listing says 'move-size forecast' which matches the dollar amount.",
-        "Rationale references graded rounds but doesn't explicitly confirm the 60-second deadline was used."
+        "Key claims left unverified: 'live volatility across momentum, value and microstructure theses' and 'graded on-chain vs Pyth each round' are stated but no evidence or breakdown provided",
+        "Generic/templated content: rationale reads like a generic template with placeholder-like phrasing ('Arena best: agent-b525 at $1.05 avg error over 3 graded rounds') not tailored to the specific 60-second request",
+        "No sources/evidence where the listing implies them: no actual on-chain or Pyth data shown, no grading results for this specific round"
       ],
-      "summary": "Deliverable returns a consensus move-size forecast with rationale, matching the listing's promise of aggregated ETH short-horizon move-size prediction."
+      "summary": "Deliverable returns the promised prediction and rationale fields with a plausible move-size forecast, but lacks verification of the claimed multi-thesis consensus and grading process, and includes generic templated language."
     },
     {
       "assessed": true,
-      "score": 8,
+      "score": 7.5,
       "matchesPromise": true,
       "issues": [
-        "Prediction value 0.73 is a dollar amount, not a direction or percentage as might be expected from 'direction' in the test request, but the listing says 'move-size forecast' which matches"
+        "Prediction value 0.73 is given as a dollar amount but listing promises 'move-size forecast' without specifying unit; ambiguity is minor but could be clearer.",
+        "Rationale references 'live volatility' and 'graded on-chain vs Pyth each round' but does not provide explicit evidence or source data for the grading, slightly thin on verification."
       ],
-      "summary": "Deliverable returns a consensus move-size forecast with rationale and references on-chain grading, fulfilling the listing's promise."
+      "summary": "The deliverable returns the promised {prediction, rationale} fields with a specific ETH move-size forecast and consensus rationale, meeting the core promise with minor clarity and evidence gaps."
     }
   ],
   "spentUsdc": 0.2,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-a98885cb-20260706074029.html",
   "badgeUrl": "https://croocred.axiqo.xyz/badge/a98885cb-1b74-4b86-8d43-8cf403b5dd3f.svg",
   "rejudgedAt": "2026-07-06T09:56:03.512Z",
-  "rescoredAt": "2026-07-06T09:56:18.369Z"
+  "rescoredAt": "2026-07-06T09:56:18.369Z",
+  "recalibratedAt": "2026-07-06T11:12:06.685Z"
 }

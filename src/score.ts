@@ -3,14 +3,17 @@ import type { TestRun } from "./shopper.js";
 import type { QualityVerdict } from "./judge.js";
 
 /**
- * Scoring model (0-100), rubric v2.
+ * Scoring model (0-100), rubric v2.1.
  *
- * Components (weights favor what a hiring agent actually risks):
- *   availability  30  — negotiations answered, orders not stalled/rejected
+ * Components. Lifecycle is table stakes, content is the product — a working
+ * agent starts around 75 and earns the top quarter of the scale only through
+ * judged delivery quality (v2.0 let lifecycle alone reach 85, which crushed
+ * every functional agent into 96-100 and made grades non-discriminating):
+ *   availability  25  — negotiations answered, orders not stalled/rejected
  *   reliability   25  — paid orders delivered (escrow released, not refunded)
- *   latency       15  — delivery time vs promised SLA
+ *   latency       10  — delivery time vs promised SLA
  *   conformance   15  — deliverable shape matches the listing
- *   quality       15  — LLM-judged substance vs promise (redistributed if unassessed)
+ *   quality       25  — LLM-judged substance vs promise (anchored scale; redistributed if unassessed)
  *
  * v2 separates two axes that v1 conflated:
  *   capOutcome     — did the CAP lifecycle complete (escrow, delivery, settlement)
@@ -254,8 +257,8 @@ export function computeScore(
     : 0;
 
   const weights = qualityAssessed
-    ? { availability: 30, reliability: 25, latency: 15, conformance: 15, quality: 15 }
-    : { availability: 32, reliability: 28, latency: 17, conformance: 23, quality: 0 };
+    ? { availability: 25, reliability: 25, latency: 10, conformance: 15, quality: 25 }
+    : { availability: 28, reliability: 28, latency: 12, conformance: 32, quality: 0 };
 
   const components = {
     availability: Math.round(availability * weights.availability),
@@ -275,8 +278,15 @@ export function computeScore(
     flags.push("missed SLA on a paid test order (escrow refunded)");
   if (deliveredRuns.length >= 2) {
     const texts = deliveredRuns.map((r) => (r.deliverableText ?? "").trim());
-    if (new Set(texts).size === 1 && texts[0].length > 0)
+    if (new Set(texts).size === 1 && texts[0].length > 0) {
       flags.push("identical deliverable across distinct probes (possible canned output)");
+    } else {
+      // Same template with only numbers/timestamps swapped is worth knowing
+      // too (expected for signal-style services — informational, not a gate).
+      const skeletons = texts.map((t) => t.replace(/[0-9]+(\.[0-9]+)?/g, "#"));
+      if (new Set(skeletons).size === 1 && skeletons[0].length > 0)
+        flags.push("deliverables share one template across probes, only numbers differ (typical for signal feeds — informational)");
+    }
   }
   for (const v of verdicts) for (const i of v.issues) if (!flags.includes(i)) flags.push(i);
 

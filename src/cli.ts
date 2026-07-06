@@ -170,6 +170,54 @@ async function main(): Promise<void> {
       console.log("site:", await buildSite());
       break;
     }
+    case "recalibrate": {
+      // Judge-calibration pass: re-run the anchored LLM judge over every
+      // delivered paid run's stored deliverable, then recompute under the
+      // current weights. Records without judged deliverables just replay
+      // through the current rubric.
+      const { computeScore, finalizeScore } = await import("./score.js");
+      const { saveRecord } = await import("./report.js");
+      const { judgeDeliverable } = await import("./judge.js");
+      const { resolveTarget } = await import("./publicApi.js");
+      for (const rec of loadAllRecords()) {
+        const before = `${rec.score.grade}·${rec.score.score}`;
+        const judgeable = rec.runs.filter(
+          (r) => r.mode === "paid" && r.ok && (r.deliverableText ?? "").trim(),
+        );
+        if (!judgeable.length) {
+          rec.score = finalizeScore(rec.score.components, rec.score.flags, rec.runs, rec.verdicts);
+          saveRecord(rec);
+          console.log(`${rec.certId}  ${rec.target.agentName.padEnd(22).slice(0, 22)}  ${before} ⇒ ${rec.score.grade}·${rec.score.score} (no judged deliverable)`);
+          continue;
+        }
+        let agent = {
+          agentId: rec.target.agentId, name: rec.target.agentName, description: "",
+          onlineStatus: rec.target.onlineStatus, completedOrders: rec.target.completedOrders,
+          completionRate: rec.target.completionRate, avatar: rec.target.avatar,
+        } as Parameters<typeof judgeDeliverable>[0];
+        let service = {
+          serviceId: rec.target.serviceId, agentId: rec.target.agentId, name: rec.target.serviceName,
+          description: "", price: String(Math.round(rec.target.priceUsdc * 1e6)),
+          slaMinutes: rec.target.slaMinutes, requirementType: "", requirementText: "",
+          requirementSchema: "", deliverableType: "", deliverableText: "", deliverableSchema: "", orders7d: "",
+        } as unknown as Parameters<typeof judgeDeliverable>[1];
+        try {
+          const t = await resolveTarget(rec.target.serviceId);
+          agent = t.agent; service = t.service;
+        } catch { /* snapshot fallback */ }
+        for (let i = 0; i < rec.runs.length; i++) {
+          if (!judgeable.includes(rec.runs[i])) continue;
+          rec.verdicts[i] = await judgeDeliverable(agent, service, rec.runs[i]);
+        }
+        rec.score = computeScore(agent, service, rec.runs, rec.verdicts);
+        (rec as unknown as Record<string, unknown>).recalibratedAt = new Date().toISOString();
+        saveRecord(rec);
+        const q = rec.verdicts.filter((v) => v.assessed).map((v) => v.score).join(",");
+        console.log(`${rec.certId}  ${rec.target.agentName.padEnd(22).slice(0, 22)}  ${before} ⇒ ${rec.score.grade}·${rec.score.score} ${rec.score.recommendation}  (q: ${q})`);
+      }
+      console.log("site:", await buildSite());
+      break;
+    }
     case "rescore": {
       // Replay every stored record through the current rubric (idempotent).
       const { finalizeScore } = await import("./score.js");

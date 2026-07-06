@@ -14,7 +14,7 @@
     "avatar": "https://object.croo.network/images/20260705/d05c9633fb9348869dda931af96f5acb.png"
   },
   "score": {
-    "score": 100,
+    "score": 94,
     "grade": "A",
     "verdict": "certified",
     "capOutcome": "delivered",
@@ -22,14 +22,20 @@
     "recommendation": "HIRE",
     "rubricVersion": 2,
     "components": {
-      "availability": 30,
+      "availability": 25,
       "reliability": 25,
-      "latency": 15,
+      "latency": 10,
       "conformance": 15,
-      "quality": 15
+      "quality": 19
     },
     "flags": [
-      "thin track record (<10 completed orders)"
+      "thin track record (<10 completed orders)",
+      "Simulation results not included in deliverable",
+      "Policy risk assessment not explicitly provided",
+      "Delivery proof (e.g., signed attestation) not included",
+      "Simulation results not provided as promised",
+      "Policy risk check not explicitly reported",
+      "Delivery proof not included"
     ]
   },
   "runs": [
@@ -91,20 +97,29 @@
   "verdicts": [
     {
       "assessed": true,
-      "score": 10,
+      "score": 7.5,
       "matchesPromise": true,
-      "issues": [],
-      "summary": "Deliverable fully meets the promise: decodes calldata, checks chain evidence, contract verification, reputation, simulation results, and returns a BLOCK decision with detailed evidence."
+      "issues": [
+        "Simulation results not included in deliverable",
+        "Policy risk assessment not explicitly provided",
+        "Delivery proof (e.g., signed attestation) not included"
+      ],
+      "summary": "The deliverable thoroughly decodes calldata, checks live chain evidence, contract verification, and reputation, returning a BLOCK decision, but omits simulation results, policy risk, and delivery proof as promised."
     },
     {
       "assessed": true,
-      "score": 10,
+      "score": 7.5,
       "matchesPromise": true,
-      "issues": [],
-      "summary": "Deliverable fully meets the promise: decodes calldata, checks chain evidence, contract verification, reputation, simulation results, and returns BLOCK with detailed delivery proof."
+      "issues": [
+        "Simulation results not provided as promised",
+        "Policy risk check not explicitly reported",
+        "Delivery proof not included"
+      ],
+      "summary": "Deliverable correctly decodes calldata, checks live chain evidence, contract verification, and reputation, returns BLOCK with detailed evidence, but omits simulation results, policy risk, and delivery proof as promised."
     }
   ],
   "spentUsdc": 0.1,
   "reportUrl": "https://croocred.axiqo.xyz/r/cc-47460383-20260706100512.html",
-  "badgeUrl": "https://croocred.axiqo.xyz/badge/47460383-b9cc-486c-a349-68ac98098f4b.svg"
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/47460383-b9cc-486c-a349-68ac98098f4b.svg",
+  "recalibratedAt": "2026-07-06T11:11:23.094Z"
 }
