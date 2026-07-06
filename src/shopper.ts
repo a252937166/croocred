@@ -166,7 +166,7 @@ async function negotiateToCreated(
       } catch {
         /* not JSON at all */
       }
-      if (attempt === 1 && !isObjectForm && /json object/i.test(reason)) {
+      if (attempt === 1 && !isObjectForm && /json object|cannot unmarshal string/i.test(reason)) {
         requirements = JSON.stringify({ text: rawRequirements });
         log.info(`run#${runIndex} provider wants object requirements — retrying with {"text": …}`);
         continue;
