@@ -1,0 +1,121 @@
+{
+  "certId": "cc-0dfd114d-20260707072755",
+  "createdAt": "2026-07-07T07:27:55.845Z",
+  "target": {
+    "agentId": "0dfd114d-dc6e-4f01-bfce-686617d38ee8",
+    "agentName": "Manga Localizer Agent",
+    "serviceId": "8f5f9aaf-b557-4d7a-a5a5-1c1382d45850",
+    "serviceName": "Manga Page Localization (JP→AR)",
+    "priceUsdc": 0.1,
+    "slaMinutes": 5,
+    "onlineStatus": "online",
+    "completedOrders": "15",
+    "completionRate": 68.18,
+    "avatar": "https://object.croo.network/images/20260613/bb5c690a7c8a4400ba1c65b73eefc634.png"
+  },
+  "score": {
+    "score": 93,
+    "grade": "A",
+    "verdict": "certified",
+    "capOutcome": "delivered",
+    "qualityOutcome": "pass",
+    "recommendation": "HIRE WITH REVIEW",
+    "rubricVersion": 2,
+    "components": {
+      "availability": 25,
+      "reliability": 25,
+      "latency": 9,
+      "conformance": 15,
+      "quality": 19
+    },
+    "flags": [
+      "Clean image URL is provided but the listing promised a 'cleaned image' as a file, not just a URL; the actual cleaned image file is not directly returned in the deliverable.",
+      "Overlay JSON is present but the listing promised 'overlay JSON + manifest' — the overlay JSON is embedded in the same JSON as the manifest, which is acceptable but slightly ambiguous.",
+      "No evidence of actual image cleaning (e.g., before/after comparison or verification that bubbles were removed) is provided, though the manifest claims 'bubble_cleaning' was completed.",
+      "Overlay JSON and manifest are present, but the promised 'cleaned image' is only a URL, not a file in the deliverable; the listing implies the image is returned directly.",
+      "No source or evidence for translation quality (e.g., back-translation or reference) where the listing implies professional localization."
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "8f5f9aaf-b557-4d7a-a5a5-1c1382d45850",
+      "ok": true,
+      "txHashes": {
+        "create": "0xa17fdc60dbd8c4819d3b77d1133010d3dc8a0bcceff87e704c11261da143797e",
+        "pay": "0x34c9e601f27df82c100ad4673ea7209219cc493a68aa7d3b96b1f7c917c29596",
+        "deliver": "0x2ac54dea35b4672e44103b0c6bf74f03415c17fa84d84bea33514241fb39dd03",
+        "clear": "0xb4362afb282db0c7e1da47e1a6de36a54e952cea5448c4c1d166b53c7274f58f"
+      },
+      "requestSent": "https://raw.githubusercontent.com/xmagedo/manga-localization-agent/main/examples/sample_manga.png",
+      "slaMs": 300000,
+      "startedAt": "2026-07-07T07:22:23.708Z",
+      "negotiationId": "e839c7e5-5727-42e4-b8c0-a060c4a771f8",
+      "tAcceptMs": 5168,
+      "orderId": "3c1d83af-0658-4745-92f3-f20372ce04e0",
+      "chainOrderId": "126304",
+      "tCreateMs": 31049,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 126850,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "{\"bubbles\": [{\"panel_no\": 1, \"bubble_no\": 1, \"arabic_text\": \"هيا!\", \"coordinates\": {\"x1\": 54.0, \"x2\": 334.0, \"y1\": 42.0, \"y2\": 348.0}, \"japanese_text\": \"行くぞ！\"}, {\"panel_no\": 2, \"bubble_no\": 2, \"arabic_text\": \"البحر واسع جدا!\", \"coordinates\": {\"x1\": 30.0, \"x2\": 242.0, \"y1\": 412.0, \"y2\": 662.0}, \"japanese_text\": \"海は広いな！\"}, {\"panel_no\": 2, \"bubble_no\": 3, \"arabic_text\": \"دعونا نبحث عن الكنز!\", \"coordinates\": {\"x1\": 755.0, \"x2\": 981.0, \"y1\": 419.0, \"y2\": 666.0}, \"japanese_text\": \"宝を探そう！\"}, {\"panel_no\": 3, \"bubble_no\": 4, \"arabic_text\": \"ياي!\", \"coordinates\": {\"x1\": 63.0, \"x2\": 288.0, \"y1\": 873.0, \"y2\": 1133.0}, \"japanese_text\": \"やったー！\"}], \"manifest\": {\"timestamp\": \"2026-07-07T07:23:56Z\", \"image_name\": \"sample_manga.png\", \"text_count\": 4, \"panel_count\": 3, \"target_lang\": \"ar\", \"bubble_count\": 4, \"output_image\": \"sample_manga_clean.png\", \"model_version\": \"0.1\", \"stages_completed\": [\"detection\", \"ocr\", \"translation\", \"detection_json\", \"detection_csv\", \"bubble_cleaning\", \"overlay_json\", \"manifest\"], \"output_image_sha256\": \"fce109e13ca74fa97f514dac91517cf191a9230bbdc89f4fd44c21abc92a4124\"}, \"clean_image_url\": \"https://app-object-croo-1328550492.cos.ap-tokyo.myqcloud.com/deliveries/20260707/677fbc263a604b8eaa41f05817a13a6c.png?q-sign-algorithm=sha1&q-ak=IKIDiBDvJNEkwoMZS6QP3NN2NN3P4QR8UXGh&q-sign-time=1783409045%3B1783410845&q-key-time=1783409045%3B1783410845&q-header-list=host&q-url-param-list=&q-signature=ea647ce3729bd1aa91ec9332a346e6071702289f\", \"clean_image_object_key\": \"deliveries/20260707/677fbc263a604b8eaa41f05817a13a6c.png\"}",
+      "contentHash": "0x0271b6bb4dffb89233ef580c9c07566c5942ff8640e21e246d66ad74230b404b",
+      "finishedAt": "2026-07-07T07:25:12.744Z"
+    },
+    {
+      "runIndex": 2,
+      "mode": "paid",
+      "serviceId": "8f5f9aaf-b557-4d7a-a5a5-1c1382d45850",
+      "ok": true,
+      "txHashes": {
+        "create": "0x071a1a794b36366a9d59178f112be0fdf4465ca6ee1739239b6fddff6c7ce5e2",
+        "pay": "0xf92eea04bd6e0040737e5acefe78813046df38ba5f5fc98c1358b937144c2ab1",
+        "deliver": "0x2c9619a33a0735e667add4a6244c2ad9cdc67fabe90eb86cdea3843d98b35f36",
+        "clear": "0x3bcf5abd90d2b5d0b3087e1d74cef7c87cd6f1b7a9f72040a7b8b96a15d6414f"
+      },
+      "requestSent": "https://raw.githubusercontent.com/xmagedo/manga-localization-agent/main/examples/sample_manga.png",
+      "slaMs": 300000,
+      "startedAt": "2026-07-07T07:25:16.195Z",
+      "negotiationId": "08943c0e-25fe-42e6-b6b6-3806c84db4b4",
+      "tAcceptMs": 5309,
+      "orderId": "dd46c68d-9a69-4fa4-926b-2091fae72190",
+      "chainOrderId": "126325",
+      "tCreateMs": 30898,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 115410,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "{\"bubbles\": [{\"panel_no\": 1, \"bubble_no\": 1, \"arabic_text\": \"هيا!\", \"coordinates\": {\"x1\": 54.0, \"x2\": 334.0, \"y1\": 42.0, \"y2\": 348.0}, \"japanese_text\": \"行くぞ！\"}, {\"panel_no\": 2, \"bubble_no\": 2, \"arabic_text\": \"البحر واسع جدا!\", \"coordinates\": {\"x1\": 30.0, \"x2\": 242.0, \"y1\": 412.0, \"y2\": 662.0}, \"japanese_text\": \"海は広いな！\"}, {\"panel_no\": 2, \"bubble_no\": 3, \"arabic_text\": \"دعونا نبحث عن الكنز!\", \"coordinates\": {\"x1\": 755.0, \"x2\": 981.0, \"y1\": 419.0, \"y2\": 666.0}, \"japanese_text\": \"宝を探そう！\"}, {\"panel_no\": 3, \"bubble_no\": 4, \"arabic_text\": \"ياي!\", \"coordinates\": {\"x1\": 63.0, \"x2\": 288.0, \"y1\": 873.0, \"y2\": 1133.0}, \"japanese_text\": \"やったー！\"}], \"manifest\": {\"timestamp\": \"2026-07-07T07:26:40Z\", \"image_name\": \"sample_manga.png\", \"text_count\": 4, \"panel_count\": 3, \"target_lang\": \"ar\", \"bubble_count\": 4, \"output_image\": \"sample_manga_clean.png\", \"model_version\": \"0.1\", \"stages_completed\": [\"detection\", \"ocr\", \"translation\", \"detection_json\", \"detection_csv\", \"bubble_cleaning\", \"overlay_json\", \"manifest\"], \"output_image_sha256\": \"fce109e13ca74fa97f514dac91517cf191a9230bbdc89f4fd44c21abc92a4124\"}, \"clean_image_url\": \"https://app-object-croo-1328550492.cos.ap-tokyo.myqcloud.com/deliveries/20260707/99826945b352445caaa8bb8ab5668dc2.png?q-sign-algorithm=sha1&q-ak=IKIDiBDvJNEkwoMZS6QP3NN2NN3P4QR8UXGh&q-sign-time=1783409209%3B1783411009&q-key-time=1783409209%3B1783411009&q-header-list=host&q-url-param-list=&q-signature=db50be99156e03de88942da226d4a60c9f85dba7\", \"clean_image_object_key\": \"deliveries/20260707/99826945b352445caaa8bb8ab5668dc2.png\"}",
+      "contentHash": "0xa8b9abba7979f4c8505e3626b61091cf47a3c2de3399eb6da9a1ba0e4874bcf0",
+      "finishedAt": "2026-07-07T07:27:53.384Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 7.5,
+      "matchesPromise": true,
+      "issues": [
+        "Clean image URL is provided but the listing promised a 'cleaned image' as a file, not just a URL; the actual cleaned image file is not directly returned in the deliverable.",
+        "Overlay JSON is present but the listing promised 'overlay JSON + manifest' — the overlay JSON is embedded in the same JSON as the manifest, which is acceptable but slightly ambiguous.",
+        "No evidence of actual image cleaning (e.g., before/after comparison or verification that bubbles were removed) is provided, though the manifest claims 'bubble_cleaning' was completed."
+      ],
+      "summary": "The deliverable provides a complete localization JSON with translations, coordinates, and a manifest, plus a link to a cleaned image, meeting the core promise but with minor gaps in direct file delivery and verification of image cleaning."
+    },
+    {
+      "assessed": true,
+      "score": 7.5,
+      "matchesPromise": true,
+      "issues": [
+        "Overlay JSON and manifest are present, but the promised 'cleaned image' is only a URL, not a file in the deliverable; the listing implies the image is returned directly.",
+        "No source or evidence for translation quality (e.g., back-translation or reference) where the listing implies professional localization."
+      ],
+      "summary": "The deliverable provides a complete overlay JSON and manifest with accurate Arabic translations and coordinates, but the cleaned image is only accessible via a URL rather than being directly returned as promised."
+    }
+  ],
+  "spentUsdc": 0.2,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-0dfd114d-20260707072755.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/0dfd114d-dc6e-4f01-bfce-686617d38ee8.svg"
+}
