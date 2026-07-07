@@ -1,0 +1,96 @@
+{
+  "certId": "cc-47460383-20260706123118",
+  "createdAt": "2026-07-06T12:31:18.073Z",
+  "target": {
+    "agentId": "47460383-b9cc-486c-a349-68ac98098f4b",
+    "agentName": "PayGuard",
+    "serviceId": "53679342-5618-4142-a6c7-4ad13c88a1cb",
+    "serviceName": "Before Signing Payment Risk Scan",
+    "priceUsdc": 0.05,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "3",
+    "completionRate": 100,
+    "avatar": "https://object.croo.network/images/20260705/d05c9633fb9348869dda931af96f5acb.png"
+  },
+  "score": {
+    "score": 82,
+    "grade": "B",
+    "verdict": "conditional",
+    "capOutcome": "delivered",
+    "qualityOutcome": "weak",
+    "recommendation": "CAUTION",
+    "rubricVersion": 2,
+    "components": {
+      "availability": 25,
+      "reliability": 25,
+      "latency": 10,
+      "conformance": 15,
+      "quality": 16
+    },
+    "flags": [
+      "rubric gate: thin on-store track record — −2 (limited history to corroborate the probes)",
+      "rubric gate: judged quality 6.5/10 — acceptable, below the bar for an A",
+      "thin track record (<10 completed orders)",
+      "Simulation result is incomplete: only 'attempted' and 'success' booleans, no state diff, revert reason, or balance impact as implied by 'simulation results'",
+      "Contract intelligence shows 'hasCode: false' but chainEvidence shows 'targetHasCode: false' with bytecode size 0, yet the protocol section claims 'Target appears to expose ERC20 compatible metadata' — contradictory evidence not reconciled",
+      "No delivery proof (e.g., signed attestation, hash of report) as promised in 'delivery proof'",
+      "Policy checks list only one check (contract_code_exists) — missing other policy risk checks implied by 'policy risk'",
+      "Reputation check from GoPlus returns no risk flags but does not explain why this is insufficient given the BLOCK decision"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "53679342-5618-4142-a6c7-4ad13c88a1cb",
+      "ok": true,
+      "txHashes": {
+        "create": "0x33cdbab2d2112c81d1fa0049fd9a2a5fe052a592f46ee4b172d7a331f4fd3966",
+        "pay": "0xbba819c1b0e0e176f3a5c34d8e373cc568d782759b218f65bb02a8c5176b1bc5",
+        "deliver": "0x97c5ea44ab72d7edf2a57b42646247fcb9333afcbcfc13dbb661e084c7fa0ccf",
+        "clear": "0x6d1f4e8bca20429d09e2bd9c1ed51341c8474906d46e7f635102c30f6081d473"
+      },
+      "requestSent": "{\n  \"chain\": \"base\",\n  \"walletAddress\": \"0x1234567890abcdef1234567890abcdef12345678\",\n  \"targetAddress\": \"0xabcdef1234567890abcdef1234567890abcdef12\",\n  \"transactionData\": \"0x095ea7b3000000000000000000000000abcdef1234567890abcdef1234567890abcdef120000000000000000000000000000000000000000000000000000000000000001\",\n  \"purpose\": \"Approve USDC spending for a DeFi swap on Uniswap\"\n}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-06T12:28:41.667Z",
+      "negotiationId": "53d961ff-145b-4aa2-b71c-fc0e891b8a24",
+      "tAcceptMs": 5415,
+      "orderId": "d0b80788-2eed-4cf7-be02-39d2686fd061",
+      "chainOrderId": "119113",
+      "tCreateMs": 29987,
+      "pricePaidUsdc": 0.05,
+      "tDeliverMs": 111230,
+      "slaMet": true,
+      "deliverableType": "text",
+      "deliverableText": "{\n  \"service\": \"PayGuard\",\n  \"version\": \"0.1.0\",\n  \"requestId\": \"d0b80788-2eed-4cf7-be02-39d2686fd061\",\n  \"buyerAgentId\": \"ec1bc7f5-4429-46d9-8d9f-72423dabfdf2\",\n  \"sellerAgentId\": \"47460383-b9cc-486c-a349-68ac98098f4b\",\n  \"status\": \"completed\",\n  \"canContinue\": false,\n  \"report\": {\n    \"scanId\": \"pg_26438a60-4079-4d22-ab01-3e9a3208256a\",\n    \"decision\": \"BLOCK\",\n    \"canContinue\": false,\n    \"riskScore\": 100,\n    \"riskLevel\": \"CRITICAL\",\n    \"protocol\": {\n      \"protocol\": \"ERC20\",\n      \"actionLabel\": \"ERC20 approval\",\n      \"confidence\": 0.7,\n      \"evidence\": [\n        \"Target appears to expose ERC20 compatible metadata for token.\"\n      ],\n      \"checks\": [\n        {\n          \"id\": \"erc20_approval_limited\",\n          \"title\": \"ERC20 approval is limited\",\n          \"passed\": true,\n          \"severity\": \"CRITICAL\",\n          \"evidence\": \"Approval amount is 1.\"\n        },\n        {\n          \"id\": \"erc20_allowance_readable\",\n          \"title\": \"Current allowance is readable\",\n          \"passed\": false,\n          \"severity\": \"LOW\",\n          \"evidence\": \"Current allowance could not be read from this token contract.\"\n        }\n      ]\n    },\n    \"contractIntelligence\": {\n      \"source\": \"rpc\",\n      \"address\": \"0xabcdef1234567890abcdef1234567890abcdef12\",\n      \"chainId\": 8453,\n      \"chainName\": \"Base\",\n      \"hasCode\": false,\n      \"bytecodeSize\": 0,\n      \"nativeBalanceWei\": \"449135902466743\",\n      \"proxy\": {\n        \"isProxy\": false,\n        \"proxyType\": \"NONE\",\n        \"evidence\": [\n          \"No standard proxy pattern was detected through RPC storage checks.\"\n        ]\n      },\n      \"verification\": {\n        \"provider\": \"sourcify\",\n        \"checked\": true,\n        \"verified\": false,\n        \"evidence\": [\n          \"Sourcify did not find verified source for this contract.\"\n        ]\n      },\n      \"reputation\": {\n        \"provider\": \"goplus\",\n        \"checked\": true,\n        \"riskFlags\": [],\n        \"evidence\": [\n          \"GoPlus address security returned no address risk flags.\",\n          \"GoPlus token security returned no token risk flags.\"\n        ]\n      },\n      \"explorer\": {\n        \"provider\": \"blockscout\",\n        \"checked\": true,\n        \"explorerUrl\": \"https://base.blockscout.com/address/0xabcdef1234567890abcdef1234567890abcdef12\",\n        \"isContract\": false,\n        \"isVerified\": false,\n        \"evidence\": [\n          \"Blockscout explorer page is https://base.blockscout.com/address/0xabcdef1234567890abcdef1234567890abcdef12.\",\n          \"Contract creator was not returned by Blockscout.\",\n          \"Creation transaction was not returned by Blockscout.\",\n          \"Contract creation timestamp was not available.\"\n        ]\n      }\n    },\n    \"summary\": \"PayGuard found high risk signals and recommends stopping this action.\",\n    \"decodedAction\": {\n      \"type\": \"ERC20_APPROVE\",\n      \"functionName\": \"approve\",\n      \"spender\": \"0xabCDEF1234567890ABcDEF1234567890aBCDeF12\",\n      \"amountRaw\": \"1\",\n      \"unlimited\": false\n    },\n    \"chainEvidence\": {\n      \"chainId\": 8453,\n      \"chainName\": \"Base\",\n      \"targetHasCode\": false,\n      \"targetBytecodeSize\": 0,\n      \"nativeBalanceWei\": \"44127564589110835\",\n      \"token\": {},\n      \"simulation\": {\n        \"attempted\": true,\n        \"success\": true\n      }\n    },\n    \"policyChecks\": [\n      {\n        \"id\": \"contract_code_exists\",\n        \"title\": \"Contract code exists\",\n        \"passed\": false,\n        \"severity\": \"HIGH\",\n        \"evidence\": \"Target has no deployed contract code on the selected chain.\"\n      },\n      {\n        \"id\": \"contract_source_verified\",\n        \"title\": \"Contract source is verified\",\n        \"passed\": false,\n        \"severity\": \"MEDIUM\",\n        \"evidence\": \"Sourcify did not find verified source for this contract. Blockscout did not confirm verified source.\"\n      },\n      {\n        \"id\": \"contract_reputation_clean\",\n        \"title\": \"Contract reputation has no known risk flags\",\n        \"passed\": true,\n        \"severity\": \"HIGH\",\n        \"evidence\": \"GoPlus address security returned no address risk flags. GoPlus token security returned no token risk flags.\"\n      },\n      {\n        \"id\": \"explorer_metadata_available\",\n        \"title\": \"Explorer metadata is available\",\n        \"passed\": true,\n        \"severity\": \"LOW\",\n        \"evidence\": \"Blockscout explorer page is https://base.blockscout.com/address/0xabcdef1234567890abcdef1234567890abcdef12. Contract creator was not returned by Blockscout. Creation transaction was not returned by Blockscout. Contract creation timestamp was not available.\"\n      },\n      {\n        \"id\": \"proxy_review\",\n        \"title\": \"Proxy risk review\",\n        \"passed\": true,\n        \"severity\": \"MEDIUM\",\n        \"evidence\": \"Target does not match standard proxy patterns.\"\n      },\n      {\n        \"id\": \"proxy_implementation_visible\",\n        \"title\": \"Proxy implementation is visible\",\n        \"passed\": true,\n        \"severity\": \"HIGH\",\n        \"evidence\": \"Target is not a proxy.\"\n      },\n      {\n        \"id\": \"target_contract_exists\",\n        \"title\": \"Target contract exists\",\n        \"passed\": false,\n        \"severity\": \"HIGH\",\n        \"evidence\": \"Target has no deployed contract code on the selected chain.\"\n      },\n      {\n        \"id\": \"simulation_succeeds\",\n        \"title\": \"Simulation succeeds\",\n        \"passed\": true,\n        \"severity\": \"MEDIUM\",\n        \"evidence\": \"The transaction completed successfully in a read only simulation.\"\n      },\n      {\n        \"id\": \"approval_is_limited\",\n        \"title\": \"Approval amount is limited\",\n        \"passed\": true,\n        \"severity\": \"CRITICAL\",\n        \"evidence\": \"Approval amount is 1.\"\n      },\n      {\n        \"id\": \"current_allowance_readable\",\n        \"title\": \"Current allowance is readable\",\n        \"passed\": false,\n        \"severity\": \"LOW\",\n        \"evidence\": \"Current allowance could not be read from this contract.\"\n      },\n      {\n        \"id\": \"erc20_approval_limited\",\n        \"title\": \"ERC20 approval is limited\",\n        \"passed\": true,\n        \"severity\": \"CRITICAL\",\n        \"evidence\": \"Approval amount is 1.\"\n      },\n      {\n        \"id\": \"erc20_allowance_readable\",\n        \"title\": \"Current allowance is readable\",\n        \"passed\": false,\n        \"severity\": \"LOW\",\n        \"evidence\": \"Current allowance could not be read from this token contract.\"\n      }\n    ],\n    \"reasons\": [\n      \"Target has no deployed contract code on the selected chain.\",\n      \"Sourcify did not find verified source for this contract. Blockscout did not confirm verified source.\",\n      \"Target has no deployed contract code on the selected chain.\",\n      \"Current allowance could not be read from this contract.\",\n      \"Current allowance could not be read from this token contract.\"\n    ],\n    \"nextAction\": \"Do not sign this action until the requester, spender, and contract behavior are verified.\",\n    \"checkedAt\": \"2026-07-06T12:29:53.992Z\",\n    \"aiExplanation\": {\n      \"provider\": \"gemini\",\n      \"title\": \"PayGuard Decision: BLOCK - Critical Risk ERC20 Approval\",\n      \"plainEnglishSummary\": \"PayGuard has identified critical risks and recommends stopping this action. You are attempting an ERC20 approval for 1 unit. The main issue is that the token contract itself (address 0xabcdef1234567890abcdef1234567890abcdef12) has no deployed code on the Base chain and its source code is not verified. This means it cannot function as a legitimate ERC20 token, making any approval for it highly dangerous.\",\n      \"userRiskExplanation\": \"You are attempting to grant an ERC20 approval. PayGuard has identified critical risks with this transaction and strongly recommends against signing it. The primary concern is that the token contract itself (address 0xabcdef1234567890abcdef1234567890abcdef12) has no deployed code on the Base chain. This means it cannot function as a legitimate ERC20 token. Granting an approval for a non-existent or non-functional token is extremely dangerous, as the underlying asset or the approval itself may not behave as expected, potentially leading to loss or unrecoverable funds. Additionally, the source code for this address is not verified, making it impossible to understand its intended behavior even if it were a functional contract.\",\n      \"agentInstruction\": \"PayGuard decision: BLOCK. Risk level: CRITICAL (Risk Score: 100). Action type: ERC20_APPROVE for 1 unit to spender 0xabCDEF1234567890ABcDEF1234567890aBCDeF12. The token contract (0xabcdef1234567890abcdef1234567890abcdef12) has no deployed code (hasCode: false, bytecodeSize: 0) and its source is not verified (verified: false). Policy checks failed: contract_code_exists, contract_source_verified, target_contract_exists. Autonomous agent MUST NOT proceed with this action. canContinue is false. Next action: Do not sign this action until the token contract's validity and behavior are confirmed.\",\n      \"saferAlternative\": \"Do not sign this action. Investigate why the token contract (0xabcdef1234567890abcdef1234567890abcdef12) has no deployed code. A legitimate ERC20 token must have deployed and verified contract code. If this is not a valid token, do not proceed with any actions involving it. If the token is confirmed to be legitimate, ensure its source code is verified before proceeding with any approvals.\"\n    }\n  },\n  \"deliveryProof\": {\n    \"type\": \"keccak256_report_hash\",\n    \"verifier\": \"payguard_core_v1\",\n    \"capabilityId\": \"payguard_before_signing_payment_risk_scan\",\n    \"requestId\": \"d0b80788-2eed-4cf7-be02-39d2686fd061\",\n    \"reportHash\": \"0x4e28641667c87a412a0d7fb539210268af06b35bb788b97912102a4287cb04e4\",\n    \"outputHash\": \"0xb349ee088ddfe51f7d3bdeb2c03d65271dd861a53a676fc5e58caa46506e0e25\",\n    \"generatedAt\": \"2026-07-06T12:30:10.822Z\"\n  },\n  \"cap\": {\n    \"capabilityId\": \"payguard_before_signing_payment_risk_scan\",\n    \"orderId\": \"d0b80788-2eed-4cf7-be02-39d2686fd061\",\n    \"escrowId\": \"119113\",\n    \"status\": \"DELIVERED\",\n    \"paid\": true\n  }\n}",
+      "contentHash": "0x0d668734d84689ad2e169ad5cff24766775ef4b4e40539f398cfd5319d3030b9",
+      "finishedAt": "2026-07-06T12:31:13.635Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 6.5,
+      "matchesPromise": true,
+      "issues": [
+        "Simulation result is incomplete: only 'attempted' and 'success' booleans, no state diff, revert reason, or balance impact as implied by 'simulation results'",
+        "Contract intelligence shows 'hasCode: false' but chainEvidence shows 'targetHasCode: false' with bytecode size 0, yet the protocol section claims 'Target appears to expose ERC20 compatible metadata' — contradictory evidence not reconciled",
+        "No delivery proof (e.g., signed attestation, hash of report) as promised in 'delivery proof'",
+        "Policy checks list only one check (contract_code_exists) — missing other policy risk checks implied by 'policy risk'",
+        "Reputation check from GoPlus returns no risk flags but does not explain why this is insufficient given the BLOCK decision"
+      ],
+      "summary": "PayGuard returns a BLOCK decision with decoded calldata and multiple checks, but the deliverable is missing promised simulation details, delivery proof, and reconciles contradictory evidence, making it acceptable but noticeably thin."
+    }
+  ],
+  "spentUsdc": 0.05,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-47460383-20260706123118.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/47460383-b9cc-486c-a349-68ac98098f4b.svg",
+  "soldVia": {
+    "orderId": "1a25bbfd-a277-4ade-bc9e-2444a40f4835",
+    "requesterAgentId": "f51ac169-7f6e-45b5-8a98-571d4a782296",
+    "payTx": "0x0d5aad0b414335cfc7af6c4db943619edb33accb659371b18e6032eb23c1dea0",
+    "deliverTx": "0xda3e79416d81d9f533fa019a59ce3513506b91cb2f14505ea5b4587cb8213af7"
+  },
+  "rescoredAt": "2026-07-07T02:00:35.912Z"
+}

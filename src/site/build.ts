@@ -35,7 +35,7 @@ const REC_COLOR: Record<string, string> = {
   HIRE: "#6EE646", CAUTION: "#e4c34a", AVOID: "#e65846",
 };
 const STATUS_COLOR: Record<string, string> = {
-  CERTIFIED: "#9be15d", CONDITIONAL: "#e4c34a", "NOT CERTIFIED": "#e65846", OFFLINE: "#8a8a8a",
+  CERTIFIED: "#9be15d", "CERTIFIED · WITH WARNINGS": "#b8d15d", CONDITIONAL: "#e4c34a", "NOT CERTIFIED": "#e65846", OFFLINE: "#8a8a8a",
 };
 
 /** Rubric-v2 axes with derivation fallback for records not yet rescored. */
@@ -52,7 +52,11 @@ function v2meta(rec: CertRecord): {
   const quality = s.qualityOutcome ?? (qMean === null ? "not_assessed" : qMean >= 7 ? "pass" : qMean >= 5 ? "weak" : "fail");
   const recommendation = s.recommendation ?? (s.verdict === "certified" ? "HIRE" : s.verdict === "conditional" ? "CAUTION" : "AVOID");
   const offline = cap === "failed" && s.flags.some((f) => /offline|not accepting/i.test(f));
-  const status = offline ? "OFFLINE" : s.verdict === "certified" ? "CERTIFIED" : s.verdict === "conditional" ? "CONDITIONAL" : "NOT CERTIFIED";
+  // Many informational flags on a certified record deserve a visible asterisk.
+  const warnings = s.flags.filter((f) => !f.startsWith("rubric gate:")).length;
+  const status = offline ? "OFFLINE"
+    : s.verdict === "certified" ? (warnings >= 3 ? "CERTIFIED · WITH WARNINGS" : "CERTIFIED")
+    : s.verdict === "conditional" ? "CONDITIONAL" : "NOT CERTIFIED";
   return { cap, quality, recommendation, status, qMean };
 }
 
@@ -187,7 +191,7 @@ tr.hidden{display:none}
 .empty-steps .mono{color:var(--green)}
 </style></head><body><div class="wrap">
 <nav><span class="wordmark"><a href="${cfg.publicBaseURL}/" style="color:inherit;text-decoration:none">CROO<i>CRED</i></a></span>
-<div class="links"><a href="${cfg.publicBaseURL}/reports.html">REPORTS</a><a href="${cfg.publicBaseURL}/verdicts.html">VERDICTS</a><a href="${cfg.publicBaseURL}/api.html">API</a><a href="${GITHUB_URL}">GITHUB</a><a href="${STORE_AGENT_URL}">AGENT&nbsp;STORE</a></div></nav>
+<div class="links"><a href="${cfg.publicBaseURL}/reports.html">REPORTS</a><a href="${cfg.publicBaseURL}/verdicts.html">VERDICTS</a><a href="${cfg.publicBaseURL}/evidence.html">EVIDENCE</a><a href="${cfg.publicBaseURL}/api.html">API</a><a href="${GITHUB_URL}">GITHUB</a><a href="${STORE_AGENT_URL}">AGENT&nbsp;STORE</a></div></nav>
 ${body}
 <footer>CrooCred — live purchase certification for the agent economy. Paid probes are real CAP orders with escrow and settlement on Base mainnet; liveness checks exercise negotiation + on-chain order creation without payment and cap grades at C. CAP lifecycle and judged delivery quality are graded as separate axes — hard gates mean an empty or off-promise delivery is never certified. Every tx hash links to Basescan.<br/>
 <a href="${GITHUB_URL}">GitHub (MIT)</a> · <a href="${STORE_AGENT_URL}">croocred on the Agent Store</a> · <a href="${cfg.publicBaseURL}/api/certs.json">certs feed</a> · <a href="${cfg.publicBaseURL}/api/stats.json">stats feed</a><br/>
@@ -413,7 +417,7 @@ function reportPage(rec: CertRecord, generatedAt: string): string {
 <div class="scroll"><table>
 <tr><td style="width:170px">CAP lifecycle</td><td style="font:700 13px var(--mono);color:${capColor}">${capLabel}</td></tr>
 <tr><td>Delivery quality</td><td style="font:700 13px var(--mono);color:${qColor}">${qLabel}</td></tr>
-<tr><td>Final verdict</td><td style="font:700 13px var(--mono)">${esc(rec.score.verdict.replace("_", " ").toUpperCase())} · <span style="color:${recColor}">${meta.recommendation}</span></td></tr>
+<tr><td>Final verdict</td><td style="font:700 13px var(--mono)">${esc(meta.status)} · <span style="color:${recColor}">${meta.recommendation}</span>${rec.score.flags.length ? ` <span class="mut" style="font-weight:400">(${rec.score.flags.length} flags below)</span>` : ""}</td></tr>
 </table></div>
 <p class="mut" style="margin-top:6px">Rubric v${(rec.score as { rubricVersion?: number }).rubricVersion ?? 1}: a provider can pass CAP (escrow, delivery, settlement) and still fail quality — an empty or off-promise payload is never certified. Hard gates cap the grade when conformance or judged quality is 0.</p>
 </div>`;
@@ -922,6 +926,65 @@ ${cards || `<div class="section"><p class="mut">No claim verdicts yet — order 
   return pageShell("CrooCred — claim verdicts", body, generatedAt);
 }
 
+// -------------------------------------------- anti-sybil evidence page ----
+
+function evidencePage(all: CertRecord[], verdicts: StoredVerdict[], generatedAt: string): string {
+  const operatorBuyer = process.env.CROO_BUYER_AGENT_ID ?? "";
+  // Inbound buyers (parent orders: certifications + claim verdicts)
+  const buyers = new Map<string, { orders: number; items: Set<string> }>();
+  const addBuyer = (id: string | undefined, item: string) => {
+    if (!id) return;
+    const b = buyers.get(id) ?? { orders: 0, items: new Set<string>() };
+    b.orders++; b.items.add(item); buyers.set(id, b);
+  };
+  for (const r of all) if (r.soldVia) addBuyer(r.soldVia.requesterAgentId, `certification of ${r.target.agentName}`);
+  for (const v of verdicts) addBuyer(v.soldVia?.requesterAgentId, "claim verdict");
+  const buyerRows = [...buyers.entries()].map(([id, b]) =>
+    `<tr><td class="mono">${esc(id)}</td><td>${b.orders}</td><td>${esc([...b.items].join(" · "))}</td><td>${id === operatorBuyer ? '<b style="color:#e4c34a">operator-owned — disclosed demo buyer, never counted as organic adoption</b>' : "external"}</td></tr>`,
+  ).join("");
+  // Outbound targets
+  const byTarget = new Map<string, { probes: number; spend: number }>();
+  for (const r of all) {
+    const t = byTarget.get(r.target.agentName) ?? { probes: 0, spend: 0 };
+    t.probes += r.runs.filter((x) => x.mode === "paid" && x.txHashes.pay).length;
+    t.spend += r.spentUsdc;
+    byTarget.set(r.target.agentName, t);
+  }
+  const targetRows = [...byTarget.entries()].map(([name, t]) =>
+    `<tr><td>${esc(name)}</td><td>${t.probes}</td><td>$${t.spend.toFixed(2)}</td></tr>`).join("");
+  // Parent orders with receipts
+  const parentRows = [
+    ...all.filter((r) => r.soldVia).map((r) => {
+      const s = r.soldVia!;
+      return `<tr><td class="mono">${esc(s.orderId)}</td><td>certification — ${esc(r.target.agentName)}</td><td class="mono">${esc(s.requesterAgentId)}</td><td class="mono">${s.payTx ? `<a href="${basescan(s.payTx)}">pay</a>` : "—"}${s.deliverTx ? ` · <a href="${basescan(s.deliverTx)}">deliver</a>` : ""}</td></tr>`;
+    }),
+    ...verdicts.filter((v) => v.soldVia?.orderId).map((v) => {
+      const s = v.soldVia!;
+      return `<tr><td class="mono">${esc(s.orderId ?? "")}</td><td>claim verdict</td><td class="mono">${esc(s.requesterAgentId ?? "")}</td><td class="mono">${s.payTx ? `<a href="${basescan(s.payTx)}">pay</a>` : "—"}${s.deliverTx ? ` · <a href="${basescan(s.deliverTx)}">deliver</a>` : ""}</td></tr>`;
+    }),
+  ].join("");
+  const seedCount = all.filter((r) => !r.soldVia).length;
+  const body = `
+<h1 style="font:800 26px var(--mono);text-transform:uppercase;margin-bottom:6px">Evidence & anti-sybil disclosure</h1>
+<p class="mut" style="margin-bottom:14px">Proactive disclosure for reviewers: who bought from CrooCred, who CrooCred bought from, which relationships are operator-owned, and where every claim can be independently verified. The hackathon's own review flags (buyer-wallet counts, counterparty diversity, self-trade concentration) deserve first-class answers, not footnotes.</p>
+<div class="section"><h2>Inbound buyers (parent CAP orders)</h2>
+<div class="scroll"><table><tr><th>buyer agent</th><th>orders</th><th>bought</th><th>relationship</th></tr>${buyerRows || "<tr><td colspan=4 class='mut'>none yet</td></tr>"}</table></div></div>
+<div class="section"><h2>Outbound probe targets (${byTarget.size} agents, different teams)</h2>
+<div class="scroll"><table><tr><th>target agent</th><th>paid probes</th><th>probe spend</th></tr>${targetRows}</table></div></div>
+<div class="section"><h2>Parent orders with on-chain receipts</h2>
+<div class="scroll"><table><tr><th>order id</th><th>what</th><th>buyer</th><th>tx</th></tr>${parentRows || "<tr><td colspan=4 class='mut'>none yet</td></tr>"}</table></div></div>
+<div class="section"><h2>Standing disclosures</h2>
+<div class="flag">⚑ croocred (the auditor) and testpilot (a demo buyer) are run by the same operator. Every testpilot purchase is labeled "operator demo" on its record and is never presented as organic adoption.</div>
+<div class="flag">⚑ ${seedCount} of ${all.length} certification records are operator-run seed certifications (soldViaOrder = null in the feeds) — run to bootstrap the board, disclosed as such. Buyer-ordered records carry the full parent-order receipt chain.</div>
+<div class="flag">⚑ CrooCred never certifies itself or testpilot. Probe targets are other teams' agents; probe spend flows to those teams as revenue.</div>
+<div class="flag">⚑ Probe funding: a fellow builder's $0.12 sponsorship (first certification) + operator top-ups. Every probe payment is a CAP escrow tx on Base.</div>
+</div>
+<div class="section"><h2>Verify it yourself</h2>
+<p>Every order id, negotiation id, tx hash, latency and content hash: <a href="api/certs-full.json">/api/certs-full.json</a> · claim verdicts: <a href="api/verdicts.json">/api/verdicts.json</a> · the evidence/ directory in the <a href="${GITHUB_URL}">GitHub repo</a> is committed on every change, so grading history is auditable via git.</p></div>
+<p><a href="index.html">← home</a></p>`;
+  return pageShell("CrooCred — evidence & anti-sybil disclosure", body, generatedAt);
+}
+
 function apiPage(all: CertRecord[], latest: Map<string, CertRecord>, generatedAt: string): string {
   const m = computeMetrics(all, latest);
   const liveCerts = JSON.stringify(
@@ -1016,6 +1079,7 @@ export async function buildSite(): Promise<string> {
   writeFileSync(resolve(out, "api.html"), apiPage(all, latest, generatedAt));
   const verdicts = loadVerdicts();
   writeFileSync(resolve(out, "verdicts.html"), verdictsPage(verdicts, generatedAt));
+  writeFileSync(resolve(out, "evidence.html"), evidencePage(all, verdicts, generatedAt));
   writeFileSync(
     resolve(out, "api", "verdicts.json"),
     JSON.stringify(

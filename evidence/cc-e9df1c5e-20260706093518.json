@@ -16,7 +16,7 @@
   "score": {
     "score": 84,
     "grade": "B",
-    "verdict": "certified",
+    "verdict": "conditional",
     "capOutcome": "delivered",
     "qualityOutcome": "weak",
     "recommendation": "CAUTION",
@@ -90,6 +90,6 @@
     "payTx": "0x22a27972fde3f2fca29d1989d3537d2119e436fe211334a2df11fd751afcb83c",
     "deliverTx": "0x7b5cf2f9160526f7a3abf6ff0a0d972ac4d019c39d511e2844873fd515b4ad86"
   },
-  "rescoredAt": "2026-07-06T11:24:25.677Z",
+  "rescoredAt": "2026-07-07T02:00:35.918Z",
   "recalibratedAt": "2026-07-06T11:11:26.310Z"
 }

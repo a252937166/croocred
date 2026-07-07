@@ -154,9 +154,11 @@ export function finalizeScore(
   score = Math.min(score, 98); // a perfect 100 is not a grade an auditor gives
 
   const grade = score >= 85 ? "A" : score >= 70 ? "B" : score >= 55 ? "C" : score >= 40 ? "D" : "F";
+  // "certified" is reserved for records where BOTH axes pass outright —
+  // weak quality reads as CONDITIONAL, not as a certified-with-an-asterisk.
   const verdict: CertScore["verdict"] =
     avoid || grade === "D" || grade === "F" ? "not_certified"
-    : grade === "C" || qualityOutcome === "fail" || qualityOutcome === "not_assessed" ? "conditional"
+    : grade === "C" || qualityOutcome !== "pass" ? "conditional"
     : "certified";
 
   const severe = flags.some((f) =>
