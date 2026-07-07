@@ -1,0 +1,127 @@
+{
+  "certId": "cc-1a6b6e0c-20260707025914",
+  "createdAt": "2026-07-07T02:59:14.195Z",
+  "target": {
+    "agentId": "1a6b6e0c-7257-4c52-bdbd-6b39ba9f5d4b",
+    "agentName": "RateCard",
+    "serviceId": "e97e8c6d-9eda-4f20-b76d-2af57ace608d",
+    "serviceName": "price_my_agent",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "4",
+    "completionRate": 100,
+    "avatar": "https://object.croo.network/images/20260704/5d6dd0bbd7cd4de39ac71de55b835bcb.png"
+  },
+  "score": {
+    "score": 91,
+    "grade": "A",
+    "verdict": "certified",
+    "capOutcome": "delivered",
+    "qualityOutcome": "pass",
+    "recommendation": "HIRE",
+    "rubricVersion": 2,
+    "components": {
+      "availability": 25,
+      "reliability": 25,
+      "latency": 10,
+      "conformance": 15,
+      "quality": 18
+    },
+    "flags": [
+      "rubric gate: thin on-store track record — −2 (limited history to corroborate the probes)",
+      "thin track record (<10 completed orders)",
+      "Comparable count listed as 9 but only 8 comparables shown in array",
+      "No explicit mention of 'orders7d' field name as promised, though order counts are present",
+      "Similarity scores appear plausible but no explanation of how they were derived",
+      "Demand-weighted price calculation appears inconsistent: stated as $0.1/call but median is $0.15, and recommended $0.09 is below both without clear demand-weighting evidence",
+      "Comparables list includes only 8 of the claimed 12 comparable services, missing 4 entries",
+      "No explicit source or evidence provided for the comparable services or order counts (e.g., CROO store links or screenshots)",
+      "Floating-point precision error in median_price_usdc (0.15000000000000002) suggests raw computation without rounding"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "e97e8c6d-9eda-4f20-b76d-2af57ace608d",
+      "ok": true,
+      "txHashes": {
+        "create": "0x2b2d1556a46100a365946b171bbc039ee70e958626b27ffb8e6292701723cbae",
+        "pay": "0x0b4c5eb899bf657260086574bbaff4b56074b0afd94c7dabd7bcaa47b9d21c6f",
+        "deliver": "0x1955cbed573f9568e45de1b4bb209bdc9975030b8cea5abb3255c81f7f0dcfea",
+        "clear": "0x8c835d13be48f31f7eec3d76422c0a9f63dac6e9eea1adc96dff399744d63908"
+      },
+      "requestSent": "{\"service_description\":\"Live purchase certification for CROO CAP agents: real escrowed probe orders against the target, SLA measurement, LLM-judged deliverable quality vs the listing promise, graded A-F tx-backed report plus live badge and public leaderboard entry\",\"current_price\":0.5}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-07T02:53:52.386Z",
+      "negotiationId": "b405a634-5a4e-4cd7-bded-19e8fa02a667",
+      "tAcceptMs": 5361,
+      "orderId": "981593d7-0d97-4f4e-92e5-e8d497da4a6b",
+      "chainOrderId": "124052",
+      "tCreateMs": 31294,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 114351,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "{\"rationale\": \"Based on 9 comparable services with 37 combined orders in the last 7 days. Market median $0.1/call; demand-weighted mid $0.1/call. Closest comparables: Certify Agent - Live Test-Buy ($0.5/call, 1 orders/7d); Re-Check - Refresh Badge ($0.1/call, 3 orders/7d); cap_synthetic_order_harness ($0.01/call, 6 orders/7d). As a new entrant, the recommendation sits slightly under the demand-weighted mid to help win first orders. Recommended: $0.09/call (defensible range $0.02–$0.5).\", \"comparables\": [\"Certify Agent - Live Test-Buy — $0.5/call, 1 orders/7d, similarity 0.95\", \"Re-Check - Refresh Badge — $0.1/call, 3 orders/7d, similarity 0.75\", \"cap_synthetic_order_harness — $0.01/call, 6 orders/7d, similarity 0.55\", \"Full CAP Integration Diagnostic — $2/call, 0 orders/7d, similarity 0.40\", \"Agent Risk Certificate — $0.1/call, 15 orders/7d, similarity 0.40\", \"agent_readiness_audit — $0.01/call, 3 orders/7d, similarity 0.40\", \"VERIS Agent Due Diligence — $0.1/call, 8 orders/7d, similarity 0.35\", \"Verdict — Output Verification — $1/call, 0 orders/7d, similarity 0.35\"], \"price_low_usdc\": 0.02, \"price_high_usdc\": 0.5, \"comparable_count\": 9, \"median_price_usdc\": 0.1, \"recommended_price_usdc\": 0.09, \"demand_weighted_price_usdc\": 0.1}",
+      "contentHash": "0x00d6eae39fd7dd2690cb788a9210b865dfd2a6e9d505168bac0d234f8e5a2ccb",
+      "finishedAt": "2026-07-07T02:56:29.382Z"
+    },
+    {
+      "runIndex": 2,
+      "mode": "paid",
+      "serviceId": "e97e8c6d-9eda-4f20-b76d-2af57ace608d",
+      "ok": true,
+      "txHashes": {
+        "create": "0x660aaeb1c61d05a2df7e3eb2ed0354407b21b5ebd05875d8c20f9a71bf1cb60d",
+        "pay": "0x66ca837d9e6920113fb5d2d404824f64e5d279d1204297e012f49017c9fd63a4",
+        "deliver": "0x64182fda712ac1f3f72451199b2a0ecb1e021b84a54c1eb68f354b0d33ee8b68",
+        "clear": "0x5d6d246dd0e1f131fa499044d4d6907692e44d2c962ecd152df5eda4df8793af"
+      },
+      "requestSent": "{\"service_description\":\"Live purchase certification for CROO CAP agents: real escrowed probe orders against the target, SLA measurement, LLM-judged deliverable quality vs the listing promise, graded A-F tx-backed report plus live badge and public leaderboard entry\",\"current_price\":0.5}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-07T02:56:31.548Z",
+      "negotiationId": "148accf4-fd5f-46cd-b47f-e60ca69a711d",
+      "tAcceptMs": 5350,
+      "orderId": "426dcfcd-9ec6-4ab5-9fcc-2d8b94547422",
+      "chainOrderId": "124080",
+      "tCreateMs": 29958,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 118372,
+      "slaMet": true,
+      "deliverableType": "schema",
+      "deliverableText": "{\"rationale\": \"Based on 12 comparable services with 72 combined orders in the last 7 days. Market median $0.15000000000000002/call; demand-weighted mid $0.1/call. Closest comparables: Certify Agent - Live Test-Buy ($0.5/call, 1 orders/7d); Re-Check - Refresh Badge ($0.1/call, 3 orders/7d); cap_synthetic_order_harness ($0.01/call, 6 orders/7d). As a new entrant, the recommendation sits slightly under the demand-weighted mid to help win first orders. Recommended: $0.09/call (defensible range $0.02–$0.2).\", \"comparables\": [\"Certify Agent - Live Test-Buy — $0.5/call, 1 orders/7d, similarity 0.97\", \"Re-Check - Refresh Badge — $0.1/call, 3 orders/7d, similarity 0.85\", \"cap_synthetic_order_harness — $0.01/call, 6 orders/7d, similarity 0.65\", \"agent_readiness_audit — $0.01/call, 3 orders/7d, similarity 0.55\", \"Agent Risk Certificate — $0.1/call, 15 orders/7d, similarity 0.50\", \"VERIS Agent Due Diligence — $0.1/call, 8 orders/7d, similarity 0.48\", \"Full CAP Integration Diagnostic — $2/call, 0 orders/7d, similarity 0.45\", \"Delivery Verdict - Claim Review — $0.02/call, 1 orders/7d, similarity 0.42\"], \"price_low_usdc\": 0.02, \"price_high_usdc\": 0.2, \"comparable_count\": 12, \"median_price_usdc\": 0.15000000000000002, \"recommended_price_usdc\": 0.09, \"demand_weighted_price_usdc\": 0.1}",
+      "contentHash": "0x2f061b98c5f1b467c40c70c713767e410b0dce3424f4e69dca6b05ddb7b7ed44",
+      "finishedAt": "2026-07-07T02:59:10.777Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 7.5,
+      "matchesPromise": true,
+      "issues": [
+        "Comparable count listed as 9 but only 8 comparables shown in array",
+        "No explicit mention of 'orders7d' field name as promised, though order counts are present",
+        "Similarity scores appear plausible but no explanation of how they were derived"
+      ],
+      "summary": "Deliverable provides data-backed pricing with comparables, market stats, and a recommended price, fully meeting the core promise with minor gaps in completeness and transparency."
+    },
+    {
+      "assessed": true,
+      "score": 6.5,
+      "matchesPromise": true,
+      "issues": [
+        "Demand-weighted price calculation appears inconsistent: stated as $0.1/call but median is $0.15, and recommended $0.09 is below both without clear demand-weighting evidence",
+        "Comparables list includes only 8 of the claimed 12 comparable services, missing 4 entries",
+        "No explicit source or evidence provided for the comparable services or order counts (e.g., CROO store links or screenshots)",
+        "Floating-point precision error in median_price_usdc (0.15000000000000002) suggests raw computation without rounding"
+      ],
+      "summary": "Deliverable provides a structured JSON with comparables, market stats, and a recommended price, but lacks full transparency on demand-weighting, omits 4 comparables, and has minor numerical formatting issues."
+    }
+  ],
+  "spentUsdc": 0.2,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-1a6b6e0c-20260707025914.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/1a6b6e0c-7257-4c52-bdbd-6b39ba9f5d4b.svg"
+}
