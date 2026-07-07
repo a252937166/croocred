@@ -1,0 +1,87 @@
+{
+  "certId": "cc-0dfd114d-20260707073840",
+  "createdAt": "2026-07-07T07:38:40.366Z",
+  "target": {
+    "agentId": "0dfd114d-dc6e-4f01-bfce-686617d38ee8",
+    "agentName": "Manga Localizer Agent",
+    "serviceId": "8f5f9aaf-b557-4d7a-a5a5-1c1382d45850",
+    "serviceName": "Manga Page Localization (JP→AR)",
+    "priceUsdc": 0.1,
+    "slaMinutes": 5,
+    "onlineStatus": "online",
+    "completedOrders": "17",
+    "completionRate": 70.83,
+    "avatar": "https://object.croo.network/images/20260613/bb5c690a7c8a4400ba1c65b73eefc634.png"
+  },
+  "score": {
+    "score": 28,
+    "grade": "F",
+    "verdict": "not_certified",
+    "capOutcome": "failed",
+    "qualityOutcome": "fail",
+    "recommendation": "AVOID",
+    "rubricVersion": 2,
+    "components": {
+      "availability": 28,
+      "reliability": 0,
+      "latency": 0,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "rubric gate: no paid probe was delivered — CAP lifecycle failed",
+      "missed SLA on a paid test order (escrow refunded)",
+      "empty deliverable",
+      "Deliverable is empty (0 characters), no content returned",
+      "No cleaned image, overlay JSON, or manifest provided as promised",
+      "Core promise of localization completely unfulfilled"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "8f5f9aaf-b557-4d7a-a5a5-1c1382d45850",
+      "ok": false,
+      "txHashes": {
+        "create": "0xdd7bb98f005f93587091c589f80fbe3e591a149b7f975fef33be4c97d939740f",
+        "pay": "0xcbb938bfbb1d08ee4ac97ee77fce389669fdd7489fbf2b51e9da05b344777bbe"
+      },
+      "requestSent": "Localize this manga page from Japanese to Arabic: https://example.com/manga/chapter1/page05.jpg",
+      "slaMs": 300000,
+      "startedAt": "2026-07-07T07:32:23.201Z",
+      "negotiationId": "ed6e7bc5-fef4-46da-b2e3-082bcc3d1ea5",
+      "tAcceptMs": 4506,
+      "orderId": "bd91806d-ac17-4673-8158-ee1d716b4929",
+      "chainOrderId": "126384",
+      "tCreateMs": 29807,
+      "pricePaidUsdc": 0.1,
+      "failureStage": "delivery_timeout",
+      "failureDetail": "no delivery within SLA 5min (+grace); escrow auto-refunds",
+      "finishedAt": "2026-07-07T07:38:38.800Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no content returned",
+        "No cleaned image, overlay JSON, or manifest provided as promised",
+        "Core promise of localization completely unfulfilled"
+      ],
+      "summary": "The deliverable is empty, failing to provide any of the promised outputs for the manga page localization request."
+    }
+  ],
+  "spentUsdc": 0.1,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-0dfd114d-20260707073840.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/0dfd114d-dc6e-4f01-bfce-686617d38ee8.svg",
+  "soldVia": {
+    "orderId": "d3cbd9bd-1b79-4e48-9082-6456aaf7ff68",
+    "requesterAgentId": "05e2678f-8871-43be-aed5-e58cf2d7ca2d",
+    "payTx": "0x78a3e40958627766716b11f49f8973f325a1abcd170fffc75d39e3c7c05a38e0",
+    "deliverTx": "0xa553265e37bc2b87b3f64a53e857314b6896e7f302612020a5c0c24cbfc68012"
+  }
+}
