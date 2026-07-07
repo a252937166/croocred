@@ -5,7 +5,7 @@ import { cfg } from "../config.js";
 import { loadAllRecords, latestPerAgent, type CertRecord } from "../report.js";
 import { renderBadge } from "../badge.js";
 import { getUsdcBalance } from "../balance.js";
-import { listPublicServices } from "../publicApi.js";
+import { listPublicServices, getPublicAgent } from "../publicApi.js";
 import type { TestRun } from "../shopper.js";
 
 /**
@@ -885,6 +885,63 @@ function loadVerdicts(): StoredVerdict[] {
   }
 }
 
+/**
+ * Buyer agent → AA wallet mapping (the official anti-sybil flag counts buyer
+ * WALLETS, not buyer agents — make the mapping explicit). Best-effort live
+ * lookup with a persistent cache so API flakiness never blanks the page.
+ */
+/** Extract the buyer wallet from the parent order's pay tx: the first USDC
+ *  Transfer event's sender is the buyer's AA wallet — on-chain, so the
+ *  mapping is independently verifiable even when the public API is down. */
+async function walletFromPayTx(payTx: string): Promise<string | null> {
+  const TRANSFER = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
+  try {
+    const res = await fetch("https://mainnet.base.org", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getTransactionReceipt", params: [payTx] }),
+    });
+    const j = (await res.json()) as { result?: { logs?: { topics?: string[] }[] } };
+    for (const l of j.result?.logs ?? []) {
+      if (l.topics?.[0] === TRANSFER && l.topics.length >= 3) return "0x" + l.topics[1].slice(26);
+    }
+  } catch { /* rpc unavailable */ }
+  return null;
+}
+
+async function resolveBuyerWallets(all: CertRecord[], verdicts: StoredVerdict[]): Promise<Map<string, string>> {
+  const ids = new Set<string>();
+  const payTxByBuyer = new Map<string, string>();
+  for (const r of all) if (r.soldVia?.requesterAgentId) {
+    ids.add(r.soldVia.requesterAgentId);
+    if (r.soldVia.payTx && !payTxByBuyer.has(r.soldVia.requesterAgentId)) payTxByBuyer.set(r.soldVia.requesterAgentId, r.soldVia.payTx);
+  }
+  for (const v of verdicts) if (v.soldVia?.requesterAgentId) {
+    ids.add(v.soldVia.requesterAgentId);
+    if (v.soldVia.payTx && !payTxByBuyer.has(v.soldVia.requesterAgentId)) payTxByBuyer.set(v.soldVia.requesterAgentId, v.soldVia.payTx);
+  }
+  const cachePath = resolve(cfg.dataDir, "buyer-wallets.json");
+  let cache: Record<string, string> = {};
+  try { cache = JSON.parse(readFileSync(cachePath, "utf8")) as Record<string, string>; } catch { /* fresh cache */ }
+  const operatorBuyer = process.env.CROO_BUYER_AGENT_ID;
+  const operatorWallet = process.env.CROO_BUYER_AA_WALLET;
+  if (operatorBuyer && operatorWallet && !cache[operatorBuyer]) cache[operatorBuyer] = operatorWallet;
+  for (const id of ids) {
+    if (cache[id]) continue;
+    try {
+      const a = await getPublicAgent(id);
+      if (a.walletAddress) { cache[id] = a.walletAddress; continue; }
+    } catch { /* fall through to on-chain lookup */ }
+    const tx = payTxByBuyer.get(id);
+    if (tx) {
+      const w = await walletFromPayTx(tx);
+      if (w) cache[id] = w;
+    }
+  }
+  try { writeFileSync(cachePath, JSON.stringify(cache, null, 2)); } catch { /* non-fatal */ }
+  return new Map(Object.entries(cache));
+}
+
 const VERDICT_COLOR: Record<string, string> = {
   approve_claim: "#e65846", deny_claim: "#9be15d", manual_review: "#e4c34a",
 };
@@ -929,7 +986,7 @@ ${cards || `<div class="section"><p class="mut">No claim verdicts yet — order 
 
 // -------------------------------------------- anti-sybil evidence page ----
 
-function evidencePage(all: CertRecord[], verdicts: StoredVerdict[], generatedAt: string): string {
+function evidencePage(all: CertRecord[], verdicts: StoredVerdict[], wallets: Map<string, string>, generatedAt: string): string {
   const operatorBuyer = process.env.CROO_BUYER_AGENT_ID ?? "";
   // Inbound buyers (parent orders: certifications + claim verdicts)
   const buyers = new Map<string, { orders: number; items: Set<string> }>();
@@ -940,9 +997,16 @@ function evidencePage(all: CertRecord[], verdicts: StoredVerdict[], generatedAt:
   };
   for (const r of all) if (r.soldVia) addBuyer(r.soldVia.requesterAgentId, `certification of ${r.target.agentName}`);
   for (const v of verdicts) addBuyer(v.soldVia?.requesterAgentId, "claim verdict");
+  const shortWallet = (id: string): string => {
+    const w = wallets.get(id);
+    return w ? `${w.slice(0, 6)}…${w.slice(-4)}` : "—";
+  };
   const buyerRows = [...buyers.entries()].map(([id, b]) =>
-    `<tr><td class="mono">${esc(id)}</td><td>${b.orders}</td><td>${esc([...b.items].join(" · "))}</td><td>${id === operatorBuyer ? '<b style="color:#e4c34a">operator-owned — disclosed demo buyer, never counted as organic adoption</b>' : "external"}</td></tr>`,
+    `<tr><td class="mono">${esc(id)}</td><td class="mono" title="buyer AA wallet">${esc(shortWallet(id))}</td><td>${b.orders}</td><td>${esc([...b.items].join(" · "))}</td><td>${id === operatorBuyer ? '<b style="color:#e4c34a">operator-owned — disclosed demo buyer, never counted as organic adoption</b>' : "external"}</td></tr>`,
   ).join("");
+  const externalCount = [...buyers.keys()].filter((id) => id !== operatorBuyer).length;
+  const operatorCount = buyers.has(operatorBuyer) ? 1 : 0;
+  const walletSummary = `<p style="font:700 13px var(--mono);margin:2px 0 10px">external buyer wallets: ${externalCount} · operator demo wallet: ${operatorCount} · total unique buyer wallets: ${externalCount + operatorCount}</p>`;
   // Outbound targets
   const byTarget = new Map<string, { probes: number; spend: number }>();
   for (const r of all) {
@@ -969,7 +1033,9 @@ function evidencePage(all: CertRecord[], verdicts: StoredVerdict[], generatedAt:
 <h1 style="font:800 26px var(--mono);text-transform:uppercase;margin-bottom:6px">Evidence & anti-sybil disclosure</h1>
 <p class="mut" style="margin-bottom:14px">Proactive disclosure for reviewers: who bought from CrooCred, who CrooCred bought from, which relationships are operator-owned, and where every claim can be independently verified. The hackathon's own review flags (buyer-wallet counts, counterparty diversity, self-trade concentration) deserve first-class answers, not footnotes.</p>
 <div class="section"><h2>Inbound buyers (parent CAP orders)</h2>
-<div class="scroll"><table><tr><th>buyer agent</th><th>orders</th><th>bought</th><th>relationship</th></tr>${buyerRows || "<tr><td colspan=4 class='mut'>none yet</td></tr>"}</table></div></div>
+${walletSummary}
+<div class="scroll"><table><tr><th>buyer agent</th><th>buyer wallet</th><th>orders</th><th>bought</th><th>relationship</th></tr>${buyerRows || "<tr><td colspan=5 class='mut'>none yet</td></tr>"}</table></div>
+<p class="mut" style="margin-top:6px">The hackathon's review flag counts buyer <i>wallets</i> — the wallet column makes the agent→wallet mapping explicit (each buyer agent has its own AA wallet; pay txs in the parent-order table below spend from these wallets).</p></div>
 <div class="section"><h2>Outbound probe targets (${byTarget.size} agents, different teams)</h2>
 <div class="scroll"><table><tr><th>target agent</th><th>paid probes</th><th>probe spend</th></tr>${targetRows}</table></div></div>
 <div class="section"><h2>Parent orders with on-chain receipts</h2>
@@ -1080,7 +1146,7 @@ export async function buildSite(): Promise<string> {
   writeFileSync(resolve(out, "api.html"), apiPage(all, latest, generatedAt));
   const verdicts = loadVerdicts();
   writeFileSync(resolve(out, "verdicts.html"), verdictsPage(verdicts, generatedAt));
-  writeFileSync(resolve(out, "evidence.html"), evidencePage(all, verdicts, generatedAt));
+  writeFileSync(resolve(out, "evidence.html"), evidencePage(all, verdicts, await resolveBuyerWallets(all, verdicts), generatedAt));
   writeFileSync(
     resolve(out, "api", "verdicts.json"),
     JSON.stringify(

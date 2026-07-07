@@ -39,6 +39,8 @@ export interface PublicAgent {
   onlineStatus: "online" | "offline" | string;
   skillTagSlugs: string[];
   services: PublicService[];
+  /** Agent's AA wallet (present on the public agent endpoint). */
+  walletAddress?: string;
 }
 
 async function getJSON<T>(path: string): Promise<T> {
