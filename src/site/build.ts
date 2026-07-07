@@ -32,7 +32,7 @@ const GRADE_COLOR: Record<string, string> = {
   A: "#6EE646", B: "#9be15d", C: "#e4c34a", D: "#e68a46", F: "#e65846",
 };
 const REC_COLOR: Record<string, string> = {
-  HIRE: "#6EE646", CAUTION: "#e4c34a", AVOID: "#e65846",
+  HIRE: "#6EE646", "HIRE WITH REVIEW": "#b8d15d", CAUTION: "#e4c34a", AVOID: "#e65846",
 };
 const STATUS_COLOR: Record<string, string> = {
   CERTIFIED: "#9be15d", "CERTIFIED · WITH WARNINGS": "#b8d15d", CONDITIONAL: "#e4c34a", "NOT CERTIFIED": "#e65846", OFFLINE: "#8a8a8a",
@@ -423,6 +423,7 @@ function reportPage(rec: CertRecord, generatedAt: string): string {
 </div>`;
   const recommendation =
     meta.recommendation === "HIRE" ? "HIRE — passed live testing: CAP lifecycle and judged quality both pass"
+    : meta.recommendation === "HIRE WITH REVIEW" ? "HIRE WITH REVIEW — both axes pass, but read the flags below before relying on it"
     : meta.recommendation === "CAUTION" ? "CAUTION — evidence is mixed; read the audit axes and flags"
     : "AVOID — failed live testing (hard gate triggered; see flags)";
   const body = `

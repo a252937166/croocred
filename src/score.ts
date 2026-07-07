@@ -33,7 +33,7 @@ export interface CertScore {
   capOutcome: "delivered" | "partial" | "failed" | "created_only";
   /** Judged content quality vs the listing promise, independent of lifecycle. */
   qualityOutcome: "pass" | "weak" | "fail" | "not_assessed";
-  recommendation: "HIRE" | "CAUTION" | "AVOID";
+  recommendation: "HIRE" | "HIRE WITH REVIEW" | "CAUTION" | "AVOID";
   rubricVersion: number;
   components: Record<string, number>;
   flags: string[];
@@ -164,9 +164,14 @@ export function finalizeScore(
   const severe = flags.some((f) =>
     /empty deliverable|not valid JSON|stalled|missed SLA|offline at certification/i.test(f),
   );
+  // Many informational flags on a certified record temper the recommendation:
+  // a clean HIRE next to a long flag list reads as the auditor not reading
+  // its own findings.
+  const warningCount = flags.filter((f) => !f.startsWith(GATE_PREFIX)).length;
   const recommendation: CertScore["recommendation"] =
     avoid || verdict === "not_certified" ? "AVOID"
-    : verdict === "certified" && qualityOutcome === "pass" && !severe ? "HIRE"
+    : verdict === "certified" && qualityOutcome === "pass" && !severe
+      ? (warningCount >= 5 ? "HIRE WITH REVIEW" : "HIRE")
     : "CAUTION";
 
   return {
