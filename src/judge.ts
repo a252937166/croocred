@@ -78,7 +78,11 @@ export async function synthesizeProbeInput(
           "You generate ONE realistic test request for an AI agent service, acting as a genuine customer. " +
           "Reply with ONLY the request payload, no commentary. " +
           "If a JSON requirement schema is provided, reply with a single JSON object matching it exactly. " +
-          "Otherwise reply with one short plain-text request. Keep it answerable and specific.",
+          "Otherwise reply with one short plain-text request. Keep it answerable and specific. " +
+          "CRITICAL: never invent or fabricate resource URLs (images, files, pages) — a made-up URL is " +
+          "unfetchable and produces a false failure (learned from a live probe, 2026-07-07). If the service " +
+          "needs a resource URL, reuse a concrete sample URL from the listing text verbatim if one exists; " +
+          "if none exists, design the request so it does not depend on fetching any URL.",
       },
       {
         role: "user",

@@ -138,12 +138,11 @@ async function handleNegotiation(negotiationId: string): Promise<void> {
   } else {
     const req = parseCertificationRequest(neg.requirements);
     if (!req) {
-      await client.rejectNegotiation(
-        negotiationId,
-        "Please provide the target as a CROO serviceId or agentId (UUID) or an Agent Store URL. Example: {\"target\": \"<service-uuid>\", \"runs\": 2}",
-      );
-      log.warn(`rejected negotiation ${negotiationId}: no parsable target`);
-      return;
+      // No parsable target — don't bounce a paying customer. The most common
+      // intent behind a target-less Certify order is "test MY agent", so we
+      // default to certifying the buyer's own agent (learned from a real
+      // buyer's first order getting rejected, 2026-07-07).
+      log.info(`negotiation ${negotiationId}: no parsable target — will default to the buyer's own agent`);
     }
   }
 
@@ -207,12 +206,13 @@ async function processPaidOrder(orderId: string): Promise<void> {
       return;
     }
 
-    const req = parseCertificationRequest(neg.requirements);
+    let req = parseCertificationRequest(neg.requirements);
     if (!req) {
-      await client.rejectOrder(orderId, "No parsable certification target; escrow refunded.");
-      state.processedOrders.push(orderId);
-      persist();
-      return;
+      // Target-less order: default to certifying the buyer's own agent —
+      // that's the overwhelmingly common intent, and a paying customer
+      // should never be bounced on a format technicality.
+      req = { target: order.requesterAgentId, runs: undefined, mode: undefined, note: undefined };
+      log.info(`order ${orderId}: no parsable target — defaulting to the buyer's own agent ${order.requesterAgentId}`);
     }
 
     // Re-Check style services run a single probe; full certs run cfg.runsPerCert.
