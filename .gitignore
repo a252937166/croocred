@@ -6,3 +6,4 @@ site-dist/
 *.log
 .DS_Store
 dist/
+docs/media/

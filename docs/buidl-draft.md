@@ -18,7 +18,7 @@
 - GitHub: https://github.com/a252937166/croocred
 - Live: https://croocred.axiqo.xyz
 - Agent Store: https://agent.croo.network/agents/ec1bc7f5-4429-46d9-8d9f-72423dabfdf2
-- Demo video: https://youtu.be/ehCzju3USl8 (public, 1080p, 3:49)
+- Demo video: https://youtu.be/wcp8gUcTvzo (public, 1080p, 2:56)
 
 **Contact**: 微信 a252937166（DoraHacks Contact 首选）
 
@@ -57,18 +57,23 @@ counted in metrics or feeds.
 
 ### Real receipts (all verifiable)
 
-- **19 paid probes across 10 agents from different teams** — every order id
-  and tx hash in /api/certs-full.json and the repo's evidence/ directory.
-  Current board: 8 certified (HIRE), 1 conditional, 1 not certified (offline
-  provider). The A-grades include Surety (an "insurer" competitor we certified
-  — coopetition over CAP) and PayGuard (certified with the builder's own
-  test-case, A·100).
-- **Organic buyers, not just probes**: two external agents ordered
+- **29 paid probes across 12 agents from different teams**, $2.44 of real USDC
+  spent on Base mainnet — every order id and tx hash in /api/certs-full.json and
+  the repo's evidence/ directory. Current board: 7 certified (HIRE), 4
+  conditional, 1 not certified (offline provider). Six agents hold A grades
+  (RateCard, Polymind, DCA Signal, SwapCat, AlphaTrack, Axion). Surety — an
+  "insurer" competitor we test-bought (coopetition over CAP) — and PayGuard,
+  graded against the builder's own test case, both land at B · CONDITIONAL under
+  the hardened rubric rather than a rubber-stamp A.
+- **Organic buyers, not just probes**: six external buyer agents ordered
   certifications over CAP and the daemon served them end-to-end with zero
-  operator input — a builder Re-Checked their own agent ($0.10, accepted in
-  4.3s, probe delivered in 122s, report + badge delivered back on-chain), and
-  a second buyer ordered an independent re-check of Surety. Each report's
-  "sold via CAP order" row carries the buyer's pay tx and our deliver tx.
+  operator input — e.g. a builder Re-Checked their own agent ($0.10, accepted in
+  4.3s, probe delivered in 122s, report + badge delivered back on-chain), and an
+  external insurance agent (Surety) bought an independent claim verdict — a real
+  cross-team adjudication. A single operator-demo wallet is openly labeled and
+  never counted as organic adoption (6 external + 1 disclosed demo = 7 unique
+  buyer wallets; see /evidence.html). Each report's "sold via CAP order" row
+  carries the buyer's pay tx and our deliver tx.
 - **Rubric v2 — two axes, hard gates**: every report separates CAP lifecycle
   (escrow/delivery/settlement) from judged content quality. An agent that
   passes CAP but returns an off-promise payload is capped and can never read
@@ -116,8 +121,9 @@ Store: agent.croo.network/agents/ec1bc7f5-4429-46d9-8d9f-72423dabfdf2
 ---
 
 ## 提交前核对清单
-- [ ] 种子批完成后刷新正文里的数字（认证数/订单数/counterparty 数）
-- [x] 视频上传 YouTube（public, 1080p）后回填链接 → https://youtu.be/ehCzju3USl8
+- [x] 刷新正文数字对齐 live 站（2026-07-08）：12 agents · 29 paid probes · $2.44 USDC · 板 7 certified/4 conditional/1 not certified · 6 external buyers (+1 disclosed demo) · 2 claim verdicts · 18 a2a edges
+- [x] 视频上传 YouTube（public, 1080p, 2:56）后回填链接 → https://youtu.be/wcp8gUcTvzo
+- [ ] DoraHacks Submit BUIDL（用户操作）：填上表 + 手动上传 Logo（site-assets/logo-512.png）
 - [ ] Logo 用户手动上传
 - [ ] Demo video ≤5min 确认
 - [ ] BUIDL 提交后到比赛页 Register/关联

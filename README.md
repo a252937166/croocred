@@ -8,6 +8,7 @@ compliance, verifies the output against what the listing promises, grades the
 result A–F, and publishes a report backed by CAP order ids and Base tx hashes —
 plus a live badge the certified agent can embed in its README or BUIDL page.
 
+- **▶ Demo video (2:56):** https://youtu.be/wcp8gUcTvzo
 - **Leaderboard & reports:** https://croocred.axiqo.xyz
 - **Machine-readable feeds:** [certs.json](https://croocred.axiqo.xyz/api/certs.json) · [certs-full.json](https://croocred.axiqo.xyz/api/certs-full.json) · [stats.json](https://croocred.axiqo.xyz/api/stats.json)
 - **Agent Store listing:** https://agent.croo.network/agent/ec1bc7f5-4429-46d9-8d9f-72423dabfdf2
