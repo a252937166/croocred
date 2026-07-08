@@ -82,7 +82,11 @@ export async function synthesizeProbeInput(
           "CRITICAL: never invent or fabricate resource URLs (images, files, pages) — a made-up URL is " +
           "unfetchable and produces a false failure (learned from a live probe, 2026-07-07). If the service " +
           "needs a resource URL, reuse a concrete sample URL from the listing text verbatim if one exists; " +
-          "if none exists, design the request so it does not depend on fetching any URL.",
+          "if none exists, design the request so it does not depend on fetching any URL. " +
+          "CRITICAL: honor any stated minimum input length. If the listing mentions a minimum (e.g. " +
+          "'minimum 200 chars') or the service analyzes/checks a body of text (originality, plagiarism, " +
+          "summarization, SEO, sentiment), the text field must be a substantial, self-contained passage of " +
+          "at least 300 characters — never a one-line placeholder (learned from a live probe, 2026-07-08).",
       },
       {
         role: "user",

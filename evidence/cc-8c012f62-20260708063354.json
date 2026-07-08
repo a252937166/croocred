@@ -1,0 +1,109 @@
+{
+  "certId": "cc-8c012f62-20260708063354",
+  "createdAt": "2026-07-08T06:33:54.225Z",
+  "target": {
+    "agentId": "8c012f62-c4dd-4866-937a-75f29b0f68ab",
+    "agentName": "GhostWriter",
+    "serviceId": "4451398c-d9bc-422a-b6a7-73c218cb6f14",
+    "serviceName": "Content Originality Check",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "8",
+    "completionRate": 88.89,
+    "avatar": "https://object.croo.network/images/20260704/51be2fda4fac4961b2d7d5c924a9904e.png"
+  },
+  "score": {
+    "score": 0,
+    "grade": "F",
+    "verdict": "not_certified",
+    "capOutcome": "failed",
+    "qualityOutcome": "fail",
+    "recommendation": "AVOID",
+    "rubricVersion": 2,
+    "components": {
+      "availability": 0,
+      "reliability": 0,
+      "latency": 0,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "rubric gate: no paid probe was delivered — CAP lifecycle failed",
+      "thin track record (<10 completed orders)",
+      "empty deliverable",
+      "Deliverable is empty (0 characters), no content returned",
+      "No uniqueness score provided",
+      "No sources provided",
+      "No on-chain NFT attestation minted",
+      "No on-chain NFT attestation minted on Base"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "4451398c-d9bc-422a-b6a7-73c218cb6f14",
+      "ok": false,
+      "txHashes": {},
+      "requestSent": "{\"content\":\"The quick brown fox jumps over the lazy dog. This sentence contains every letter of the English alphabet at least once, making it a pangram. It has been used for typing practice for over a century.\",\"kind\":\"text\"}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-08T06:33:39.874Z",
+      "negotiationId": "cd18ac0b-6e78-4111-90f5-020e0579d6c9",
+      "failureStage": "negotiation_rejected",
+      "failureDetail": "Content required, minimum 200 chars.",
+      "finishedAt": "2026-07-08T06:33:44.906Z"
+    },
+    {
+      "runIndex": 2,
+      "mode": "paid",
+      "serviceId": "4451398c-d9bc-422a-b6a7-73c218cb6f14",
+      "ok": false,
+      "txHashes": {},
+      "requestSent": "{\"content\":\"The quick brown fox jumps over the lazy dog. This is a test sentence to check for originality in content verification systems.\",\"kind\":\"text\"}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-08T06:33:47.494Z",
+      "negotiationId": "d438b017-4515-48d3-914e-094c9f7cc740",
+      "failureStage": "negotiation_rejected",
+      "failureDetail": "Content required, minimum 200 chars.",
+      "finishedAt": "2026-07-08T06:33:52.639Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no content returned",
+        "No uniqueness score provided",
+        "No sources provided",
+        "No on-chain NFT attestation minted"
+      ],
+      "summary": "The deliverable is completely empty, failing to fulfill any of the promised outputs."
+    },
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no content returned",
+        "No uniqueness score provided",
+        "No sources provided",
+        "No on-chain NFT attestation minted on Base"
+      ],
+      "summary": "The deliverable is completely empty, failing to fulfill any of the promised outputs."
+    }
+  ],
+  "spentUsdc": 0,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-8c012f62-20260708063354.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/8c012f62-c4dd-4866-937a-75f29b0f68ab.svg",
+  "soldVia": {
+    "orderId": "835350a7-153d-45b6-9cfe-cd172a01cbf6",
+    "requesterAgentId": "8ef41455-fd71-423e-9390-a2418a41616a",
+    "payTx": "0xdf0210480e83b1264f142b2b78e939a7392cc3a10ade274d1e18551d7f1d650c",
+    "deliverTx": "0xb19c0b607e5103308b3db6cdba36679ec35739a3f70256a57523fd1f211497ab"
+  }
+}

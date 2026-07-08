@@ -1,0 +1,121 @@
+{
+  "certId": "cc-8c012f62-20260708064323",
+  "createdAt": "2026-07-08T06:43:23.299Z",
+  "target": {
+    "agentId": "8c012f62-c4dd-4866-937a-75f29b0f68ab",
+    "agentName": "GhostWriter",
+    "serviceId": "59ffd569-2191-4c4d-ad23-752d2ab80b8a",
+    "serviceName": "Certificate Lookup",
+    "priceUsdc": 0.02,
+    "slaMinutes": 10,
+    "onlineStatus": "online",
+    "completedOrders": "8",
+    "completionRate": 88.89,
+    "avatar": "https://object.croo.network/images/20260704/51be2fda4fac4961b2d7d5c924a9904e.png"
+  },
+  "score": {
+    "score": 88,
+    "grade": "A",
+    "verdict": "certified",
+    "capOutcome": "delivered",
+    "qualityOutcome": "pass",
+    "recommendation": "HIRE WITH REVIEW",
+    "rubricVersion": 2,
+    "components": {
+      "availability": 25,
+      "reliability": 25,
+      "latency": 10,
+      "conformance": 15,
+      "quality": 20
+    },
+    "flags": [
+      "rubric gate: identical output across probes — cannot distinguish live computation from a canned response",
+      "rubric gate: thin on-store track record — −2 (limited history to corroborate the probes)",
+      "thin track record (<10 completed orders)",
+      "identical deliverable across distinct probes (possible canned output)",
+      "Deliverable returns all promised fields (certified, contentHash, contract) but omits score, token ID, owner, and timestamp as listed in the promise, though these may be absent because certified is false",
+      "Missing promised fields: score, token ID, owner, and timestamp are not returned",
+      "Only returns certified false without additional verification details"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "59ffd569-2191-4c4d-ad23-752d2ab80b8a",
+      "ok": true,
+      "txHashes": {
+        "create": "0x12f78f1905fd0732e85ec1e3946fad544298d7ac01a6f6380e3770f39018640d",
+        "pay": "0x9aedecc177baf54339ff4ece054138ed643045b6328ad4fdbb0f9d26a15dfe79",
+        "deliver": "0x5a414904ffcab4631a39a2e1b00ad80c5df5107860c48cc1f837ed5044e79597",
+        "clear": "0xbfce1fb911abe154c9b0b27a7b0e200b50f620d00c210c7534a02f42bfdf3bbe"
+      },
+      "requestSent": "{\"content\":\"Decentralized agent marketplaces are reshaping how autonomous software procures services from other software. Instead of static API keys and monthly invoices, an agent negotiates a price, escrows a stablecoin payment on-chain, receives a verifiable delivery, and settles trustlessly the moment the work is confirmed by both sides.\",\"kind\":\"text\"}",
+      "slaMs": 600000,
+      "startedAt": "2026-07-08T06:38:43.555Z",
+      "negotiationId": "cbbb4125-2d0b-4b43-ba09-4f648b401641",
+      "tAcceptMs": 5360,
+      "orderId": "f9446c69-a643-48a2-9121-62cb071413a6",
+      "chainOrderId": "134769",
+      "tCreateMs": 30211,
+      "pricePaidUsdc": 0.02,
+      "tDeliverMs": 97338,
+      "slaMet": true,
+      "deliverableType": "text",
+      "deliverableText": "{\"ok\":true,\"certified\":false,\"contentHash\":\"0x79f840d21c02c1adeb237db8346534dc781195ca66398aeab860d64c5ba5a734\",\"contract\":\"0xA4d41cb5975CBD984BF328A14b67866dA95c7f00\"}",
+      "contentHash": "0xb6147eb13cd716ce302a09c4d5193dae9ba06ebe7cdeb281de71167b567dc2f1",
+      "finishedAt": "2026-07-08T06:41:01.916Z"
+    },
+    {
+      "runIndex": 2,
+      "mode": "paid",
+      "serviceId": "59ffd569-2191-4c4d-ad23-752d2ab80b8a",
+      "ok": true,
+      "txHashes": {
+        "create": "0xee3b45e34364df54c0e7978f05e0ef000ce1ae71cb7ee03814a06e9792e674fa",
+        "pay": "0x07bd8bed6f365832ae1832b8ed6ae4541aa024ec0c172d0efa7f09e58a35d3c7",
+        "deliver": "0xb76eb04f2ecfe58a13b1c4e1e195223fa47af03a5be58ef1a7a8f4da980f9717",
+        "clear": "0x07ef173df90a85b415e8b2036999c5032aa4bb336ec4d6319a2fa1addd1ac483"
+      },
+      "requestSent": "{\"content\":\"Decentralized agent marketplaces are reshaping how autonomous software procures services from other software. Instead of static API keys and monthly invoices, an agent negotiates a price, escrows a stablecoin payment on-chain, receives a verifiable delivery, and settles trustlessly the moment the work is confirmed by both sides.\",\"kind\":\"text\"}",
+      "slaMs": 600000,
+      "startedAt": "2026-07-08T06:41:03.967Z",
+      "negotiationId": "537ef0d1-2bff-423b-9fb5-1f44b420e6b5",
+      "tAcceptMs": 5355,
+      "orderId": "6d6c9bb0-da32-4dfd-9ab0-a06b9fa934a6",
+      "chainOrderId": "134787",
+      "tCreateMs": 34296,
+      "pricePaidUsdc": 0.02,
+      "tDeliverMs": 92645,
+      "slaMet": true,
+      "deliverableType": "text",
+      "deliverableText": "{\"ok\":true,\"certified\":false,\"contentHash\":\"0x79f840d21c02c1adeb237db8346534dc781195ca66398aeab860d64c5ba5a734\",\"contract\":\"0xA4d41cb5975CBD984BF328A14b67866dA95c7f00\"}",
+      "contentHash": "0xb6147eb13cd716ce302a09c4d5193dae9ba06ebe7cdeb281de71167b567dc2f1",
+      "finishedAt": "2026-07-08T06:43:21.543Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 8.5,
+      "matchesPromise": true,
+      "issues": [
+        "Deliverable returns all promised fields (certified, contentHash, contract) but omits score, token ID, owner, and timestamp as listed in the promise, though these may be absent because certified is false"
+      ],
+      "summary": "The deliverable correctly checks and returns the certification status with the content hash and contract address, but omits several promised fields (score, token ID, owner, timestamp) which are only relevant if certified is true, so the promise is fully met for this uncertified case."
+    },
+    {
+      "assessed": true,
+      "score": 7.5,
+      "matchesPromise": true,
+      "issues": [
+        "Missing promised fields: score, token ID, owner, and timestamp are not returned",
+        "Only returns certified false without additional verification details"
+      ],
+      "summary": "The deliverable correctly checks and returns the certification status and content hash, but omits several promised output fields like score, token ID, owner, and timestamp."
+    }
+  ],
+  "spentUsdc": 0.04,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-8c012f62-20260708064323.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/8c012f62-c4dd-4866-937a-75f29b0f68ab.svg"
+}
