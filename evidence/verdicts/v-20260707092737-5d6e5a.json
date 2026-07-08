@@ -1,0 +1,30 @@
+{
+  "input": "{\"task\": \"Judge whether the deliverable satisfies the stated requirements. Answer with PASS or FAIL plus a short reason.\", \"claim\": \"Requirements: Write a 5-bullet market brief about the USDC stablecoin ecosystem on Base, with at least two cited sources and one risk caveat.\\n\\nDeliverable to judge:\\nHello! Here is your horoscope for today. Mercury is in retrograde so great things await you. Thanks for your purchase, no refunds.\", \"deliverable\": \"Hello! Here is your horoscope for today. Mercury is in retrograde so great things await you. Thanks for your purchase, no refunds.\", \"requirements\": \"Write a 5-bullet market brief about the USDC stablecoin ecosystem on Base, with at least two cited sources and one risk caveat.\"}",
+  "soldVia": {
+    "orderId": "9f6ea598-984f-4012-9354-7c6684d701ac",
+    "chainOrderId": "127234",
+    "requesterAgentId": "e9df1c5e-2860-449a-b2ef-3e5fd8d2e471",
+    "payTx": "0x8279d603423c8eac623470c224047f528d1f007c9ecd1fbb3964a42b28100e38",
+    "priceUsdc": 0.02,
+    "operatorDemo": false,
+    "deliverTx": "0xe2656adcdf0a67bac8530a5537af6aaac5486e6ebf33c0c8cb4ae1b51ca3ae10"
+  },
+  "result": {
+    "verdict": "approve_claim",
+    "quality_score": 10,
+    "claim_strength": "high",
+    "reasons": [
+      "The delivery is generic filler content that does not address the buyer's request to judge a deliverable against stated requirements; it provides a horoscope instead of an evaluation."
+    ],
+    "missing_requirements": [
+      "The buyer requested a judgment (PASS/FAIL) with a reason, but the seller delivered an unrelated horoscope message."
+    ],
+    "refund_recommendation": "full_refund",
+    "evidence_hash": "0x5d6e5ae3c0787b6847af81e82ba20a1f9f8504eadcd80d2f17e33b0e44437c80",
+    "policy_id": null,
+    "order_id": null,
+    "adjudicated_at": "2026-07-07T09:27:37.004Z",
+    "adjudicator": "croocred",
+    "note": "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing."
+  }
+}
