@@ -18,7 +18,7 @@
 - GitHub: https://github.com/a252937166/croocred
 - Live: https://croocred.axiqo.xyz
 - Agent Store: https://agent.croo.network/agents/ec1bc7f5-4429-46d9-8d9f-72423dabfdf2
-- Demo video: (上传后填 YouTube 链接)
+- Demo video: https://youtu.be/ehCzju3USl8 (public, 1080p, 3:49)
 
 **Contact**: 微信 a252937166（DoraHacks Contact 首选）
 
@@ -117,7 +117,7 @@ Store: agent.croo.network/agents/ec1bc7f5-4429-46d9-8d9f-72423dabfdf2
 
 ## 提交前核对清单
 - [ ] 种子批完成后刷新正文里的数字（认证数/订单数/counterparty 数）
-- [ ] 视频上传 YouTube（public, 1080p）后回填链接
+- [x] 视频上传 YouTube（public, 1080p）后回填链接 → https://youtu.be/ehCzju3USl8
 - [ ] Logo 用户手动上传
 - [ ] Demo video ≤5min 确认
 - [ ] BUIDL 提交后到比赛页 Register/关联
