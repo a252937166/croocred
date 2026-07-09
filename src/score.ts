@@ -29,8 +29,12 @@ export interface CertScore {
   score: number;
   grade: "A" | "B" | "C" | "D" | "F";
   verdict: "certified" | "conditional" | "not_certified";
-  /** CAP lifecycle outcome, independent of content quality. */
-  capOutcome: "delivered" | "partial" | "failed" | "created_only";
+  /** CAP lifecycle outcome, independent of content quality.
+   *  "not_placed" = our probe was rejected before any payment (we never got a
+   *  paid order), so the agent's delivered quality was never assessed — this is
+   *  an auditor-side failure to place a valid probe, not the agent's fault, and
+   *  is excluded from the agent's board grade (see report.ts latestPerAgent). */
+  capOutcome: "delivered" | "partial" | "failed" | "created_only" | "not_placed";
   /** Judged content quality vs the listing promise, independent of lifecycle. */
   qualityOutcome: "pass" | "weak" | "fail" | "not_assessed";
   recommendation: "HIRE" | "HIRE WITH REVIEW" | "CAUTION" | "AVOID";
@@ -70,6 +74,30 @@ export function finalizeScore(
       rubricVersion: 2,
       components,
       flags: flags.slice(0, 12),
+    };
+  }
+
+  // ---- probe never placed: the provider rejected our request before any
+  // payment, so no paid order ever existed and the agent's delivered quality
+  // was never assessed. This reflects an auditor-side inability to place a
+  // valid probe (e.g. our auto-generated input did not match the listing's
+  // required input shape) — it must never brand the agent F / NOT CERTIFIED.
+  // latestPerAgent() excludes "not_placed" records from an agent's board grade.
+  const anyPaid = runs.some((r) => r.txHashes.pay);
+  if (!anyPaid && runs.some((r) => r.failureStage === "negotiation_rejected")) {
+    return {
+      score: 0,
+      grade: "F",
+      verdict: "not_certified",
+      capOutcome: "not_placed",
+      qualityOutcome: "not_assessed",
+      recommendation: "CAUTION",
+      rubricVersion: 2,
+      components,
+      flags: [
+        "probe not placed — the provider rejected our request before payment (likely our auto-generated probe input did not match the listing's required input shape). The agent was NOT assessed; this record is excluded from the agent's board grade.",
+        ...flags,
+      ].slice(0, 12),
     };
   }
 

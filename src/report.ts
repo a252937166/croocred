@@ -100,9 +100,20 @@ export function loadAllRecords(): CertRecord[] {
 /** Latest record per target agent (what the leaderboard and badges show). */
 export function latestPerAgent(): Map<string, CertRecord> {
   const m = new Map<string, CertRecord>();
+  const fallback = new Map<string, CertRecord>();
+  // loadAllRecords() is sorted newest-first. A "not_placed" record (our probe
+  // was rejected before payment — an auditor-side failure to place a valid
+  // probe, not the agent's delivered quality) must not overwrite the agent's
+  // real board grade, so it is only used when an agent has no other record.
   for (const r of loadAllRecords()) {
-    if (!m.has(r.target.agentId)) m.set(r.target.agentId, r);
+    const aid = r.target.agentId;
+    if ((r.score as { capOutcome?: string }).capOutcome === "not_placed") {
+      if (!fallback.has(aid)) fallback.set(aid, r);
+      continue;
+    }
+    if (!m.has(aid)) m.set(aid, r);
   }
+  for (const [aid, r] of fallback) if (!m.has(aid)) m.set(aid, r);
   return m;
 }
 
