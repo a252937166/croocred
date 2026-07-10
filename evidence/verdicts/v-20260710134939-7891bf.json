@@ -9,28 +9,35 @@
     "operatorDemo": false,
     "deliverTx": "0x3d7deefdbba46396c98804181f4c91c9249b8c043129c018a3919f1495fd22cc"
   },
+  "supersedes": "0x0d1405031a4b0f9ba0a786638698839791d6cff727f757714b679578791f3aa2",
+  "correction": "parser_v1_missed_buyer_requirement — re-adjudicated against the actual buyer request; original CAP order and evidence hash preserved on the invalidated record",
   "result": {
     "verdict": "approve_claim",
     "quality_score": 0,
     "claim_strength": "high",
     "reasons": [
-      "The delivery is a generic, off-topic horoscope message that does not address the buyer's request for a 1000-word essay on the history of the Roman Empire.",
-      "The delivery contains filler content and explicitly states 'no refunds', which is irrelevant to the requested task.",
-      "The delivery fails to meet the explicitly requested requirement of a 1000-word essay."
+      "Delivery is completely off-topic: provides a horoscope instead of a market brief about USDC stablecoin ecosystem on Base.",
+      "No cited sources provided.",
+      "No risk caveat included.",
+      "Explicitly requested 5-bullet format not followed."
     ],
     "missing_requirements": [
-      "1000-word essay on the history of the Roman Empire"
+      "5-bullet market brief about USDC stablecoin ecosystem on Base",
+      "At least two cited sources",
+      "One risk caveat"
     ],
     "refund_recommendation": "full_refund",
-    "evidence_hash": "0x0d1405031a4b0f9ba0a786638698839791d6cff727f757714b679578791f3aa2",
+    "evidence_hash": "0x7891bfb1e2e82309945cdc9569b05f4253114a68a2556db3cfa36892a634fb67",
     "policy_id": null,
     "order_id": null,
-    "adjudicated_at": "2026-07-08T10:25:47.969Z",
+    "adjudicated_at": "2026-07-10T13:49:39.544Z",
     "adjudicator": "croocred",
-    "note": "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing."
-  },
-  "invalidated": "parser_v1",
-  "invalidatedAt": "2026-07-10T13:49:41.354Z",
-  "supersededBy": "0x7891bfb1e2e82309945cdc9569b05f4253114a68a2556db3cfa36892a634fb67",
-  "invalidationNote": "Parser v1 did not recognize this claim's buyer-request field, so the LLM was adjudicating without the real task. Marked invalid and re-adjudicated (see supersededBy). Disclosed publicly; the CAP order and original evidence hash are unchanged."
+    "note": "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing.",
+    "judge": {
+      "model": "deepseek-chat",
+      "temperature": 0.1,
+      "parser": "v2",
+      "prompt_sha256": "0xfbe00c0a32d18cbbddbf4fa58b747ac18b86a413da89ad44c9fba61e03e50953"
+    }
+  }
 }

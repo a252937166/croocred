@@ -24,5 +24,9 @@
     "adjudicated_at": "2026-07-08T13:09:41.478Z",
     "adjudicator": "croocred",
     "note": "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing."
-  }
+  },
+  "invalidated": "parser_v1",
+  "invalidatedAt": "2026-07-10T13:49:44.614Z",
+  "supersededBy": "0x6d9d3e130898c1f498abff0f539ce4cea6df7ee41176cdbb479ca8a15634e1e7",
+  "invalidationNote": "Parser v1 did not recognize this claim's buyer-request field, so the LLM was adjudicating without the real task. Marked invalid and re-adjudicated (see supersededBy). Disclosed publicly; the CAP order and original evidence hash are unchanged."
 }

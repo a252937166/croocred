@@ -9,30 +9,34 @@
     "operatorDemo": false,
     "deliverTx": "0x4957011fd1a19d7ebbea6f852ceb05875fb3b43e886c27995f55a438b7366eed"
   },
+  "supersedes": "0x3fa0366c7c7060abd31396bc67019a382bf22e07acb63c469e2442be0448e7b1",
+  "correction": "parser_v1_missed_buyer_requirement — re-adjudicated against the actual buyer request; original CAP order and evidence hash preserved on the invalidated record",
   "result": {
     "verdict": "approve_claim",
     "quality_score": 0,
     "claim_strength": "high",
     "reasons": [
-      "The delivery is a generic, off-topic horoscope message that does not address the buyer's request for a Python script to scrape data from a website.",
-      "The delivery contains no code, no script, and no attempt to fulfill the requested task.",
-      "The delivery includes a 'no refunds' statement, which is irrelevant and does not constitute a valid delivery."
+      "Delivery is completely off-topic: it provides a horoscope instead of a market brief about USDC stablecoin ecosystem on Base.",
+      "No bullet points, no cited sources, no risk caveat as explicitly requested.",
+      "Contains a no-refund statement which is irrelevant and inappropriate."
     ],
     "missing_requirements": [
-      "A Python script for web scraping",
-      "Any code or technical implementation",
-      "Any content related to the buyer's request"
+      "5-bullet market brief about USDC stablecoin ecosystem on Base",
+      "At least two cited sources",
+      "One risk caveat"
     ],
     "refund_recommendation": "full_refund",
-    "evidence_hash": "0x3fa0366c7c7060abd31396bc67019a382bf22e07acb63c469e2442be0448e7b1",
+    "evidence_hash": "0x8b0f1c690bdf4ce2255d6f49eb3037e7cb1a624c5b6b018d87f49f3ac1418dd4",
     "policy_id": null,
     "order_id": null,
-    "adjudicated_at": "2026-07-08T13:09:51.444Z",
+    "adjudicated_at": "2026-07-10T13:49:44.615Z",
     "adjudicator": "croocred",
-    "note": "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing."
-  },
-  "invalidated": "parser_v1",
-  "invalidatedAt": "2026-07-10T13:49:46.609Z",
-  "supersededBy": "0x8b0f1c690bdf4ce2255d6f49eb3037e7cb1a624c5b6b018d87f49f3ac1418dd4",
-  "invalidationNote": "Parser v1 did not recognize this claim's buyer-request field, so the LLM was adjudicating without the real task. Marked invalid and re-adjudicated (see supersededBy). Disclosed publicly; the CAP order and original evidence hash are unchanged."
+    "note": "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing.",
+    "judge": {
+      "model": "deepseek-chat",
+      "temperature": 0.1,
+      "parser": "v2",
+      "prompt_sha256": "0xfbe00c0a32d18cbbddbf4fa58b747ac18b86a413da89ad44c9fba61e03e50953"
+    }
+  }
 }

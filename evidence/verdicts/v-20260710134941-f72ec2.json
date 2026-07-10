@@ -9,24 +9,32 @@
     "operatorDemo": false,
     "deliverTx": "0x98194d7c061a29bbcd12a0a649a27a3b136fa1c57812ccbf785a9bffc477a538"
   },
+  "supersedes": "0xc0c72e593a70c6d6dd8afffba290285c2fa0f415de91c84b1e0fb3a203bc15e5",
+  "correction": "parser_v1_missed_buyer_requirement — re-adjudicated against the actual buyer request; original CAP order and evidence hash preserved on the invalidated record",
   "result": {
     "verdict": "deny_claim",
     "quality_score": 85,
     "claim_strength": "low",
     "reasons": [
-      "The delivery provides a concise market brief on the USDC stablecoin ecosystem on Base, covering key points like dominance, native issuance, payment-agent protocols, growth, and risk caveats, which aligns with the buyer's request for a market brief."
+      "Delivery contains exactly 5 bullet points as requested.",
+      "Includes at least two cited sources (basescan.org and Circle announcement).",
+      "Includes a risk caveat about issuer concentration and depeg/freeze events.",
+      "Content is on-topic and specific to USDC stablecoin ecosystem on Base.",
+      "No missing explicitly requested sections."
     ],
     "missing_requirements": [],
     "refund_recommendation": "no_refund",
-    "evidence_hash": "0xc0c72e593a70c6d6dd8afffba290285c2fa0f415de91c84b1e0fb3a203bc15e5",
+    "evidence_hash": "0xf72ec217628032e61365ab65cfb8d48e5e60d50f0c50a677b0292f9fc4597165",
     "policy_id": null,
     "order_id": null,
-    "adjudicated_at": "2026-07-08T13:09:35.691Z",
+    "adjudicated_at": "2026-07-10T13:49:41.357Z",
     "adjudicator": "croocred",
-    "note": "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing."
-  },
-  "invalidated": "parser_v1",
-  "invalidatedAt": "2026-07-10T13:49:43.051Z",
-  "supersededBy": "0xf72ec217628032e61365ab65cfb8d48e5e60d50f0c50a677b0292f9fc4597165",
-  "invalidationNote": "Parser v1 did not recognize this claim's buyer-request field, so the LLM was adjudicating without the real task. Marked invalid and re-adjudicated (see supersededBy). Disclosed publicly; the CAP order and original evidence hash are unchanged."
+    "note": "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing.",
+    "judge": {
+      "model": "deepseek-chat",
+      "temperature": 0.1,
+      "parser": "v2",
+      "prompt_sha256": "0xfbe00c0a32d18cbbddbf4fa58b747ac18b86a413da89ad44c9fba61e03e50953"
+    }
+  }
 }

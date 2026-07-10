@@ -1,32 +1,36 @@
 {
   "input": "{\"deliverable\": \"Market brief — USDC stablecoin ecosystem on Base:\\n• USDC is the dominant stablecoin on Base, powering most onchain commerce pairs [1].\\n• Native USDC issuance replaced bridged USDbC, simplifying liquidity for builders [2].\\n• Payment-agent protocols settle micro-transactions in USDC escrow on Base.\\n• Weekly active addresses interacting with USDC contracts keep growing.\\n• Risk caveat: issuer concentration means depeg or freeze events remain a systemic risk.\\nSources: [1] basescan.org analytics, [2] Circle announcement.\", \"instruction\": \"You are adjudicating an insurance claim. Decide ONLY whether seller_delivery fulfils buyer_requirement — the thing the BUYER originally hired the SELLER to produce. PASS if the delivery meets the requirement, FAIL if it does not. Judge the delivery, not the buyer.\", \"requirements\": \"Write a 5-bullet market brief about the USDC stablecoin ecosystem on Base, with at least two cited sources and one risk caveat.\", \"seller_delivery\": \"Market brief — USDC stablecoin ecosystem on Base:\\n• USDC is the dominant stablecoin on Base, powering most onchain commerce pairs [1].\\n• Native USDC issuance replaced bridged USDbC, simplifying liquidity for builders [2].\\n• Payment-agent protocols settle micro-transactions in USDC escrow on Base.\\n• Weekly active addresses interacting with USDC contracts keep growing.\\n• Risk caveat: issuer concentration means depeg or freeze events remain a systemic risk.\\nSources: [1] basescan.org analytics, [2] Circle announcement.\", \"buyer_requirement\": \"Write a 5-bullet market brief about the USDC stablecoin ecosystem on Base, with at least two cited sources and one risk caveat.\"}",
   "soldVia": {
-    "orderId": "727dab0d-4fe7-424c-a510-e1ed5979b42e",
-    "chainOrderId": "137371",
+    "orderId": "76d44b03-42f0-4d3d-a8bc-95a6303cbdb6",
+    "chainOrderId": "137372",
     "requesterAgentId": "e9df1c5e-2860-449a-b2ef-3e5fd8d2e471",
-    "payTx": "0x86f5aa4b5cbe8d8b5ebb09ff802d6215ebb64b95020517b16acaf21fa16526f6",
+    "payTx": "0xffb50a362c079edfcfbd9ef752168d2113647f49bc86e894c90ce67a6c26e9f8",
     "priceUsdc": 0.02,
     "operatorDemo": false,
-    "deliverTx": "0x98194d7c061a29bbcd12a0a649a27a3b136fa1c57812ccbf785a9bffc477a538"
+    "deliverTx": "0x9f214480d97bea69ca95fc7f3b5cda2b2e854ff5c6317ccb84ac6659d9ad37b9"
   },
+  "supersedes": "0x09f00bd82924c7034a26c2984b29129686a36a42053766c12b0f27afb9175b7d",
+  "correction": "parser_v1_missed_buyer_requirement — re-adjudicated against the actual buyer request; original CAP order and evidence hash preserved on the invalidated record",
   "result": {
     "verdict": "deny_claim",
-    "quality_score": 85,
+    "quality_score": 90,
     "claim_strength": "low",
     "reasons": [
-      "The delivery provides a concise market brief on the USDC stablecoin ecosystem on Base, covering key points like dominance, native issuance, payment-agent protocols, growth, and risk caveats, which aligns with the buyer's request for a market brief."
+      "The delivery includes 5 bullet points as requested, covers the USDC stablecoin ecosystem on Base, cites two sources (basescan.org and Circle announcement), and includes a risk caveat about issuer concentration and depeg/freeze risk. The content is on-topic and non-empty."
     ],
     "missing_requirements": [],
     "refund_recommendation": "no_refund",
-    "evidence_hash": "0xc0c72e593a70c6d6dd8afffba290285c2fa0f415de91c84b1e0fb3a203bc15e5",
+    "evidence_hash": "0x6d9d3e130898c1f498abff0f539ce4cea6df7ee41176cdbb479ca8a15634e1e7",
     "policy_id": null,
     "order_id": null,
-    "adjudicated_at": "2026-07-08T13:09:35.691Z",
+    "adjudicated_at": "2026-07-10T13:49:43.051Z",
     "adjudicator": "croocred",
-    "note": "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing."
-  },
-  "invalidated": "parser_v1",
-  "invalidatedAt": "2026-07-10T13:49:43.051Z",
-  "supersededBy": "0xf72ec217628032e61365ab65cfb8d48e5e60d50f0c50a677b0292f9fc4597165",
-  "invalidationNote": "Parser v1 did not recognize this claim's buyer-request field, so the LLM was adjudicating without the real task. Marked invalid and re-adjudicated (see supersededBy). Disclosed publicly; the CAP order and original evidence hash are unchanged."
+    "note": "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing.",
+    "judge": {
+      "model": "deepseek-chat",
+      "temperature": 0.1,
+      "parser": "v2",
+      "prompt_sha256": "0xfbe00c0a32d18cbbddbf4fa58b747ac18b86a413da89ad44c9fba61e03e50953"
+    }
+  }
 }

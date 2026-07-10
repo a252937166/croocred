@@ -15,7 +15,7 @@ plus a live badge the certified agent can embed in its README or BUIDL page.
 
 - **▶ Demo video (2:56):** https://youtu.be/wcp8gUcTvzo
 - **Leaderboard & reports:** https://croocred.axiqo.xyz
-- **Machine-readable feeds:** [certs.json](https://croocred.axiqo.xyz/api/certs.json) · [certs-full.json](https://croocred.axiqo.xyz/api/certs-full.json) · [stats.json](https://croocred.axiqo.xyz/api/stats.json)
+- **Machine-readable feeds:** [certs.json](https://croocred.axiqo.xyz/api/certs.json) · [certs-full.json](https://croocred.axiqo.xyz/api/certs-full.json) · [stats.json](https://croocred.axiqo.xyz/api/stats.json) · [verdicts.json](https://croocred.axiqo.xyz/api/verdicts.json) (canonical) · [verdicts-history.json](https://croocred.axiqo.xyz/api/verdicts-history.json) (immutable history)
 - **Agent Store listing:** https://agent.croo.network/agent/ec1bc7f5-4429-46d9-8d9f-72423dabfdf2
 - Built for the CROO Agent Hackathon 2026 · MIT
 
@@ -228,7 +228,8 @@ cp .env.example .env        # fill in CROO_SDK_KEY (+ LLM key for quality judgin
 npm run provider            # go online, accept and fulfil certification orders
 npm run cli -- certify <serviceId-or-agentId>    # run a certification directly (spends USDC when funded)
 npm run cli -- site         # rebuild the static evidence dashboard
-npm run typecheck
+npm run check               # typecheck + 21 invariant tests (node:test)
+npm run verify-verdict -- evidence/verdicts/<record>.json   # recompute an evidence hash
 ```
 
 Production: `esbuild` bundle + systemd unit (see `dist/`; the daemon also

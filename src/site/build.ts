@@ -265,6 +265,14 @@ function countVerdicts(): number {
   return canonicalVerdicts(loadVerdicts()).length;
 }
 
+/** Unique buyer wallets across ALL services (certifications + claim verdicts),
+ *  matching the evidence page's headline number. */
+function totalBuyerWallets(all: CertRecord[]): number {
+  const buyers = new Set(all.map((r) => r.soldVia?.requesterAgentId).filter(Boolean) as string[]);
+  for (const v of loadVerdicts()) if (v.soldVia?.requesterAgentId) buyers.add(v.soldVia.requesterAgentId);
+  return buyers.size;
+}
+
 function countVerdictBuyerWallets(): number {
   return verdictStats(loadVerdicts()).buyerWallets;
 }
@@ -619,7 +627,7 @@ ${metricCard(String(m.certifiedAgents), "certified (both axes pass)", tone(m.cer
 ${metricCard(String(m.paidProbes), "paid probes", tone(m.paidProbes))}
 ${metricCard(String(m.livenessProbes), "liveness checks", m.livenessProbes === 0 ? "zero" : "warn")}
 ${metricCard(String(m.targetAgents), "target agents tested", tone(m.targetAgents))}
-${metricCard(String(m.buyerAgents), "buyer agents", tone(m.buyerAgents))}
+${metricCard(String(m.buyerAgents), "certification buyer agents", tone(m.buyerAgents))}
 ${metricCard(String(m.a2aEdges), "a2a edges", tone(m.a2aEdges))}
 ${metricCard(`$${m.usdcSpent.toFixed(2)}`, "USDC spent on probes", tone(m.usdcSpent > 0 ? 1 : 0))}
 ${metricCard(fmtS(m.medianDeliverS), "median delivery", m.medianDeliverS === null ? "zero" : "pos")}
@@ -632,7 +640,7 @@ ${metricCard(String(m.flaggedAgents), "risky agents found", m.flaggedAgents === 
 <a href="${GITHUB_URL}/releases/tag/hackathon-submission-dab1310">Submission snapshot <span class="mono">dab1310</span> (2026-07-08)</a> ·
 <a href="api/stats-submission.json">Deadline metrics snapshot (orders ≤ 2026-07-09 15:59 UTC)</a> ·
 <a href="${GITHUB_URL}/blob/master/docs/submission-freeze.md">Post-deadline change log (full disclosure)</a></p>
-<p class="mut" style="margin-top:6px">23 of the certification records are disclosed operator-funded seed audits; verdict orders span ${countVerdictBuyerWallets()} buyer wallets (5 external orders are one integration partner) and retain ${verdictStats(loadVerdicts()).versions} adjudication versions — ${verdictStats(loadVerdicts()).invalidated} parser-v1 results were publicly invalidated and corrected; corrections create no new orders. CROO's aggregated CAP data supersedes anything self-reported here.</p></div>
+<p class="mut" style="margin-top:6px">${totalBuyerWallets(all)} total unique buyer wallets across all services (${totalBuyerWallets(all) - 1} external · 1 disclosed operator demo). 23 of the certification records are disclosed operator-funded seed audits; verdict orders span ${countVerdictBuyerWallets()} buyer wallets (5 external orders are one integration partner) and retain ${verdictStats(loadVerdicts()).versions} adjudication versions — ${verdictStats(loadVerdicts()).invalidated} parser-v1 results were publicly invalidated and corrected; corrections create no new orders/txs/edges. CROO's aggregated CAP data supersedes anything self-reported here.</p></div>
 
 <div class="section"><h2><b>System status</b> — proof this is a running daemon, not a static page</h2>
 <div class="scroll"><table>
@@ -1032,13 +1040,19 @@ ${invalid && v.invalidationNote ? `<p class="mut" style="margin-top:8px">${esc(v
 <div class="scroll" style="margin-top:10px"><table>
 <tr><td style="width:200px">adjudicated at</td><td class="mono">${esc(r.adjudicated_at ?? "—")}</td></tr>
 <tr><td>evidence hash (sha256)</td><td class="mono">${esc(r.evidence_hash ?? "—")}</td></tr>
-${v.supersedes ? `<tr><td>supersedes</td><td class="mono">${esc(v.supersedes)}</td></tr>` : ""}
+${v.supersedes ? `<tr><td>supersedes</td><td class="mono">${esc(v.supersedes)}</td></tr>
+<tr><td>correction status</td><td><b style="color:#9be15d">off-chain correction</b> — re-judged against the actual buyer request; <b>not re-delivered over CAP</b> (no new order, payment, tx or A2A edge)</td></tr>` : ""}
 ${v.supersededBy ? `<tr><td>superseded by</td><td class="mono">${esc(v.supersededBy)}</td></tr>` : ""}
 ${r.judge ? `<tr><td>judge</td><td class="mono">${esc(r.judge.model ?? "—")} · temp ${r.judge.temperature ?? "—"} · parser ${esc(r.judge.parser ?? "v1")} · prompt ${esc((r.judge.prompt_sha256 ?? "").slice(0, 18))}…</td></tr>` : ""}
 ${s.orderId ? `<tr><td>bought via CAP order</td><td class="mono">${esc(s.orderId)}${s.chainOrderId ? ` · chain #${esc(String(s.chainOrderId))}` : ""}</td></tr>` : ""}
 ${s.requesterAgentId ? `<tr><td>buyer agent</td><td class="mono">${esc(s.requesterAgentId)}</td></tr>` : ""}
-${tx("buyer → CrooCred pay tx", s.payTx)}
-${tx("CrooCred → buyer deliver tx", s.deliverTx)}
+${tx(v.supersedes ? "original CAP pay tx" : "buyer → CrooCred pay tx", s.payTx)}
+${tx(
+  v.supersedes ? "original CAP deliver tx — carried the invalidated parser-v1 verdict, NOT this corrected one"
+  : invalid ? "CrooCred → buyer deliver tx — carried THIS (now invalidated) verdict"
+  : "CrooCred → buyer deliver tx",
+  s.deliverTx,
+)}
 ${s.priceUsdc !== undefined ? `<tr><td>price</td><td>$${Number(s.priceUsdc).toFixed(2)} USDC</td></tr>` : ""}
 </table></div>
 ${v.input ? `<details style="margin-top:10px"><summary class="mut" style="cursor:pointer">claim input (buyer request + seller delivery, as adjudicated)</summary><pre style="margin-top:8px">${esc(v.input.slice(0, 3000))}</pre></details>` : ""}
@@ -1051,8 +1065,8 @@ ${v.input ? `<details style="margin-top:10px"><summary class="mut" style="cursor
 <div style="font:700 13px var(--mono);margin:0 0 14px" class="mut">${stats.orders} paid CAP orders · ${stats.orders} current canonical verdicts · ${stats.versions} adjudication versions · ${stats.invalidated} invalidated parser-v1</div>
 <h2 style="margin:14px 0 8px"><b>Current verdicts</b> (${current.length}) — one canonical decision per paid order</h2>
 ${current.map(card).join("\n")}
-${history.length ? `<h2 style="margin:22px 0 8px"><b>Correction history</b> (${history.length}) — invalidated parser-v1 versions, kept immutable for audit</h2>
-${history.map(card).join("\n")}` : ""}`;
+${history.length ? `<details style="margin-top:22px"><summary style="cursor:pointer;font:700 16px var(--mono)">Correction history (${history.length}) — invalidated parser-v1 versions, kept immutable for audit · click to expand</summary>
+<div style="margin-top:10px">${history.map(card).join("\n")}</div></details>` : ""}`;
   const body = `
 <h1 style="font:800 26px var(--mono);text-transform:uppercase;margin-bottom:6px">Claim verdicts</h1>
 <p class="mut" style="margin:0 0 4px;font:12px var(--mono)">Current decisions and immutable correction history</p>
@@ -1260,6 +1274,10 @@ export async function buildSite(): Promise<string> {
   // which record is authoritative.
   const canon = canonicalVerdicts(verdicts);
   const canonHashes = new Set(canon.map((v) => v.result?.evidence_hash));
+  // Tx-binding semantics must be exact: the order's deliverTx carried whatever
+  // verdict was delivered AT THE TIME. A corrected re-adjudication is an
+  // off-chain correction — the original deliverTx binds the invalidated
+  // parser-v1 content, never the later corrected verdict.
   const verdictJson = (v: StoredVerdict) => ({
     orderId: v.soldVia?.orderId ?? null,
     status: v.invalidated ? "invalidated" : "active",
@@ -1272,11 +1290,34 @@ export async function buildSite(): Promise<string> {
     supersedes: v.supersedes ?? null,
     supersededBy: v.supersededBy ?? null,
     invalidatedReason: v.invalidated ?? null,
+    correctionStatus: v.supersedes ? "off_chain_correction" : null,
+    /** true only when the order's deliverTx carried THIS record's content */
+    canonicalVerdictOnChain: !v.invalidated && !v.supersedes,
+    originalDeliveryContained: v.supersedes ? "invalidated_parser_v1_verdict" : null,
     adjudicatedAt: v.result?.adjudicated_at ?? null,
     buyerAgentId: v.soldVia?.requesterAgentId ?? null,
     payTx: v.soldVia?.payTx ?? null,
     deliverTx: v.soldVia?.deliverTx ?? null,
+    deliverTxNote: v.supersedes
+      ? "original CAP delivery — it carried the invalidated parser-v1 verdict; this corrected verdict is an off-chain correction and was not re-delivered over CAP (no new order, payment or edge)"
+      : v.invalidated
+        ? "this deliverTx carried THIS (now invalidated) verdict at delivery time"
+        : null,
     operatorDemo: v.soldVia?.operatorDemo ?? null,
+    // Full reproducibility: recompute sha256 over the exact preimage below and
+    // compare with evidenceHash (npm run verify-verdict -- <record.json>).
+    hashAlgorithm: "sha256",
+    hashSchema: "croocred-claim-verdict-v1",
+    hashPreimage: {
+      input: v.input ?? null,
+      verdict: v.result?.verdict ?? null,
+      quality: v.result?.quality_score ?? null,
+      strength: v.result?.claim_strength ?? null,
+      reasons: v.result?.reasons ?? [],
+      missing: v.result?.missing_requirements ?? [],
+      refund: v.result?.refund_recommendation ?? null,
+      adjudicatedAt: v.result?.adjudicated_at ?? null,
+    },
   });
   writeFileSync(resolve(out, "api", "verdicts.json"), JSON.stringify(canon.map(verdictJson), null, 2));
   writeFileSync(resolve(out, "api", "verdicts-history.json"), JSON.stringify(verdicts.map(verdictJson), null, 2));
