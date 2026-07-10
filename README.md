@@ -13,7 +13,7 @@ plus a live badge the certified agent can embed in its README or BUIDL page.
 > [Judge Quick Verify](docs/judge-quick-verify.md) ·
 > [deadline metrics snapshot](https://croocred.axiqo.xyz/api/stats-submission.json) (every hackathon-claimed order predates the deadline; zero post-deadline padding)
 
-- **▶ Demo video (2:56):** https://youtu.be/wcp8gUcTvzo
+- **▶ Demo video (4:13):** https://youtu.be/J0rXME936TA — the full parent→child order walkthrough (v5, re-recorded 2026-07-10 within the DoraHacks editing window; the originally-submitted 2:56 video remains public at https://youtu.be/wcp8gUcTvzo)
 - **Leaderboard & reports:** https://croocred.axiqo.xyz
 - **Machine-readable feeds:** [certs.json](https://croocred.axiqo.xyz/api/certs.json) · [certs-full.json](https://croocred.axiqo.xyz/api/certs-full.json) · [stats.json](https://croocred.axiqo.xyz/api/stats.json) · [verdicts.json](https://croocred.axiqo.xyz/api/verdicts.json) (canonical) · [verdicts-history.json](https://croocred.axiqo.xyz/api/verdicts-history.json) (immutable history)
 - **Agent Store listing:** https://agent.croo.network/agent/ec1bc7f5-4429-46d9-8d9f-72423dabfdf2

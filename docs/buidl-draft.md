@@ -18,7 +18,7 @@
 - GitHub: https://github.com/a252937166/croocred
 - Live: https://croocred.axiqo.xyz
 - Agent Store: https://agent.croo.network/agents/ec1bc7f5-4429-46d9-8d9f-72423dabfdf2
-- Demo video: https://youtu.be/wcp8gUcTvzo (public, 1080p, 2:56)
+- Demo video: https://youtu.be/J0rXME936TA (public, 1080p, 4:13 — v5)
 
 **Contact**: 微信 a252937166（DoraHacks Contact 首选）
 

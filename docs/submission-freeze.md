@@ -8,7 +8,8 @@ the repo froze.
 | What | Value |
 | --- | --- |
 | Submitted commit (HEAD on submission day) | `dab1310` — docs: finalize submission |
-| Demo video (submitted) | https://youtu.be/wcp8gUcTvzo (2:56, public, 1080p) |
+| Demo video (submitted 7/08) | https://youtu.be/wcp8gUcTvzo (2:56, public, 1080p — kept public, unchanged) |
+| Demo video (current, v5) | https://youtu.be/J0rXME936TA (4:13, public, 1080p) — re-recorded 2026-07-10 and linked on 2026-07-11, within the DoraHacks submission-editing window; adds the Warranty parent/child-order case, the deadline snapshot, the correction story and architecture depth. Every number narrated is the deadline-cutoff figure; no post-deadline activity is claimed. |
 | Live site | https://croocred.axiqo.xyz — **continuously live**; the daemon rebuilds it after every delivered order (that is the product working, not a resubmission) |
 | Production deployment | esbuild bundles of the commits below, systemd `croocred` on the same host as the site |
 
@@ -23,7 +24,8 @@ the repo froze.
 ## What never changed post-deadline
 
 - Certification pipeline, probe engine, provider order flow (except the
-  disclosed fairness fix above), pricing, services, site design, demo video.
+  disclosed fairness fix above), pricing, services, site design. The demo
+  video was re-recorded (v5) within the editing window — disclosed above.
 
 ## Source-of-truth note
 
