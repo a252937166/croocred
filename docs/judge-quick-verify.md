@@ -40,9 +40,15 @@ $2.92 real USDC probe spend on Base mainnet
    tx against an expected payment obligation; delivered in 97s.
 2. **Fail — Manga Localizer (F·0, offline provider)**: paid probe, lifecycle
    failed, published as NOT CERTIFIED. Paying us does not buy a badge.
-3. **Claim Review — one approve + one deny** (external buyer): same evidence
-   pipeline adjudicating disputes, delivered as a paid CAP order with a sha256
-   evidence hash. Approve and deny on comparable inputs — we can say no.
+3. **Claim Review — one approve + one deny** (same external integration
+   partner, same rubric, opposite outcomes — we can say no). Use exactly these
+   two corrected (parser v2) records on /verdicts.html:
+   - **approve_claim · q0** — horoscope filler delivered against a USDC-brief
+     request → `0x8b0f1c690bdf4ce2255d6f49eb3037e7cb1a624c5b6b018d87f49f3ac1418dd4`
+   - **deny_claim · q90** — 5-bullet brief that satisfies the request →
+     `0x6d9d3e130898c1f498abff0f539ce4cea6df7ee41176cdbb479ca8a15634e1e7`
+   Do NOT present the struck-through parser-v1 records as cases; they are the
+   self-correction story, told only if asked (Q3 below).
 
 ## 20-second answers to the twelve hard questions
 
