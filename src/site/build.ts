@@ -225,32 +225,48 @@ function median(xs: number[]): number | null {
   return s[Math.floor(s.length / 2)];
 }
 
-function countVerdicts(): number {
-  // Count verdict ORDERS honestly: invalidated records (parser v1, superseded
-  // by a corrected re-adjudication of the same order) must not double-count.
-  try {
-    const dir = resolve(cfg.dataDir, "verdicts");
-    return readdirSync(dir)
-      .filter((f) => f.endsWith(".json"))
-      .map((f) => JSON.parse(readFileSync(resolve(dir, f), "utf8")) as { invalidated?: string })
-      .filter((v) => !v.invalidated).length;
-  } catch {
-    return 0;
+/** One paid CAP order = one canonical verdict. Corrected re-adjudications
+ *  supersede their parser-v1 originals (marked `invalidated`); a correction
+ *  never creates a new order, payment, buyer or A2A edge — so ORDER-level
+ *  numbers must always come from the canonical set, never the raw file list. */
+function canonicalVerdicts(verdicts: StoredVerdict[]): StoredVerdict[] {
+  const byOrder = new Map<string, StoredVerdict>();
+  for (const v of verdicts) {
+    if (v.invalidated) continue;
+    const key = v.soldVia?.orderId ?? v.result?.evidence_hash ?? JSON.stringify(v.result ?? {});
+    if (!byOrder.has(key)) byOrder.set(key, v); // loadVerdicts() is newest-first
   }
+  return [...byOrder.values()];
+}
+
+interface VerdictStats {
+  orders: number;
+  versions: number;
+  invalidated: number;
+  buyerWallets: number;
+  externalOrders: number;
+  operatorDemoOrders: number;
+}
+
+function verdictStats(verdicts: StoredVerdict[]): VerdictStats {
+  const canon = canonicalVerdicts(verdicts);
+  const buyers = new Set(verdicts.map((v) => v.soldVia?.requesterAgentId).filter(Boolean) as string[]);
+  return {
+    orders: canon.length,
+    versions: verdicts.length,
+    invalidated: verdicts.filter((v) => v.invalidated).length,
+    buyerWallets: buyers.size,
+    externalOrders: canon.filter((v) => !v.soldVia?.operatorDemo).length,
+    operatorDemoOrders: canon.filter((v) => v.soldVia?.operatorDemo).length,
+  };
+}
+
+function countVerdicts(): number {
+  return canonicalVerdicts(loadVerdicts()).length;
 }
 
 function countVerdictBuyerWallets(): number {
-  try {
-    const dir = resolve(cfg.dataDir, "verdicts");
-    const buyers = new Set<string>();
-    for (const f of readdirSync(dir).filter((x) => x.endsWith(".json"))) {
-      const v = JSON.parse(readFileSync(resolve(dir, f), "utf8")) as { soldVia?: { requesterAgentId?: string } | null };
-      if (v.soldVia?.requesterAgentId) buyers.add(v.soldVia.requesterAgentId);
-    }
-    return buyers.size;
-  } catch {
-    return 0;
-  }
+  return verdictStats(loadVerdicts()).buyerWallets;
 }
 
 function computeMetrics(all: CertRecord[], latest: Map<string, CertRecord>): Metrics {
@@ -616,7 +632,7 @@ ${metricCard(String(m.flaggedAgents), "risky agents found", m.flaggedAgents === 
 <a href="${GITHUB_URL}/releases/tag/hackathon-submission-dab1310">Submission snapshot <span class="mono">dab1310</span> (2026-07-08)</a> ·
 <a href="api/stats-submission.json">Deadline metrics snapshot (orders ≤ 2026-07-09 15:59 UTC)</a> ·
 <a href="${GITHUB_URL}/blob/master/docs/submission-freeze.md">Post-deadline change log (full disclosure)</a></p>
-<p class="mut" style="margin-top:6px">23 of the certification records are disclosed operator-funded seed audits; verdict orders span 2 buyer wallets (5 external orders are one integration partner). CROO's aggregated CAP data supersedes anything self-reported here.</p></div>
+<p class="mut" style="margin-top:6px">23 of the certification records are disclosed operator-funded seed audits; verdict orders span ${countVerdictBuyerWallets()} buyer wallets (5 external orders are one integration partner) and retain ${verdictStats(loadVerdicts()).versions} adjudication versions — ${verdictStats(loadVerdicts()).invalidated} parser-v1 results were publicly invalidated and corrected; corrections create no new orders. CROO's aggregated CAP data supersedes anything self-reported here.</p></div>
 
 <div class="section"><h2><b>System status</b> — proof this is a running daemon, not a static page</h2>
 <div class="scroll"><table>
@@ -704,7 +720,7 @@ Output: {"verdict":"approve_claim|deny_claim|manual_review","quality_score":0-10
 <p class="mut">Cross-team flow: insurer covers a hire → claim filed → insurer hires CrooCred over CAP → verdict + evidence hash → insurer settles or denies. The adjudicator never insures and the insurer never adjudicates.</p></div>
 
 <div class="section"><h2><b>Why this needs CAP</b></h2>
-<p>On a normal API marketplace a reviewer can only read docs and star ratings. On CAP, CrooCred can <b>prove</b> its findings: escrow shows real money at stake, delivery hashes pin what was returned, settlement txs timestamp SLA compliance — and the certification itself is bought and delivered as a CAP order. The auditor is a paying customer of the market it audits.</p></div>
+<p>On a normal API marketplace a reviewer can only read docs and star ratings. On CAP, CrooCred <b>proves execution facts and binds the exact delivered payload</b>: escrow shows real money at stake, delivery hashes pin what was returned, settlement txs timestamp SLA compliance — and the certification itself is bought and delivered as a CAP order. Semantic quality remains an off-chain, versioned, challengeable judgment. The auditor is a paying customer of the market it audits.</p></div>
 
 <script>
 (function(){
@@ -991,7 +1007,7 @@ const VERDICT_COLOR: Record<string, string> = {
 };
 
 function verdictsPage(vs: StoredVerdict[], generatedAt: string): string {
-  const cards = vs.map((v) => {
+  const card = (v: StoredVerdict): string => {
     const r = v.result ?? {};
     const s = v.soldVia ?? {};
     const invalid = Boolean(v.invalidated);
@@ -1007,7 +1023,7 @@ function verdictsPage(vs: StoredVerdict[], generatedAt: string): string {
 <div style="display:flex;gap:14px;align-items:baseline;flex-wrap:wrap">
   <span style="font:800 20px var(--mono);color:${c};text-transform:uppercase;${invalid ? "text-decoration:line-through" : ""}">${esc((r.verdict ?? "?").replace("_", " "))}</span>
   <span class="mut">delivery quality ${r.quality_score ?? "—"}/100 · claim strength ${esc(r.claim_strength ?? "—")} · ${esc((r.refund_recommendation ?? "—").replace("_", " "))}</span>
-  ${invalid ? badge("INVALIDATED — parser v1 read the wrong buyer request; superseded by a corrected re-adjudication below", "#e65846") : ""}
+  ${invalid ? badge("INVALIDATED · DO NOT USE — parser v1 adjudicated without the real buyer request; superseded by the corrected record in Current verdicts", "#e65846") : ""}
   ${v.supersedes ? badge("CORRECTED RE-ADJUDICATION — same paid CAP order, re-judged against the actual buyer request (parser v2)", "#9be15d") : ""}
   ${s.operatorDemo ? badge("DISCLOSED OPERATOR DEMO — real CAP order, operator-owned buyer", "#e4c34a") : ""}
 </div>
@@ -1027,13 +1043,26 @@ ${s.priceUsdc !== undefined ? `<tr><td>price</td><td>$${Number(s.priceUsdc).toFi
 </table></div>
 ${v.input ? `<details style="margin-top:10px"><summary class="mut" style="cursor:pointer">claim input (buyer request + seller delivery, as adjudicated)</summary><pre style="margin-top:8px">${esc(v.input.slice(0, 3000))}</pre></details>` : ""}
 </div>`;
-  }).join("\n");
+  };
+  const current = canonicalVerdicts(vs);
+  const history = vs.filter((v) => v.invalidated);
+  const stats = verdictStats(vs);
+  const cards = vs.length === 0 ? "" : `
+<div style="font:700 13px var(--mono);margin:0 0 14px" class="mut">${stats.orders} paid CAP orders · ${stats.orders} current canonical verdicts · ${stats.versions} adjudication versions · ${stats.invalidated} invalidated parser-v1</div>
+<h2 style="margin:14px 0 8px"><b>Current verdicts</b> (${current.length}) — one canonical decision per paid order</h2>
+${current.map(card).join("\n")}
+${history.length ? `<h2 style="margin:22px 0 8px"><b>Correction history</b> (${history.length}) — invalidated parser-v1 versions, kept immutable for audit</h2>
+${history.map(card).join("\n")}` : ""}`;
   const body = `
 <h1 style="font:800 26px var(--mono);text-transform:uppercase;margin-bottom:6px">Claim verdicts</h1>
+<p class="mut" style="margin:0 0 4px;font:12px var(--mono)">Current decisions and immutable correction history</p>
 <p class="mut" style="margin-bottom:14px">Delivery Verdict — Claim Review ($0.02, 30min SLA): independent adjudication for CAP hires. An insurer (or any buyer) sends the original request + the seller's delivery over CAP; CrooCred returns approve/deny/manual_review with a refund recommendation and a sha256 evidence hash committing to the exact input and verdict. The adjudicator never insures; the insurer never adjudicates.</p>
 <div class="section" style="border-color:#e4c34a55"><p class="mut" style="margin:0"><b style="color:#e4c34a">Correction notice (2026-07-10):</b> our claim parser v1 did not recognize the <span class="mono">buyer_requirement</span>/<span class="mono">requirements</span> field names used by a real external integration, so on 4 orders the LLM adjudicated without the actual buyer request. Those records are kept below, struck through and marked INVALIDATED (original CAP orders and evidence hashes unchanged), each superseded by a corrected re-adjudication against the real request. Structured claims missing either side now gate to deterministic <span class="mono">manual_review</span> instead of reaching the LLM. An auditor that cannot correct itself cannot be trusted.</p></div>
 ${cards || `<div class="section"><p class="mut">No claim verdicts yet — order <b>Delivery Verdict — Claim Review</b> from <a href="${STORE_AGENT_URL}">croocred on the Agent Store</a> with <span class="mono">{"buyer_request":"…","seller_output":"…"}</span>.</p></div>`}
-<div class="section"><h2>Machine-readable</h2><pre>GET ${cfg.publicBaseURL}/api/verdicts.json</pre><p><a href="api/verdicts.json">raw feed →</a></p></div>
+<div class="section"><h2>Machine-readable</h2>
+<pre>GET ${cfg.publicBaseURL}/api/verdicts.json          — current canonical verdicts, one record per paid CAP order
+GET ${cfg.publicBaseURL}/api/verdicts-history.json  — complete immutable adjudication history, incl. invalidated versions</pre>
+<p><a href="api/verdicts.json">canonical feed →</a> · <a href="api/verdicts-history.json">history feed →</a></p></div>
 <p><a href="index.html">← home</a></p>`;
   return pageShell("CrooCred — claim verdicts", body, generatedAt);
 }
@@ -1049,8 +1078,19 @@ function evidencePage(all: CertRecord[], verdicts: StoredVerdict[], wallets: Map
     const b = buyers.get(id) ?? { orders: 0, items: new Set<string>() };
     b.orders++; b.items.add(item); buyers.set(id, b);
   };
+  // ORDER-level counts use the canonical verdict set: a corrected
+  // re-adjudication of the same paid order must never inflate buyer order
+  // counts (6 orders once read as 9/10 here — exactly the double-count an
+  // anti-sybil page exists to prevent).
+  const canonVerdicts = canonicalVerdicts(verdicts);
+  const vstats = verdictStats(verdicts);
+  const versionsByOrder = new Map<string, number>();
+  for (const v of verdicts) {
+    const k = v.soldVia?.orderId ?? v.result?.evidence_hash ?? "";
+    versionsByOrder.set(k, (versionsByOrder.get(k) ?? 0) + 1);
+  }
   for (const r of all) if (r.soldVia) addBuyer(r.soldVia.requesterAgentId, `certification of ${r.target.agentName}`);
-  for (const v of verdicts) addBuyer(v.soldVia?.requesterAgentId, "claim verdict");
+  for (const v of canonVerdicts) addBuyer(v.soldVia?.requesterAgentId, "claim verdict");
   const shortWallet = (id: string): string => {
     const w = wallets.get(id);
     return w ? `${w.slice(0, 6)}…${w.slice(-4)}` : "—";
@@ -1077,9 +1117,10 @@ function evidencePage(all: CertRecord[], verdicts: StoredVerdict[], wallets: Map
       const s = r.soldVia!;
       return `<tr><td class="mono">${esc(s.orderId)}</td><td>certification — ${esc(r.target.agentName)}</td><td class="mono">${esc(s.requesterAgentId)}</td><td class="mono">${s.payTx ? `<a href="${basescan(s.payTx)}">pay</a>` : "—"}${s.deliverTx ? ` · <a href="${basescan(s.deliverTx)}">deliver</a>` : ""}</td></tr>`;
     }),
-    ...verdicts.filter((v) => v.soldVia?.orderId).map((v) => {
+    ...canonVerdicts.filter((v) => v.soldVia?.orderId).map((v) => {
       const s = v.soldVia!;
-      return `<tr><td class="mono">${esc(s.orderId ?? "")}</td><td>claim verdict</td><td class="mono">${esc(s.requesterAgentId ?? "")}</td><td class="mono">${s.payTx ? `<a href="${basescan(s.payTx)}">pay</a>` : "—"}${s.deliverTx ? ` · <a href="${basescan(s.deliverTx)}">deliver</a>` : ""}</td></tr>`;
+      const versions = versionsByOrder.get(s.orderId ?? "") ?? 1;
+      return `<tr><td class="mono">${esc(s.orderId ?? "")}</td><td>claim verdict${versions > 1 ? ` · <span class="mut">${versions} adjudication versions (1 canonical)</span>` : ""}</td><td class="mono">${esc(s.requesterAgentId ?? "")}</td><td class="mono">${s.payTx ? `<a href="${basescan(s.payTx)}">pay</a>` : "—"}${s.deliverTx ? ` · <a href="${basescan(s.deliverTx)}">deliver</a>` : ""}</td></tr>`;
     }),
   ].join("");
   const seedCount = all.filter((r) => !r.soldVia).length;
@@ -1090,6 +1131,10 @@ function evidencePage(all: CertRecord[], verdicts: StoredVerdict[], wallets: Map
 ${walletSummary}
 <div class="scroll"><table><tr><th>buyer agent</th><th>buyer wallet</th><th>orders</th><th>bought</th><th>relationship</th></tr>${buyerRows || "<tr><td colspan=5 class='mut'>none yet</td></tr>"}</table></div>
 <p class="mut" style="margin-top:6px">The hackathon's review flag counts buyer <i>wallets</i> — the wallet column makes the agent→wallet mapping explicit (each buyer agent has its own AA wallet; pay txs in the parent-order table below spend from these wallets).</p></div>
+<div class="section"><h2>Claim Review evidence (orders vs adjudication versions)</h2>
+<p style="font:700 13px var(--mono);margin:2px 0 6px">${vstats.orders} paid CAP orders · ${vstats.externalOrders} external + ${vstats.operatorDemoOrders} disclosed operator demo · ${vstats.buyerWallets} buyer wallets</p>
+<p style="font:700 13px var(--mono);margin:2px 0 10px">${vstats.versions} persisted adjudication versions — ${vstats.orders} canonical · ${vstats.invalidated} invalidated parser-v1 (publicly corrected)</p>
+<p class="mut">A corrected re-adjudication does not create a new CAP order, new payment, new buyer, or new A2A edge — order-level numbers everywhere on this site count canonical verdicts only. Full immutable history: <a href="api/verdicts-history.json">/api/verdicts-history.json</a>.</p></div>
 <div class="section"><h2>Outbound probe targets (${byTarget.size} agents, different teams)</h2>
 <div class="scroll"><table><tr><th>target agent</th><th>paid probes</th><th>probe spend</th></tr>${targetRows}</table></div></div>
 <div class="section"><h2>Parent orders with on-chain receipts</h2>
@@ -1151,6 +1196,12 @@ ${m.reports === 0 ? '<p class="mut" style="margin-top:8px">No certifications yet
               "deliverTx": "0x…", "clearTx": "0x…", "acceptMs": 1481,
               "deliverMs": 41000, "slaMet": true, "contentHash": "0x…" } ] }</pre>
 <p><a href="api/certs-full.json">raw feed →</a> · <button class="copybtn" data-copy="curl -s ${cfg.publicBaseURL}/api/certs-full.json">Copy curl</button></p></div>
+<div class="section"><h2><b>GET /api/verdicts.json</b> — current canonical claim verdicts</h2>
+<p>One record per paid CAP verdict order — the record consumers should use. Fields include <span class="mono">status</span>, <span class="mono">canonicalForOrder</span>, <span class="mono">parserVersion</span>, <span class="mono">supersedes</span>, order id and pay/deliver tx.</p>
+<p><a href="api/verdicts.json">raw feed →</a></p></div>
+<div class="section"><h2><b>GET /api/verdicts-history.json</b> — complete adjudication history</h2>
+<p>Every persisted adjudication version, including <span class="mono">invalidated</span> parser-v1 records with <span class="mono">supersededBy</span> links. A corrected re-adjudication never creates a new CAP order — use the canonical feed for order-level counts.</p>
+<p><a href="api/verdicts-history.json">raw feed →</a></p></div>
 <div class="section"><h2><b>GET /api/services.json</b> — cheapest live store services (inspector cache)</h2>
 <p>Refreshed on every site build; feeds the target inspector's picker on the home page.</p>
 <p><a href="api/services.json">raw feed →</a></p></div>
@@ -1201,24 +1252,34 @@ export async function buildSite(): Promise<string> {
   const verdicts = loadVerdicts();
   writeFileSync(resolve(out, "verdicts.html"), verdictsPage(verdicts, generatedAt));
   writeFileSync(resolve(out, "evidence.html"), evidencePage(all, verdicts, await resolveBuyerWallets(all, verdicts), generatedAt));
-  writeFileSync(
-    resolve(out, "api", "verdicts.json"),
-    JSON.stringify(
-      verdicts.map((v) => ({
-        verdict: v.result?.verdict ?? null,
-        qualityScore: v.result?.quality_score ?? null,
-        refund: v.result?.refund_recommendation ?? null,
-        evidenceHash: v.result?.evidence_hash ?? null,
-        adjudicatedAt: v.result?.adjudicated_at ?? null,
-        orderId: v.soldVia?.orderId ?? null,
-        payTx: v.soldVia?.payTx ?? null,
-        deliverTx: v.soldVia?.deliverTx ?? null,
-        operatorDemo: v.soldVia?.operatorDemo ?? null,
-      })),
-      null,
-      2,
-    ),
-  );
+  // Machine feeds: /api/verdicts.json = ONE canonical record per paid CAP
+  // order (what consumers should use); /api/verdicts-history.json = the
+  // complete immutable adjudication history including invalidated parser-v1
+  // versions. Emitting all versions in the main feed once caused 6 orders to
+  // read as 10 — a machine-readable trust feed must never be ambiguous about
+  // which record is authoritative.
+  const canon = canonicalVerdicts(verdicts);
+  const canonHashes = new Set(canon.map((v) => v.result?.evidence_hash));
+  const verdictJson = (v: StoredVerdict) => ({
+    orderId: v.soldVia?.orderId ?? null,
+    status: v.invalidated ? "invalidated" : "active",
+    canonicalForOrder: !v.invalidated && canonHashes.has(v.result?.evidence_hash),
+    verdict: v.result?.verdict ?? null,
+    qualityScore: v.result?.quality_score ?? null,
+    refund: v.result?.refund_recommendation ?? null,
+    parserVersion: v.result?.judge?.parser ?? "v1",
+    evidenceHash: v.result?.evidence_hash ?? null,
+    supersedes: v.supersedes ?? null,
+    supersededBy: v.supersededBy ?? null,
+    invalidatedReason: v.invalidated ?? null,
+    adjudicatedAt: v.result?.adjudicated_at ?? null,
+    buyerAgentId: v.soldVia?.requesterAgentId ?? null,
+    payTx: v.soldVia?.payTx ?? null,
+    deliverTx: v.soldVia?.deliverTx ?? null,
+    operatorDemo: v.soldVia?.operatorDemo ?? null,
+  });
+  writeFileSync(resolve(out, "api", "verdicts.json"), JSON.stringify(canon.map(verdictJson), null, 2));
+  writeFileSync(resolve(out, "api", "verdicts-history.json"), JSON.stringify(verdicts.map(verdictJson), null, 2));
   writeFileSync(resolve(out, "r", "sample.html"), sampleReportPage(generatedAt));
 
   // Static assets (favicon, og-image) — copied verbatim if present.

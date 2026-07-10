@@ -106,6 +106,18 @@ $2.92 real USDC probe spend on Base mainnet
     failure triggers rejectOrder → escrow auto-refund. WS + polling overlap
     dedupes on order id, so a restart re-observes but never re-pays.
 
+## Test run proof (post-deadline safety fixes verified)
+
+```
+npm run check  →  TypeScript: PASS · node:test: 21/21 PASS
+Node: v22.22.0 (prod daemon runs v22.23.1)
+Tested at: 2026-07-10, commit: post-parser-v2 canonicalization
+```
+
+Machine feeds: `/api/verdicts.json` = one canonical record per paid order;
+`/api/verdicts-history.json` = complete immutable history incl. invalidated
+parser-v1 versions. A correction never creates a new order/payment/edge.
+
 ## Links
 
 Live: https://croocred.axiqo.xyz · Evidence: /evidence.html · Feeds:
