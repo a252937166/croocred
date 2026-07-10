@@ -120,14 +120,45 @@ async function ownServiceName(serviceId: string): Promise<string> {
   return serviceNameCache.get(serviceId) ?? "";
 }
 const isVerdictService = (name: string): boolean => /verdict|claim/i.test(name);
+// Axion Clash race rounds (community arena): tiny inbound order, we deliver a
+// deterministic ETH-move forecast. Must be intercepted BEFORE the certify
+// default — a race order must never trigger outbound probe purchases.
+const isRaceService = (name: string): boolean => /axion|race/i.test(name);
+
+/** Fast, deterministic |ETH move| forecast per the Axion race contract:
+ *  deliverable is a JSON string with EXACTLY { prediction, rationale },
+ *  prediction a positive USD amplitude. Speed beats sophistication, so we
+ *  sqrt-time-scale the round's own recentVol instead of calling an LLM. */
+function raceForecast(requirements: string | undefined): { prediction: number; rationale: string } {
+  let spot = 0, dl = 60, vol = 0;
+  try {
+    const r = JSON.parse(requirements ?? "{}") as Record<string, unknown>;
+    spot = Number(r.spot) || 0;
+    dl = Number(r.deadlineSeconds) || 60;
+    vol = Number(r.recentVol) || 0;
+  } catch {
+    /* fall through to the conservative fallback */
+  }
+  let prediction = vol > 0 ? vol * Math.sqrt(dl / 60) : spot > 0 ? spot * 0.0004 : 0.5;
+  prediction = Math.max(0.01, Math.round(prediction * 100) / 100);
+  const rationale = vol > 0
+    ? `sqrt-time baseline: recent |move| $${vol} scaled to the ${dl}s window`
+    : "conservative fallback baseline (round payload carried no recentVol)";
+  return { prediction, rationale };
+}
 
 async function handleNegotiation(negotiationId: string): Promise<void> {
   if (state.acceptedNegotiations.includes(negotiationId)) return;
   const neg = await client.getNegotiation(negotiationId);
   if (neg.status !== "pending") return;
 
+  const svcName = await ownServiceName(neg.serviceId);
+  // Race rounds carry the round payload, not a UUID target — accept as-is.
+  if (isRaceService(svcName)) {
+    /* no requirements validation: the forecast handler has a safe fallback */
+  } else
   // Claim-review orders carry free-form evidence, not a UUID target.
-  if (isVerdictService(await ownServiceName(neg.serviceId))) {
+  if (isVerdictService(svcName)) {
     if (!(neg.requirements ?? "").trim()) {
       await client.rejectNegotiation(
         negotiationId,
@@ -177,9 +208,24 @@ async function processPaidOrder(orderId: string): Promise<void> {
     if (order.status !== "paid") return;
 
     const neg = await client.getNegotiation(order.negotiationId);
+    const svcName = await ownServiceName(order.serviceId);
+
+    // Axion race branch: deliver a deterministic forecast immediately.
+    // Never falls through to certification (no outbound spend, no probes).
+    if (isRaceService(svcName)) {
+      const { prediction, rationale } = raceForecast(neg.requirements);
+      await client.deliverOrder(orderId, {
+        deliverableType: "text",
+        deliverableText: JSON.stringify({ prediction, rationale }),
+      });
+      state.processedOrders.push(orderId);
+      persist();
+      log.info(`order ${orderId} race forecast delivered: $${prediction}`);
+      return;
+    }
 
     // Claim-review branch: pure adjudication, no outbound purchases.
-    if (isVerdictService(await ownServiceName(order.serviceId))) {
+    if (isVerdictService(svcName)) {
       log.info(`order ${orderId} paid — adjudicating claim`);
       const verdict = await judgeClaim(neg.requirements, {
         orderId,
