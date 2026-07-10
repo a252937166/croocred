@@ -218,6 +218,33 @@ async function main(): Promise<void> {
       console.log("site:", await buildSite());
       break;
     }
+    case "reverdict": {
+      // Scan stored claim verdicts for records the v1 parser mis-read (no
+      // buyer request recognized from a structured claim) and re-adjudicate
+      // against the real buyer request. Old records are marked invalidated +
+      // supersededBy; nothing is silently edited.
+      const { readjudicateVerdictFile } = await import("./verdict.js");
+      const { readdirSync: rds } = await import("node:fs");
+      const { resolve: rsv } = await import("node:path");
+      const { cfg: c2 } = await import("./config.js");
+      const vdir = rsv(c2.dataDir, "verdicts");
+      const files = args[0] && args[0] !== "scan" ? [args[0]] : rds(vdir).filter((f) => f.endsWith(".json"));
+      let corrected = 0;
+      for (const f of files) {
+        try {
+          const res = await readjudicateVerdictFile(f);
+          if (res) {
+            corrected++;
+            console.log(`${f}  ${res.oldHash.slice(0, 12)}… → ${res.newHash.slice(0, 12)}…`);
+          }
+        } catch (e) {
+          console.error(`${f}: ${String(e)}`);
+        }
+      }
+      console.log(`re-adjudicated ${corrected} verdict(s)`);
+      console.log("site:", await buildSite());
+      break;
+    }
     case "rescore": {
       // Replay every stored record through the current rubric (idempotent).
       const { finalizeScore } = await import("./score.js");

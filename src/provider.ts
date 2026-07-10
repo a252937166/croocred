@@ -329,7 +329,20 @@ async function processPaidOrder(orderId: string): Promise<void> {
 }
 
 // ---------- event wiring + polling safety net --------------------------------
+
+/** Liveness proof for the dashboard: "online" on the site is only honest if
+ *  it is backed by a fresh heartbeat, not by the last static rebuild. Written
+ *  every sweep (~45s); the homepage shows "degraded" when it goes stale. */
+function writeHeartbeat(): void {
+  try {
+    const dir = resolve(cfg.siteDir, "api");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(resolve(dir, "heartbeat.json"), JSON.stringify({ at: new Date().toISOString(), pid: process.pid }));
+  } catch { /* non-fatal */ }
+}
+
 async function sweep(): Promise<void> {
+  writeHeartbeat();
   try {
     const pending = await client.listNegotiations({ role: "provider", status: "pending", pageSize: 20 });
     for (const n of pending ?? []) await handleNegotiation(n.negotiationId).catch((e) => log.error("negotiation handling failed", String(e)));

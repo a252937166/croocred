@@ -226,8 +226,28 @@ function median(xs: number[]): number | null {
 }
 
 function countVerdicts(): number {
+  // Count verdict ORDERS honestly: invalidated records (parser v1, superseded
+  // by a corrected re-adjudication of the same order) must not double-count.
   try {
-    return readdirSync(resolve(cfg.dataDir, "verdicts")).filter((f) => f.endsWith(".json")).length;
+    const dir = resolve(cfg.dataDir, "verdicts");
+    return readdirSync(dir)
+      .filter((f) => f.endsWith(".json"))
+      .map((f) => JSON.parse(readFileSync(resolve(dir, f), "utf8")) as { invalidated?: string })
+      .filter((v) => !v.invalidated).length;
+  } catch {
+    return 0;
+  }
+}
+
+function countVerdictBuyerWallets(): number {
+  try {
+    const dir = resolve(cfg.dataDir, "verdicts");
+    const buyers = new Set<string>();
+    for (const f of readdirSync(dir).filter((x) => x.endsWith(".json"))) {
+      const v = JSON.parse(readFileSync(resolve(dir, f), "utf8")) as { soldVia?: { requesterAgentId?: string } | null };
+      if (v.soldVia?.requesterAgentId) buyers.add(v.soldVia.requesterAgentId);
+    }
+    return buyers.size;
   } catch {
     return 0;
   }
@@ -549,7 +569,7 @@ function indexPage(all: CertRecord[], latest: Map<string, CertRecord>, generated
 <div>
   <div class="eyebrow">LIVE PURCHASE CERTIFICATION · CROO CAP · BASE</div>
   <h1>Don't trust the listing.<br/><span class="r">Trust the receipts.</span></h1>
-  <p class="sub">CrooCred is a paid CAP agent that audits other agents <b>by buying them</b>: real probe orders, measured SLAs, judged deliverables — published as graded reports where every claim links to an on-chain tx.</p>
+  <p class="sub">CrooCred is a paid CAP agent that audits other agents <b>by buying them</b>: real probe orders, measured SLAs, judged deliverables. Every lifecycle fact links to an on-chain receipt; semantic quality is assessed off-chain with a public, versioned rubric — chain-proven receipts, challengeable judgments.</p>
   <p style="margin-top:14px">
   <a class="cta" href="${STORE_AGENT_URL}">Order a certification</a>
   <a class="cta ghost" href="#leaderboard">View reports</a>
@@ -588,16 +608,31 @@ ${metricCard(String(m.a2aEdges), "a2a edges", tone(m.a2aEdges))}
 ${metricCard(`$${m.usdcSpent.toFixed(2)}`, "USDC spent on probes", tone(m.usdcSpent > 0 ? 1 : 0))}
 ${metricCard(fmtS(m.medianDeliverS), "median delivery", m.medianDeliverS === null ? "zero" : "pos")}
 ${metricCard(String(m.flaggedAgents), "risky agents found", m.flaggedAgents === 0 ? "zero" : "warn")}
-<a href="verdicts.html" style="text-decoration:none;color:inherit">${metricCard(String(m.claimVerdicts), "claim verdicts issued →", tone(m.claimVerdicts))}</a>
+<a href="verdicts.html" style="text-decoration:none;color:inherit">${metricCard(String(m.claimVerdicts), `paid verdict orders · ${countVerdictBuyerWallets()} buyer wallets →`, tone(m.claimVerdicts))}</a>
 </div>
+
+<div class="section" style="border-color:#9be15d55"><h2><b>For judges</b> — verify the important claims in 60 seconds</h2>
+<p style="margin-top:6px"><a href="${GITHUB_URL}/blob/master/docs/judge-quick-verify.md">Judge Quick Verify (one page)</a> ·
+<a href="${GITHUB_URL}/releases/tag/hackathon-submission-dab1310">Submission snapshot <span class="mono">dab1310</span> (2026-07-08)</a> ·
+<a href="api/stats-submission.json">Deadline metrics snapshot (orders ≤ 2026-07-09 15:59 UTC)</a> ·
+<a href="${GITHUB_URL}/blob/master/docs/submission-freeze.md">Post-deadline change log (full disclosure)</a></p>
+<p class="mut" style="margin-top:6px">23 of the certification records are disclosed operator-funded seed audits; verdict orders span 2 buyer wallets (5 external orders are one integration partner). CROO's aggregated CAP data supersedes anything self-reported here.</p></div>
 
 <div class="section"><h2><b>System status</b> — proof this is a running daemon, not a static page</h2>
 <div class="scroll"><table>
-<tr><td style="width:220px">provider daemon</td><td>online — this page is rebuilt by it after every delivered order</td></tr>
+<tr><td style="width:220px">provider daemon</td><td id="hb-cell">checking heartbeat… <noscript>see /api/heartbeat.json (written every poll sweep)</noscript></td></tr>
 <tr><td>last site build</td><td class="mono">${generatedAt}</td></tr>
 <tr><td>probe tier available</td><td>${status.probeTier === "paid" ? `<span class="probe-type paid">paid</span> — float covers ~${status.probesAffordable} probes` : `<span class="probe-type liveness">liveness-only</span> — probe wallet unfunded; paid probes activate automatically once the wallet holds USDC`}</td></tr>
 <tr><td>agent listing</td><td><a href="${STORE_AGENT_URL}">croocred on the Agent Store</a> — Certify $0.5 / Re-Check $0.1</td></tr>
-</table></div></div>
+</table></div>
+<script>
+(function(){var el=document.getElementById('hb-cell');if(!el)return;
+fetch('api/heartbeat.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(h){
+var age=(Date.now()-Date.parse(h.at))/1000;
+if(age<300){el.innerHTML='<span style="color:#9be15d;font-weight:700">online</span> — last heartbeat '+Math.round(age)+'s ago (written every poll sweep; page also rebuilds after every delivered order)';}
+else{el.innerHTML='<span style="color:#e4c34a;font-weight:700">degraded</span> — last heartbeat '+Math.round(age/60)+'m ago';}
+}).catch(function(){el.textContent='heartbeat feed unavailable — see last site build below';});})();
+</script></div>
 
 <div class="section" id="inspector"><h2><b>Inspect a target</b> — free listing check, no order needed</h2>
 <div class="builder" style="margin-top:0">
@@ -865,11 +900,20 @@ interface StoredVerdict {
     orderId?: string; chainOrderId?: string; requesterAgentId?: string;
     payTx?: string; deliverTx?: string; priceUsdc?: number; operatorDemo?: boolean;
   } | null;
+  /** set on records adjudicated by the v1 parser and later superseded */
+  invalidated?: string;
+  invalidatedAt?: string;
+  supersededBy?: string;
+  invalidationNote?: string;
+  /** set on corrected re-adjudications: the superseded record's evidence hash */
+  supersedes?: string;
+  correction?: string;
   result?: {
     verdict?: string; quality_score?: number; claim_strength?: string;
     reasons?: string[]; missing_requirements?: string[];
     refund_recommendation?: string; evidence_hash?: string;
     adjudicated_at?: string; note?: string;
+    judge?: { model?: string; temperature?: number; parser?: string; prompt_sha256?: string };
   };
 }
 
@@ -950,22 +994,31 @@ function verdictsPage(vs: StoredVerdict[], generatedAt: string): string {
   const cards = vs.map((v) => {
     const r = v.result ?? {};
     const s = v.soldVia ?? {};
-    const c = VERDICT_COLOR[r.verdict ?? ""] ?? "#8a8a8a";
+    const invalid = Boolean(v.invalidated);
+    const c = invalid ? "#8a8a8a" : VERDICT_COLOR[r.verdict ?? ""] ?? "#8a8a8a";
     const reasons = (r.reasons ?? []).map((x) => `<div class="flag" style="border-color:${c}44">— ${esc(x)}</div>`).join("");
     const missing = (r.missing_requirements ?? []).length
       ? `<p class="mut" style="margin-top:6px">missing requirements: ${esc((r.missing_requirements ?? []).join(" · "))}</p>` : "";
     const tx = (label: string, hash?: string) =>
       hash ? `<tr><td>${label}</td><td class="mono"><a href="${basescan(hash)}">${esc(hash)}</a></td></tr>` : "";
-    return `<div class="section" style="border-left:3px solid ${c}">
+    const badge = (txt: string, col: string) =>
+      `<span style="font:700 10px var(--mono);letter-spacing:.5px;color:${col};border:1px solid ${col}55;border-radius:6px;padding:2px 8px">${txt}</span>`;
+    return `<div class="section" style="border-left:3px solid ${c}${invalid ? ";opacity:.62" : ""}">
 <div style="display:flex;gap:14px;align-items:baseline;flex-wrap:wrap">
-  <span style="font:800 20px var(--mono);color:${c};text-transform:uppercase">${esc((r.verdict ?? "?").replace("_", " "))}</span>
+  <span style="font:800 20px var(--mono);color:${c};text-transform:uppercase;${invalid ? "text-decoration:line-through" : ""}">${esc((r.verdict ?? "?").replace("_", " "))}</span>
   <span class="mut">delivery quality ${r.quality_score ?? "—"}/100 · claim strength ${esc(r.claim_strength ?? "—")} · ${esc((r.refund_recommendation ?? "—").replace("_", " "))}</span>
-  ${s.operatorDemo ? '<span style="font:700 10px var(--mono);letter-spacing:.5px;color:#e4c34a;border:1px solid #e4c34a55;border-radius:6px;padding:2px 8px">DISCLOSED OPERATOR DEMO — real CAP order, operator-owned buyer</span>' : ""}
+  ${invalid ? badge("INVALIDATED — parser v1 read the wrong buyer request; superseded by a corrected re-adjudication below", "#e65846") : ""}
+  ${v.supersedes ? badge("CORRECTED RE-ADJUDICATION — same paid CAP order, re-judged against the actual buyer request (parser v2)", "#9be15d") : ""}
+  ${s.operatorDemo ? badge("DISCLOSED OPERATOR DEMO — real CAP order, operator-owned buyer", "#e4c34a") : ""}
 </div>
+${invalid && v.invalidationNote ? `<p class="mut" style="margin-top:8px">${esc(v.invalidationNote)}</p>` : ""}
 <div style="margin-top:10px">${reasons}</div>${missing}
 <div class="scroll" style="margin-top:10px"><table>
 <tr><td style="width:200px">adjudicated at</td><td class="mono">${esc(r.adjudicated_at ?? "—")}</td></tr>
 <tr><td>evidence hash (sha256)</td><td class="mono">${esc(r.evidence_hash ?? "—")}</td></tr>
+${v.supersedes ? `<tr><td>supersedes</td><td class="mono">${esc(v.supersedes)}</td></tr>` : ""}
+${v.supersededBy ? `<tr><td>superseded by</td><td class="mono">${esc(v.supersededBy)}</td></tr>` : ""}
+${r.judge ? `<tr><td>judge</td><td class="mono">${esc(r.judge.model ?? "—")} · temp ${r.judge.temperature ?? "—"} · parser ${esc(r.judge.parser ?? "v1")} · prompt ${esc((r.judge.prompt_sha256 ?? "").slice(0, 18))}…</td></tr>` : ""}
 ${s.orderId ? `<tr><td>bought via CAP order</td><td class="mono">${esc(s.orderId)}${s.chainOrderId ? ` · chain #${esc(String(s.chainOrderId))}` : ""}</td></tr>` : ""}
 ${s.requesterAgentId ? `<tr><td>buyer agent</td><td class="mono">${esc(s.requesterAgentId)}</td></tr>` : ""}
 ${tx("buyer → CrooCred pay tx", s.payTx)}
@@ -978,6 +1031,7 @@ ${v.input ? `<details style="margin-top:10px"><summary class="mut" style="cursor
   const body = `
 <h1 style="font:800 26px var(--mono);text-transform:uppercase;margin-bottom:6px">Claim verdicts</h1>
 <p class="mut" style="margin-bottom:14px">Delivery Verdict — Claim Review ($0.02, 30min SLA): independent adjudication for CAP hires. An insurer (or any buyer) sends the original request + the seller's delivery over CAP; CrooCred returns approve/deny/manual_review with a refund recommendation and a sha256 evidence hash committing to the exact input and verdict. The adjudicator never insures; the insurer never adjudicates.</p>
+<div class="section" style="border-color:#e4c34a55"><p class="mut" style="margin:0"><b style="color:#e4c34a">Correction notice (2026-07-10):</b> our claim parser v1 did not recognize the <span class="mono">buyer_requirement</span>/<span class="mono">requirements</span> field names used by a real external integration, so on 4 orders the LLM adjudicated without the actual buyer request. Those records are kept below, struck through and marked INVALIDATED (original CAP orders and evidence hashes unchanged), each superseded by a corrected re-adjudication against the real request. Structured claims missing either side now gate to deterministic <span class="mono">manual_review</span> instead of reaching the LLM. An auditor that cannot correct itself cannot be trusted.</p></div>
 ${cards || `<div class="section"><p class="mut">No claim verdicts yet — order <b>Delivery Verdict — Claim Review</b> from <a href="${STORE_AGENT_URL}">croocred on the Agent Store</a> with <span class="mono">{"buyer_request":"…","seller_output":"…"}</span>.</p></div>`}
 <div class="section"><h2>Machine-readable</h2><pre>GET ${cfg.publicBaseURL}/api/verdicts.json</pre><p><a href="api/verdicts.json">raw feed →</a></p></div>
 <p><a href="index.html">← home</a></p>`;

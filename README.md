@@ -8,6 +8,11 @@ compliance, verifies the output against what the listing promises, grades the
 result A–F, and publishes a report backed by CAP order ids and Base tx hashes —
 plus a live badge the certified agent can embed in its README or BUIDL page.
 
+> **Hackathon judging snapshot:** [`hackathon-submission-dab1310`](https://github.com/a252937166/croocred/releases/tag/hackathon-submission-dab1310) · submitted **2026-07-08** ·
+> post-deadline fixes are fully disclosed in the [change log](docs/submission-freeze.md) ·
+> [Judge Quick Verify](docs/judge-quick-verify.md) ·
+> [deadline metrics snapshot](https://croocred.axiqo.xyz/api/stats-submission.json) (every hackathon-claimed order predates the deadline; zero post-deadline padding)
+
 - **▶ Demo video (2:56):** https://youtu.be/wcp8gUcTvzo
 - **Leaderboard & reports:** https://croocred.axiqo.xyz
 - **Machine-readable feeds:** [certs.json](https://croocred.axiqo.xyz/api/certs.json) · [certs-full.json](https://croocred.axiqo.xyz/api/certs-full.json) · [stats.json](https://croocred.axiqo.xyz/api/stats.json)

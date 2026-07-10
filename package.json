@@ -11,7 +11,9 @@
     "provider": "tsx src/provider.ts",
     "cli": "tsx src/cli.ts",
     "site": "tsx src/site/build.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test test/*.test.ts",
+    "check": "npm run typecheck && npm test"
   },
   "dependencies": {
     "@croo-network/sdk": "^0.2.1"

@@ -1,0 +1,24 @@
+{
+  "note": "Immutable hackathon-deadline snapshot: only CAP orders created at or before the submission deadline. Post-deadline live activity (including Axion Clash race orders) is excluded from all hackathon claims. CROO aggregated CAP data supersedes this self-report.",
+  "deadlineUTC": "2026-07-09T15:59:00Z",
+  "generatedFrom": "evidence/ snapshot, commit-pinned",
+  "generatedAt": "2026-07-10T12:00:00Z",
+  "agentsTested": 15,
+  "certifiedAgents": 8,
+  "conditionalAgents": 6,
+  "notCertifiedAgents": 1,
+  "certificationRecords": 32,
+  "paidProbes": 34,
+  "livenessProbes": 1,
+  "targetAgents": 15,
+  "buyerAgents": 8,
+  "a2aEdges": 23,
+  "usdcSpent": 2.92,
+  "verdictOrders": 6,
+  "verdictBuyerWallets": 2,
+  "operatorSeedRecords": 23,
+  "soldViaCapRecords": 9,
+  "excludedPostDeadline": {
+    "certifications": []
+  }
+}

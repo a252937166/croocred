@@ -26,18 +26,35 @@ export interface ClaimVerdict {
   adjudicated_at: string;
   adjudicator: "croocred";
   note: string;
+  /** Reproducibility metadata: exactly which judge produced this verdict. */
+  judge?: {
+    model: string;
+    temperature: number;
+    parser: string;
+    prompt_sha256: string;
+  };
 }
 
-interface ParsedClaim {
+export interface ParsedClaim {
   buyerRequest: string;
   sellerOutput: string;
   successCriteria: string;
   policyId: string | null;
   orderId: string | null;
+  /** true when the input parsed as a JSON object (schema path, not freeform) */
+  structured: boolean;
   raw: string;
 }
 
-function parseClaim(requirements: string): ParsedClaim {
+/** Claim parser v2.
+ *  v1 missed the field names a real external integration used
+ *  (`buyer_requirement`, `requirements`, `seller_delivery`), so the LLM was
+ *  handed an empty BUYER REQUEST and invented tasks that were never asked
+ *  (caught by an external pre-judging review, 2026-07-10 — the affected
+ *  verdicts are marked invalidated and re-adjudicated, never silently edited).
+ *  Alias order: explicit buyer_* names first; `requirements` LAST because it
+ *  is the CAP transport field name and the most likely to carry meta text. */
+export function parseClaim(requirements: string): ParsedClaim {
   let text = (requirements ?? "").trim();
   // requirements may arrive JSON-encoded (the API demands valid JSON)
   for (let i = 0; i < 2; i++) {
@@ -57,11 +74,12 @@ function parseClaim(requirements: string): ParsedClaim {
           return "";
         };
         return {
-          buyerRequest: pick("buyer_request", "request", "task", "original_request"),
-          sellerOutput: pick("seller_output", "delivery", "deliverable", "output"),
+          buyerRequest: pick("buyer_request", "buyer_requirement", "request", "task", "original_request", "requirements"),
+          sellerOutput: pick("seller_output", "seller_delivery", "delivery", "deliverable", "output"),
           successCriteria: pick("success_criteria", "expected", "criteria", "expected_format"),
           policyId: pick("policy_id", "policyId") || null,
           orderId: pick("order_id", "orderId") || null,
+          structured: true,
           raw: text,
         };
       }
@@ -71,8 +89,10 @@ function parseClaim(requirements: string): ParsedClaim {
     }
   }
   // Freeform text: let the adjudicator read it whole.
-  return { buyerRequest: "", sellerOutput: "", successCriteria: "", policyId: null, orderId: null, raw: text };
+  return { buyerRequest: "", sellerOutput: "", successCriteria: "", policyId: null, orderId: null, structured: false, raw: text };
 }
+
+const CLAIM_TEMPERATURE = 0.1;
 
 async function chatJSON(system: string, user: string): Promise<Record<string, unknown> | null> {
   if (!cfg.llmApiKey) return null;
@@ -87,7 +107,7 @@ async function chatJSON(system: string, user: string): Promise<Record<string, un
           { role: "user", content: user },
         ],
         max_tokens: 800,
-        temperature: 0.1,
+        temperature: CLAIM_TEMPERATURE,
       }),
     });
     if (!res.ok) {
@@ -114,9 +134,30 @@ export interface VerdictOrderEvidence {
   operatorDemo?: boolean;
 }
 
+const CLAIM_SYSTEM_PROMPT =
+  "You are a strict, neutral claims adjudicator for AI-agent service deliveries. " +
+  "Given the buyer's original request and the seller's actual delivery, judge whether the delivery " +
+  "reasonably satisfies the request. Bad deliveries: empty, off-topic, generic filler, missing explicitly " +
+  "requested sections, wrong format when a format was required. Do NOT punish style. " +
+  "Judge ONLY against the buyer request given above — never assume or invent what the task might have been. " +
+  'Reply ONLY JSON: {"verdict":"approve_claim|deny_claim|manual_review","quality_score":0-100,' +
+  '"claim_strength":"high|medium|low","reasons":["..."],"missing_requirements":["..."],' +
+  '"refund_recommendation":"full_refund|partial_refund|no_refund"}. ' +
+  "approve_claim = the buyer's complaint is justified (delivery failed the task). " +
+  "deny_claim = the delivery reasonably satisfies the task. " +
+  "manual_review = genuinely ambiguous or insufficient information.";
+
+const judgeMeta = (): NonNullable<ClaimVerdict["judge"]> => ({
+  model: cfg.llmModel,
+  temperature: CLAIM_TEMPERATURE,
+  parser: "v2",
+  prompt_sha256: "0x" + createHash("sha256").update(CLAIM_SYSTEM_PROMPT).digest("hex"),
+});
+
 export async function judgeClaim(
   requirements: string,
   orderEvidence?: VerdictOrderEvidence,
+  opts?: { supersedes?: string; correction?: string },
 ): Promise<ClaimVerdict> {
   const c = parseClaim(requirements);
   const adjudicatedAt = new Date().toISOString();
@@ -126,17 +167,41 @@ export async function judgeClaim(
   if (!c.raw) deterministic.push("empty claim submission");
   if (c.buyerRequest && !sellerOutput) deterministic.push("no seller output provided in the claim");
 
+  // ---- hard gate: structured claims must carry BOTH sides -----------------
+  // A schema submission that parses but lacks the buyer request or the seller
+  // output must never reach the LLM — an adjudicator with half the evidence
+  // hallucinates the other half (this exact failure shipped once; see the
+  // parser v2 note above). Deterministic manual_review, never a guess.
+  if (c.structured && (!c.buyerRequest || !sellerOutput)) {
+    const missingSide = !c.buyerRequest && !sellerOutput ? "buyer request and seller output"
+      : !c.buyerRequest ? "buyer request" : "seller output";
+    const reasons = [
+      `Insufficient structured evidence for automatic adjudication — the claim JSON parsed but no ${missingSide} field was recognized.`,
+      'Recognized buyer-request fields: buyer_request, buyer_requirement, request, task, original_request, requirements. Seller fields: seller_output, seller_delivery, delivery, deliverable, output.',
+    ];
+    const core = JSON.stringify({ input: c.raw, verdict: "manual_review", quality: 0, strength: "low", reasons, missing: [missingSide], refund: "no_refund", adjudicatedAt });
+    const evidenceHash = "0x" + createHash("sha256").update(core).digest("hex");
+    const gated: ClaimVerdict = {
+      verdict: "manual_review",
+      quality_score: 0,
+      claim_strength: "low",
+      reasons,
+      missing_requirements: [missingSide],
+      refund_recommendation: "no_refund",
+      evidence_hash: evidenceHash,
+      policy_id: c.policyId,
+      order_id: c.orderId,
+      adjudicated_at: adjudicatedAt,
+      adjudicator: "croocred",
+      note: "Deterministic gate — no LLM was consulted. Resubmit with both sides of the claim for automatic adjudication.",
+      judge: judgeMeta(),
+    };
+    persistVerdict(c.raw, orderEvidence, gated, opts);
+    return gated;
+  }
+
   const llm = await chatJSON(
-    "You are a strict, neutral claims adjudicator for AI-agent service deliveries. " +
-      "Given the buyer's original request and the seller's actual delivery, judge whether the delivery " +
-      "reasonably satisfies the request. Bad deliveries: empty, off-topic, generic filler, missing explicitly " +
-      "requested sections, wrong format when a format was required. Do NOT punish style. " +
-      'Reply ONLY JSON: {"verdict":"approve_claim|deny_claim|manual_review","quality_score":0-100,' +
-      '"claim_strength":"high|medium|low","reasons":["..."],"missing_requirements":["..."],' +
-      '"refund_recommendation":"full_refund|partial_refund|no_refund"}. ' +
-      "approve_claim = the buyer's complaint is justified (delivery failed the task). " +
-      "deny_claim = the delivery reasonably satisfies the task. " +
-      "manual_review = genuinely ambiguous or insufficient information.",
+    CLAIM_SYSTEM_PROMPT,
     c.buyerRequest || c.sellerOutput
       ? `BUYER REQUEST:\n${c.buyerRequest.slice(0, 2000)}\n\n` +
         (c.successCriteria ? `SUCCESS CRITERIA:\n${c.successCriteria.slice(0, 800)}\n\n` : "") +
@@ -182,21 +247,84 @@ export async function judgeClaim(
     adjudicated_at: adjudicatedAt,
     adjudicator: "croocred",
     note: "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing.",
+    judge: judgeMeta(),
   };
 
-  // Persist for the dashboard ("claim verdicts issued" + evidence page).
+  persistVerdict(c.raw, orderEvidence, result, opts);
+  return result;
+}
+
+/** Persist for the dashboard ("claim verdicts issued" + evidence page). */
+function persistVerdict(
+  raw: string,
+  orderEvidence: VerdictOrderEvidence | undefined,
+  result: ClaimVerdict,
+  opts?: { supersedes?: string; correction?: string },
+): void {
   try {
     const dir = resolve(cfg.dataDir, "verdicts");
     mkdirSync(dir, { recursive: true });
     writeFileSync(
-      resolve(dir, `v-${adjudicatedAt.replace(/[-:.TZ]/g, "").slice(0, 14)}-${evidenceHash.slice(2, 8)}.json`),
-      JSON.stringify({ input: c.raw.slice(0, 8000), soldVia: orderEvidence ?? null, result }, null, 2),
+      resolve(dir, `v-${result.adjudicated_at.replace(/[-:.TZ]/g, "").slice(0, 14)}-${result.evidence_hash.slice(2, 8)}.json`),
+      JSON.stringify({
+        input: raw.slice(0, 8000),
+        soldVia: orderEvidence ?? null,
+        ...(opts?.supersedes ? { supersedes: opts.supersedes, correction: opts.correction ?? "re-adjudication" } : {}),
+        result,
+      }, null, 2),
     );
   } catch (err) {
     log.warn("verdict persist failed", String(err));
   }
+}
 
-  return result;
+/**
+ * Re-adjudicate a stored verdict whose original run mis-parsed the claim
+ * (parser v1). Never edits the old verdict's content: the old record keeps
+ * its evidence hash and CAP order, gains `invalidated` markers, and a new
+ * corrected record is written with a `supersedes` link to the old hash.
+ * Returns null when the record does not need correction.
+ */
+export async function readjudicateVerdictFile(fileName: string): Promise<{ oldHash: string; newHash: string } | null> {
+  const dir = resolve(cfg.dataDir, "verdicts");
+  const p = resolve(dir, fileName);
+  const rec = JSON.parse(readFileSync(p, "utf8")) as {
+    input?: string;
+    soldVia?: VerdictOrderEvidence | null;
+    supersedes?: string;
+    invalidated?: string;
+    result: ClaimVerdict;
+  };
+  if (rec.invalidated || rec.supersedes || !rec.input) return null;
+  // needs correction iff: v1 read no buyer request from a structured claim, v2 does
+  const c = parseClaim(rec.input);
+  const v1Request = ((): string => {
+    try {
+      const o = JSON.parse(rec.input) as Record<string, unknown>;
+      for (const k of ["buyer_request", "request", "task", "original_request"]) {
+        const v = o[k];
+        if (typeof v === "string" && v.trim()) return v.trim();
+      }
+    } catch { /* freeform */ }
+    return "";
+  })();
+  if (!c.structured || v1Request || !c.buyerRequest) return null;
+
+  const corrected = await judgeClaim(rec.input, rec.soldVia ?? undefined, {
+    supersedes: rec.result.evidence_hash,
+    correction: "parser_v1_missed_buyer_requirement — re-adjudicated against the actual buyer request; original CAP order and evidence hash preserved on the invalidated record",
+  });
+  const updated = {
+    ...rec,
+    invalidated: "parser_v1",
+    invalidatedAt: new Date().toISOString(),
+    supersededBy: corrected.evidence_hash,
+    invalidationNote:
+      "Parser v1 did not recognize this claim's buyer-request field, so the LLM was adjudicating without the real task. Marked invalid and re-adjudicated (see supersededBy). Disclosed publicly; the CAP order and original evidence hash are unchanged.",
+  };
+  writeFileSync(p, JSON.stringify(updated, null, 2));
+  log.info(`verdict ${fileName} invalidated (parser_v1) → superseded by ${corrected.evidence_hash.slice(0, 10)}…`);
+  return { oldHash: rec.result.evidence_hash, newHash: corrected.evidence_hash };
 }
 
 /** Patch order evidence (e.g. the deliver tx, known only after delivery) into a persisted verdict. */
