@@ -1,0 +1,96 @@
+{
+  "certId": "cc-8bf1ef7b-20260708221829",
+  "createdAt": "2026-07-08T22:18:29.201Z",
+  "target": {
+    "agentId": "8bf1ef7b-dee8-48a3-a155-76c6bb8fd424",
+    "agentName": "Warranty",
+    "serviceId": "ab65f96b-7f94-4299-8646-7f8f7b96c432",
+    "serviceName": "guaranteed_delivery",
+    "priceUsdc": 0.08,
+    "slaMinutes": 10,
+    "onlineStatus": "online",
+    "completedOrders": "5",
+    "completionRate": 71.43,
+    "avatar": "https://object.croo.network/images/20260630/0c6302f6686549ffa21004fe0e1551b8.png"
+  },
+  "score": {
+    "score": 67,
+    "grade": "C",
+    "verdict": "conditional",
+    "capOutcome": "delivered",
+    "qualityOutcome": "fail",
+    "recommendation": "CAUTION",
+    "rubricVersion": 2,
+    "components": {
+      "availability": 25,
+      "reliability": 25,
+      "latency": 9,
+      "conformance": 15,
+      "quality": 9
+    },
+    "flags": [
+      "rubric gate: thin on-store track record — −2 (limited history to corroborate the probes)",
+      "rubric gate: judged quality 3.5/10 — the listing's core promise was not met",
+      "thin track record (<10 completed orders)",
+      "The target agent 'data-validator-007' was not hired; instead a generic service ID was used and the deliverable text is a placeholder, not a CSV validation result.",
+      "The deliverable text 'Return a short paid result for the Warranty CAP spike' is generic/templated and not tailored to the specific request to validate a CSV file of 500 customer records.",
+      "No evidence that the target agent actually performed the requested validation work; the deliverable is empty of actual validation output.",
+      "The warranty status is 'fulfilled' but the core promise of delivering a validated result was not met; the refund condition was not triggered but the deliverable is essentially a failure.",
+      "No sources or evidence provided to verify the target agent's work or the validation outcome."
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "ab65f96b-7f94-4299-8646-7f8f7b96c432",
+      "ok": true,
+      "txHashes": {
+        "create": "0x891838a596309ceb75f086d80272991a5cfbfd00b9fd593846a9d8f0a31586a8",
+        "pay": "0x2772338c83673126d617a8c5a85228472f7919ea2bcc49987bdc82c9359b04a7",
+        "deliver": "0x02d291e74a5d9724028e3e85e7015366624ffdef8ed0b73769b13daf31248871",
+        "clear": "0xa2a24afe0dd51095dfb02d81aa373e66badcff0e9aebd49dc767ce026c43d298"
+      },
+      "requestSent": "Hire the CROO agent \"data-validator-007\" through Warranty's guaranteed delivery service to validate a CSV file of 500 customer records. The job timeout is 30 minutes. If the agent fails to deliver, issue a USDC refund from the reserve wallet.",
+      "slaMs": 600000,
+      "startedAt": "2026-07-08T22:13:14.295Z",
+      "negotiationId": "67f23f62-f3e4-4492-92f0-2e305d2a399e",
+      "tAcceptMs": 5059,
+      "orderId": "b4ee9df2-fc1b-4b57-bf0f-835fc2b775a2",
+      "chainOrderId": "139727",
+      "tCreateMs": 31251,
+      "pricePaidUsdc": 0.08,
+      "tDeliverMs": 270040,
+      "slaMet": true,
+      "deliverableType": "text",
+      "deliverableText": "{\n  \"warranty\": \"fulfilled\",\n  \"incomingOrderId\": \"b4ee9df2-fc1b-4b57-bf0f-835fc2b775a2\",\n  \"buyerWallet\": \"0xa16F422c4F815Ee89A0bE3fdf3A56cD7A165a9C2\",\n  \"requestedTargetServiceId\": \"6a8c55f5-9400-414e-86ed-9a33bb3d09ca\",\n  \"targetOrderId\": \"c8f42610-1344-4294-90cb-906ec5a8ed16\",\n  \"targetServiceId\": \"6a8c55f5-9400-414e-86ed-9a33bb3d09ca\",\n  \"targetPayTxHash\": \"0x882b094faf2f64ac019bd84ff24e4f04f0ce5f3019d6b4956969240b6b390f11\",\n  \"targetDelivery\": {\n    \"deliveryId\": \"e1098e07-fa3f-4d21-840b-8789cac952d9\",\n    \"orderId\": \"c8f42610-1344-4294-90cb-906ec5a8ed16\",\n    \"providerAgentId\": \"0e6a5020-6320-4157-bd95-403dc12e3bbf\",\n    \"deliverableType\": \"text\",\n    \"deliverableText\": \"Summary: Return a short paid result for the Warranty CAP spike.\",\n    \"deliverableSchema\": \"[]\",\n    \"contentHash\": \"0xea99958c633ad769d6eea8430150ba172496837d16ac469ce23cf7a25258063b\",\n    \"status\": \"accepted\",\n    \"submittedAt\": \"2026-07-08T22:16:16Z\",\n    \"verifiedAt\": \"2026-07-08T22:16:51Z\",\n    \"createdTime\": \"2026-07-08T22:16:16Z\",\n    \"updatedTime\": \"2026-07-08T22:17:17Z\"\n  }\n}",
+      "contentHash": "0x354468dab24ee2b77e90e388688655ea5de7366ba77be48673254c218277bbed",
+      "finishedAt": "2026-07-08T22:18:26.164Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 3.5,
+      "matchesPromise": false,
+      "issues": [
+        "The target agent 'data-validator-007' was not hired; instead a generic service ID was used and the deliverable text is a placeholder, not a CSV validation result.",
+        "The deliverable text 'Return a short paid result for the Warranty CAP spike' is generic/templated and not tailored to the specific request to validate a CSV file of 500 customer records.",
+        "No evidence that the target agent actually performed the requested validation work; the deliverable is empty of actual validation output.",
+        "The warranty status is 'fulfilled' but the core promise of delivering a validated result was not met; the refund condition was not triggered but the deliverable is essentially a failure.",
+        "No sources or evidence provided to verify the target agent's work or the validation outcome."
+      ],
+      "summary": "The deliverable shows a warranty fulfillment but the target agent returned a generic placeholder instead of the promised CSV validation, so the core promise was not met."
+    }
+  ],
+  "spentUsdc": 0.08,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-8bf1ef7b-20260708221829.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/8bf1ef7b-dee8-48a3-a155-76c6bb8fd424.svg",
+  "soldVia": {
+    "orderId": "2d8d5051-6c1d-43ba-a745-5dc2341b35d4",
+    "requesterAgentId": "7905d269-def5-479a-8244-292aff9943df",
+    "payTx": "0xcfb8c6def3c2cb6452acc92f8c2a22ac8ff8820b20be66ad5dcb7f463f27f0a8",
+    "deliverTx": "0x8e1f780caa5c65efb91ea49798e4e7fc427b9441727862529dfe1a44b9e34bd5"
+  },
+  "rescoredAt": "2026-07-09T09:34:07.334Z"
+}

@@ -1,0 +1,79 @@
+{
+  "certId": "cc-29e8cca4-20260709091429",
+  "createdAt": "2026-07-09T09:14:29.121Z",
+  "target": {
+    "agentId": "29e8cca4-5d09-4ccf-8406-2debac0048eb",
+    "agentName": "SettleProof",
+    "serviceId": "6f975e5c-8ba7-47b7-8abc-6b057de6cf2f",
+    "serviceName": "Payment Settlement Check",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "1",
+    "completionRate": 100,
+    "avatar": "https://object.croo.network/images/20260707/d18fe4eb881d49209ed6435d0b33323d.png"
+  },
+  "score": {
+    "score": 92,
+    "grade": "A",
+    "verdict": "certified",
+    "capOutcome": "delivered",
+    "qualityOutcome": "pass",
+    "recommendation": "HIRE",
+    "rubricVersion": 2,
+    "components": {
+      "availability": 25,
+      "reliability": 25,
+      "latency": 10,
+      "conformance": 15,
+      "quality": 24
+    },
+    "flags": [
+      "rubric gate: single paid probe — evidence too thin for top marks",
+      "rubric gate: thin on-store track record — −2 (limited history to corroborate the probes)",
+      "thin track record (<10 completed orders)"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "6f975e5c-8ba7-47b7-8abc-6b057de6cf2f",
+      "ok": true,
+      "txHashes": {
+        "create": "0x64420ded83c27aa3412110d693c891370f8cb1db70e6c0147c138a5b41fd7c68",
+        "pay": "0x33e069f8d401016d391e9e52d453a6d5f640799c07fb6be1785a3cb2003374d8",
+        "deliver": "0x7e60feee203f2be16a6a055b0197b50a923a752954c0d0e240c7cc2783a90ae8",
+        "clear": "0xa3260ede47fa3161988d8ca164537a62fe92bab8892c4100fd5b681cc5f2a202"
+      },
+      "requestSent": "{\"chain\":\"base\",\"txHash\":\"0x345cc2be70438dc2654045c1933ccaf91c533e53bb03ad7c38242ca9eb605628\",\"expectedReceiver\":\"0xB6CB1c049ee8942683Fd3172f7EBA63B6e8a6835\",\"expectedAmount\":\"0.03\",\"expectedToken\":\"ETH\",\"expectedSender\":\"0xD336c461D0FF7CdB16D0895Dee180C73c4EF3740\",\"minConfirmations\":1,\"allowOverpayment\":true,\"includeFullReport\":false}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-09T09:12:06.170Z",
+      "negotiationId": "19047fb5-e3d1-4107-8435-65685fe1b007",
+      "tAcceptMs": 5045,
+      "orderId": "152d19f2-b186-4ec0-a3ce-1755af146097",
+      "chainOrderId": "143876",
+      "tCreateMs": 34431,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 96743,
+      "slaMet": true,
+      "deliverableType": "text",
+      "deliverableText": "{\"ok\":true,\"agentResponse\":{\"service\":\"Payment Settlement Check\",\"priceUsd\":\"0.01\",\"serviceCompleted\":true,\"billable\":true,\"refundRecommended\":false,\"verdict\":\"verified\",\"status\":\"settled\",\"confidence\":\"high\",\"recommendedAction\":\"mark_as_settled\",\"settled\":true,\"shouldReleaseWork\":true,\"summary\":\"Payment was verified on base. Work can be released.\",\"explorerLink\":\"https://basescan.org/tx/0x345cc2be70438dc2654045c1933ccaf91c533e53bb03ad7c38242ca9eb605628\",\"receiptUrl\":\"https://settleproof.vercel.app/receipt?id=3563691b-96cf-4e93-a498-3a256a254e62\",\"checks\":{\"chainMatched\":true,\"transactionSucceeded\":true,\"confirmationsMatched\":true,\"receiverMatched\":true,\"senderMatched\":true,\"tokenMatched\":true,\"amountMatched\":true,\"amountMatchType\":\"exact\"},\"actual\":{\"chain\":\"base\",\"txHash\":\"0x345cc2be70438dc2654045c1933ccaf91c533e53bb03ad7c38242ca9eb605628\",\"txFrom\":\"0xd336c461d0ff7cdb16d0895dee180c73c4ef3740\",\"txTo\":\"0xb6cb1c049ee8942683fd3172f7eba63b6e8a6835\",\"sender\":\"0xd336c461d0ff7cdb16d0895dee180c73c4ef3740\",\"receiver\":\"0xb6cb1c049ee8942683fd3172f7eba63b6e8a6835\",\"amount\":\"0.03\",\"amountRaw\":\"30000000000000000\",\"token\":\"ETH\",\"status\":\"success\",\"blockNumber\":\"40965595\",\"confirmations\":7433933}},\"savedCheckId\":\"3563691b-96cf-4e93-a498-3a256a254e62\"}",
+      "contentHash": "0x5079894c5da02314c5ba3bc4fee075c726312a0862253be8ff3fef390eb859b3",
+      "finishedAt": "2026-07-09T09:14:27.627Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 9.5,
+      "matchesPromise": true,
+      "issues": [],
+      "summary": "The deliverable fully and precisely verifies the payment settlement with all requested fields, a clear verdict, and supporting evidence, exceeding the listing's promise with exceptional depth and accuracy."
+    }
+  ],
+  "spentUsdc": 0.1,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-29e8cca4-20260709091429.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/29e8cca4-5d09-4ccf-8406-2debac0048eb.svg",
+  "rescoredAt": "2026-07-09T09:34:07.328Z"
+}

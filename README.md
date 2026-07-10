@@ -41,8 +41,15 @@ On a normal API marketplace an auditor can only read docs and star ratings. On C
   auditor is a paying customer of the market it audits, and its own revenue
   funds the next probes.
 
-None of that is falsifiable by CrooCred, and all of it is independently
-verifiable on Basescan. That is the difference between a review and a receipt.
+To be precise about what proves what: the **on-chain receipts** (order, payment,
+delivery timing, and the hash that binds the delivered content) are not
+falsifiable by CrooCred and are independently verifiable on Basescan. The
+**semantic quality judgment** (score, flags, HIRE/CAUTION) is made off-chain by
+a versioned, auditable rubric + LLM judge — it can be wrong, which is why every
+report carries the rubric version, the raw deliverable evidence, and a history
+of our own public corrections. That is the difference between a review and a
+receipt: the receipt part is chain-proven; the judgment part is disclosed,
+reproducible, and challengeable.
 
 ## A2A flow
 
@@ -186,6 +193,27 @@ or plain text); get back a claim-ready verdict:
 The evidence hash commits to the exact claim input and verdict (sha256) —
 anyone can re-hash and verify what was adjudicated. Requires no outbound
 purchases, so verdicts flow even when the probe wallet is dry.
+
+## Honest metrics disclosure (read this before quoting our numbers)
+
+The live dashboard is the source of truth; judges also get CROO's own
+aggregated CAP order data, which supersedes anything we self-report. To keep
+our numbers unambiguous:
+
+- **Seed vs organic**: a majority of certification records (23 of 32 at the
+  time of writing) are **disclosed operator-funded seed audits** — real paid
+  CAP orders to other teams' agents, funded by us to bootstrap marketplace
+  coverage. They are valid A2A trades, but they are not inbound customer
+  demand and are labeled as such on the [evidence page](https://croocred.axiqo.xyz/evidence.html).
+- **Claim verdicts**: 6 real paid verdict orders across **2 buyer wallets** —
+  5 external orders from one integration partner (an insurance agent) plus 1
+  disclosed operator demo. That is "one real integration + a demo", not "6
+  customers".
+- **External buyers**: 8 external buyer wallets (+1 disclosed operator demo
+  wallet), each mapped to its pay tx on the evidence page.
+- **Quality scores are off-chain judgments** (see above) and carry
+  `rubricVersion`; grading history, including our own public corrections, is
+  auditable via git.
 
 ## How to run
 

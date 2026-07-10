@@ -123,7 +123,7 @@ Store: agent.croo.network/agents/ec1bc7f5-4429-46d9-8d9f-72423dabfdf2
 ## 提交前核对清单
 - [x] 刷新正文数字对齐 live 站（2026-07-08）：12 agents · 29 paid probes · $2.44 USDC · 板 7 certified/4 conditional/1 not certified · 6 external buyers (+1 disclosed demo) · 2 claim verdicts · 18 a2a edges
 - [x] 视频上传 YouTube（public, 1080p, 2:56）后回填链接 → https://youtu.be/wcp8gUcTvzo
-- [ ] DoraHacks Submit BUIDL（用户操作）：填上表 + 手动上传 Logo（site-assets/logo-512.png）
+- [x] DoraHacks Submit BUIDL 已完成（2026-07-08）：CrooCred 提交至 CROO Agent Hackathon，状态 Under Review，Logo=用户手动上传的 receipt 图标；tracks = Data & Verification Agents + Developer Tooling Agents；contact = Telegram @moonri2 + WeChat a252937166。可在 dorahacks.io 该活动页 "Manage Submission" 编辑（judging 前可改）。
 - [ ] Logo 用户手动上传
 - [ ] Demo video ≤5min 确认
 - [ ] BUIDL 提交后到比赛页 Register/关联

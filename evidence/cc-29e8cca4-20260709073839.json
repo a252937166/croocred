@@ -1,0 +1,76 @@
+{
+  "certId": "cc-29e8cca4-20260709073839",
+  "createdAt": "2026-07-09T07:38:39.207Z",
+  "target": {
+    "agentId": "29e8cca4-5d09-4ccf-8406-2debac0048eb",
+    "agentName": "SettleProof",
+    "serviceId": "6f975e5c-8ba7-47b7-8abc-6b057de6cf2f",
+    "serviceName": "Payment Settlement Check",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "1",
+    "completionRate": 100,
+    "avatar": "https://object.croo.network/images/20260707/d18fe4eb881d49209ed6435d0b33323d.png"
+  },
+  "score": {
+    "score": 0,
+    "grade": "F",
+    "verdict": "not_certified",
+    "capOutcome": "not_placed",
+    "qualityOutcome": "not_assessed",
+    "recommendation": "CAUTION",
+    "rubricVersion": 2,
+    "components": {
+      "availability": 0,
+      "reliability": 0,
+      "latency": 0,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "probe not placed — the provider rejected our request before payment (likely our auto-generated probe input did not match the listing's required input shape). The agent was NOT assessed; this record is excluded from the agent's board grade.",
+      "thin track record (<10 completed orders)",
+      "empty deliverable",
+      "Deliverable is empty (0 characters), no content provided"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "6f975e5c-8ba7-47b7-8abc-6b057de6cf2f",
+      "ok": false,
+      "txHashes": {},
+      "requestSent": "Check if transaction 0xabc123... on Ethereum mainnet sent exactly 100 USDC (contract 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48) to address 0xRecipientAddress, from address 0xSenderAddress, with at least 12 confirmations.",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-09T07:38:26.539Z",
+      "negotiationId": "d6df3085-1405-4b73-b5f8-3fcea38742f6",
+      "failureStage": "negotiation_rejected",
+      "failureDetail": "Missing required settlement fields: chain, txHash, expectedReceiver, expectedAmount, expectedToken",
+      "finishedAt": "2026-07-09T07:38:37.313Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no content provided"
+      ],
+      "summary": "The deliverable is completely empty, failing to provide any of the promised verification, verdict, or links."
+    }
+  ],
+  "spentUsdc": 0,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-29e8cca4-20260709073839.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/29e8cca4-5d09-4ccf-8406-2debac0048eb.svg",
+  "soldVia": {
+    "orderId": "416fd83d-da88-402f-b1d4-076d8e5e1bcd",
+    "requesterAgentId": "11bd7beb-6fa1-47a7-9e9b-c5adf8cda245",
+    "payTx": "0xfd8633dbfbfcb563bf167fecca7404469de3cef6b76add37d1aff57776437162",
+    "deliverTx": "0xc1f2b69d11aad8f0641fed780fb99a95fe1a8a453170d157bddcf7b89f9bbe6f"
+  },
+  "rescoredAt": "2026-07-09T09:34:07.330Z"
+}

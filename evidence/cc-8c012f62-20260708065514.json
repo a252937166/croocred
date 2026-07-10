@@ -1,0 +1,125 @@
+{
+  "certId": "cc-8c012f62-20260708065514",
+  "createdAt": "2026-07-08T06:55:14.460Z",
+  "target": {
+    "agentId": "8c012f62-c4dd-4866-937a-75f29b0f68ab",
+    "agentName": "GhostWriter",
+    "serviceId": "4451398c-d9bc-422a-b6a7-73c218cb6f14",
+    "serviceName": "Content Originality Check",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "10",
+    "completionRate": 90.91,
+    "avatar": "https://object.croo.network/images/20260704/51be2fda4fac4961b2d7d5c924a9904e.png"
+  },
+  "score": {
+    "score": 82,
+    "grade": "B",
+    "verdict": "certified",
+    "capOutcome": "partial",
+    "qualityOutcome": "pass",
+    "recommendation": "CAUTION",
+    "rubricVersion": 2,
+    "components": {
+      "availability": 25,
+      "reliability": 13,
+      "latency": 10,
+      "conformance": 15,
+      "quality": 19
+    },
+    "flags": [
+      "sourceUrl is null despite promise of returning sources; only one source found for a short text, which may be insufficient for thorough originality check",
+      "no explicit 0-100 uniqueness score field; score is 80 but field name is 'score' not 'uniquenessScore' as implied",
+      "attestation is on-chain and includes metadata, but no verification that the NFT mint is actually on Base (contract address not verified as Base chain)",
+      "empty deliverable",
+      "Deliverable is empty (0 characters), no content returned",
+      "No uniqueness score provided",
+      "No sources provided",
+      "No on-chain NFT attestation minted",
+      "Core promise completely unfulfilled"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "4451398c-d9bc-422a-b6a7-73c218cb6f14",
+      "ok": true,
+      "txHashes": {
+        "create": "0x1dc471723f279df37b533d04691ea4c94bd4d335770c0b251f79736a3ae37bfa",
+        "pay": "0x4c5bf2ad208d8f0ea22bd845a6938158e9b973189626bd1befb19ab812640b27",
+        "deliver": "0xdbe41ef962da4892ff5118d0c51686eafb4137893cc3ac26a4a14b3ea86a7c91",
+        "clear": "0xb01a9cfc94f143a23524b2a44110d9403623d5c6c2403799d833101162e70a1b"
+      },
+      "requestSent": "{\"content\":\"Decentralized agent marketplaces are reshaping how autonomous software procures services from other software. Instead of static API keys and monthly invoices, an agent negotiates a price, escrows a stablecoin payment on-chain, receives a verifiable delivery, and settles trustlessly the moment the work is confirmed by both counterparties.\",\"kind\":\"text\"}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-08T06:50:49.440Z",
+      "negotiationId": "22ff6fcb-71f0-4ef8-b2ea-0741b70af9ce",
+      "tAcceptMs": 5366,
+      "orderId": "f81fa874-07f4-4a8c-a3af-e9f007f96923",
+      "chainOrderId": "134857",
+      "tCreateMs": 30028,
+      "pricePaidUsdc": 0.1,
+      "tDeliverMs": 114704,
+      "slaMet": true,
+      "deliverableType": "text",
+      "deliverableText": "{\"unique\":true,\"score\":80,\"contentHash\":\"0x753465f3dbeda7d62d053abd12edcfcb03a51fc0db7b06bae9c3a43aec2479bc\",\"sourceUrl\":null,\"attestationTx\":\"0xb5e02cfd8c0438f7fa932382e7f3af41bef38089884f68e935ccaed41fbc6ce6\",\"attestation\":{\"onChain\":true,\"attestationTx\":\"0xb5e02cfd8c0438f7fa932382e7f3af41bef38089884f68e935ccaed41fbc6ce6\",\"tokenId\":\"15\",\"signer\":\"0x75810f6932C6e1266a74F7a354870b1E55A3Cd82\",\"contract\":\"0xA4d41cb5975CBD984BF328A14b67866dA95c7f00\",\"metadata\":{\"name\":\"GhostWriter Attestation — 0x753465f3\",\"description\":\"On-chain proof of a content originality check performed by GhostWriter.\",\"attributes\":[{\"trait_type\":\"Uniqueness Score\",\"value\":80},{\"trait_type\":\"Unique\",\"value\":\"true\"},{\"trait_type\":\"Content Hash\",\"value\":\"0x753465f3dbeda7d62d053abd12edcfcb03a51fc0db7b06bae9c3a43aec2479bc\"},{\"trait_type\":\"Sources Checked\",\"value\":1},{\"trait_type\":\"Kind\",\"value\":\"text\"},{\"trait_type\":\"Checked At\",\"value\":\"2026-07-08T06:52:12.358Z\"}],\"ghostwriter\":{\"version\":\"1.0.0\",\"subject\":\"0xa16F422c4F815Ee89A0bE3fdf3A56cD7A165a9C2\",\"method\":{\"webSearch\":\"serpapi\",\"offlineHeuristic\":\"lexical-diversity + char-shingle jaccard\"},\"sources\":[{\"probe\":\"Decentralized agent marketplaces are reshaping how autonomous software procures services from other software.\",\"title\":\"Inside the Fractured World of AI Agent Marketplaces\",\"link\":\"https://medium.com/@adnanmasood/inside-the-fractured-world-of-ai-agent-marketplaces-da80e7e03dd0\",\"overlap\":0.19}]}}},\"summary\":\"Found 1 potentially overlapping source(s); strongest match 0.19. Uniqueness 80/100.\",\"sources\":[{\"probe\":\"Decentralized agent marketplaces are reshaping how autonomous software procures services from other software.\",\"title\":\"Inside the Fractured World of AI Agent Marketplaces\",\"link\":\"https://medium.com/@adnanmasood/inside-the-fractured-world-of-ai-agent-marketplaces-da80e7e03dd0\",\"overlap\":0.19}]}",
+      "contentHash": "0xe751359d26c8ef210f311491107321045fe54e98e0264ae5bff4fa5c64879472",
+      "finishedAt": "2026-07-08T06:53:27.890Z"
+    },
+    {
+      "runIndex": 2,
+      "mode": "paid",
+      "serviceId": "4451398c-d9bc-422a-b6a7-73c218cb6f14",
+      "ok": false,
+      "txHashes": {
+        "create": "0xfb06581e1403f23f65aff90c0f183d58197b13a97f73782717e1ce833ec8c07a",
+        "pay": "0x11c8b4f4a5cc997a7b4e3bd6b7295b3345399439ddde7f5ab99ef69adb9602d0"
+      },
+      "requestSent": "{\"content\":\"Decentralized agent marketplaces are reshaping how autonomous software procures services from other software. Instead of static API keys and monthly invoices, an agent negotiates a price, escrows a stablecoin payment on-chain, receives a verifiable delivery, and settles trustlessly the moment the work is confirmed by both counterparties.\",\"kind\":\"text\"}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-08T06:53:30.370Z",
+      "negotiationId": "3a737678-f8b4-49cf-8e6a-e84ffca45f54",
+      "tAcceptMs": 5392,
+      "orderId": "6a11278e-0cc5-4053-a3f9-8e8589794d9f",
+      "chainOrderId": "134878",
+      "tCreateMs": 29852,
+      "pricePaidUsdc": 0.1,
+      "failureStage": "order_rejected_after_payment",
+      "failureDetail": "Verification failed: could not coalesce error (error={ \"code\": -32000, \"message\": \"already known\" }, payload={ \"id\": 10, \"jsonrpc\": \"2.0\", \"method\": \"eth_sendRawTransaction\", \"params\": [ \"0x02f9069182210510830f424083a7d8c083115c1294a4d41cb5975cbd984bf328a14b67866da95c7f0080b90624bee800d3000000000000000000000000a16f422c4f815ee89a0be3fdf3a56cd7a165a9c2753465f3dbeda7d62d053abd12edcfcb03a51fc0db7b06bae9c3a43aec2479bc0000000000000000000000000000000000000000000000000000000000000050000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000541646174613a6170706c69636174696f6e2f6a736f6e3b6261736536342c65794a755957316c496a6f695232687663335258636d6c305a584967515852305a584e305958527062323467346f4355494442344e7a557a4e4459315a6a4d694c434a6b5a584e6a636d6c7764476c7662694936496b39754c574e6f59576c75494842796232396d4947396d49474567593239756447567564434276636d6c6e6157356862476c306553426a6147566a617942775a584a6d62334a745a575167596e6b675232687663335258636d6c305a5849754969776959585230636d6c696458526c637949365733736964484a686158526664486c775a534936496c5675615846315a57356c63334d6755324e76636d55694c434a32595778315a5349364f4442394c48736964484a686158526664486c775a534936496c5675615846315a534973496e5a686248566c496a6f6964484a315a534a394c48736964484a686158526664486c775a534936496b4e76626e526c626e51675347467a61434973496e5a686248566c496a6f694d4867334e544d304e6a566d4d3252695a5752684e3251324d6d51774e544e68596d51784d6d566b59325a6a596a417a595455785a6d4d775a474933596a4132596d466c4f574d7a5954517a5957566a4d6a51334f574a6a496e307365794a30636d4670644639306558426c496a6f6955323931636d4e6c637942446147566a6132566b49697769646d4673645755694f6a46394c48736964484a686158526664486c775a534936496b7470626d51694c434a32595778315a534936496e526c6548516966537837496e527959576c3058335235634755694f694a446147566a6132566b4945463049697769646d4673645755694f6949794d4449324c5441334c544134564441324f6a55304f6a51774c6a497a4f566f6966563073496d646f62334e3064334a7064475679496a7037496e5a6c636e4e70623234694f6949784c6a41754d434973496e4e31596d706c593351694f694977654745784e6b59304d6a4a6a4e4559344d5456465a5467355154426952544e6d5a47597a5154553259305133515445324e574535517a49694c434a745a58526f623251694f6e73696432566955325668636d4e6f496a6f69633256796347467761534973496d396d5a6d7870626d56495a58567961584e3061574d694f694a735a586870593246734c575270646d567963326c306553417249474e6f5958497463326870626d64735a53427159574e6a59584a6b496e3073496e4e7664584a6a5a584d694f6c7437496e427962324a6c496a6f695247566a5a573530636d46736158706c5a4342685a3256756443427459584a725a5852776247466a5a584d6759584a6c49484a6c6332686863476c755a79426f623363675958563062323576625739316379427a62325a30643246795a534277636d396a64584a6c6379427a5a584a3261574e6c6379426d636d3974494739306147567949484e765a6e523359584a6c4c694973496e52706447786c496a6f695357357a6157526c4948526f5a534247636d466a644856795a57516756323979624751676232596751556b675157646c626e51675457467961325630634778685932567a4969776962476c7561794936496d68306448427a4f6938766257566b615856744c6d4e7662533941595752755957357459584e76623251766157357a6157526c4c58526f5a53316d636d466a644856795a57517464323979624751746232597459576b745957646c626e51746257467961325630634778685932567a4c5752684f44426c4e3255774d32526b4d434973496d39325a584a73595841694f6a41754d546c395858313900000000000000000000000000000000000000000000000000000000000000c080a099acf414ba012e6af1f82e8f594951f78bdcce1e7f27949c01fe0456a2f7cac0a00f1826a7333ae806928cf7634a37852deec02d492d962362c4c6f23c1e9cfe15\" ] }, code=UNKNOWN_ERROR, version=6.17.0)",
+      "finishedAt": "2026-07-08T06:55:12.927Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 7.5,
+      "matchesPromise": true,
+      "issues": [
+        "sourceUrl is null despite promise of returning sources; only one source found for a short text, which may be insufficient for thorough originality check",
+        "no explicit 0-100 uniqueness score field; score is 80 but field name is 'score' not 'uniquenessScore' as implied",
+        "attestation is on-chain and includes metadata, but no verification that the NFT mint is actually on Base (contract address not verified as Base chain)"
+      ],
+      "summary": "The deliverable returns a uniqueness score, sources, and an on-chain NFT attestation as promised, but the source list is minimal and the output field naming is slightly off."
+    },
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no content returned",
+        "No uniqueness score provided",
+        "No sources provided",
+        "No on-chain NFT attestation minted",
+        "Core promise completely unfulfilled"
+      ],
+      "summary": "The deliverable is empty, failing to provide any of the promised outputs including a uniqueness score, sources, or NFT attestation."
+    }
+  ],
+  "spentUsdc": 0.2,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-8c012f62-20260708065514.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/8c012f62-c4dd-4866-937a-75f29b0f68ab.svg",
+  "rescoredAt": "2026-07-09T09:34:07.335Z"
+}

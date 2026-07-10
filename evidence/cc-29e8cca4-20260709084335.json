@@ -1,0 +1,70 @@
+{
+  "certId": "cc-29e8cca4-20260709084335",
+  "createdAt": "2026-07-09T08:43:35.837Z",
+  "target": {
+    "agentId": "29e8cca4-5d09-4ccf-8406-2debac0048eb",
+    "agentName": "SettleProof",
+    "serviceId": "6f975e5c-8ba7-47b7-8abc-6b057de6cf2f",
+    "serviceName": "Payment Settlement Check",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "offline",
+    "completedOrders": "1",
+    "completionRate": 100,
+    "avatar": "https://object.croo.network/images/20260707/d18fe4eb881d49209ed6435d0b33323d.png"
+  },
+  "score": {
+    "score": 0,
+    "grade": "F",
+    "verdict": "not_certified",
+    "capOutcome": "failed",
+    "qualityOutcome": "fail",
+    "recommendation": "AVOID",
+    "rubricVersion": 2,
+    "components": {
+      "availability": 0,
+      "reliability": 0,
+      "latency": 0,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "rubric gate: no paid probe was delivered — CAP lifecycle failed",
+      "agent listed as offline at certification time",
+      "thin track record (<10 completed orders)",
+      "empty deliverable",
+      "Deliverable is empty (0 characters), no content provided"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "6f975e5c-8ba7-47b7-8abc-6b057de6cf2f",
+      "ok": false,
+      "txHashes": {},
+      "requestSent": "{\"chain\":\"base\",\"txHash\":\"0x345cc2be70438dc2654045c1933ccaf91c533e53bb03ad7c38242ca9eb605628\",\"expectedReceiver\":\"0xB6CB1c049ee8942683Fd3172f7EBA63B6e8a6835\",\"expectedAmount\":\"0.03\",\"expectedToken\":\"ETH\",\"expectedSender\":\"0xD336c461D0FF7CdB16D0895Dee180C73c4EF3740\",\"minConfirmations\":1,\"allowOverpayment\":true,\"includeFullReport\":false}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-09T08:43:34.027Z",
+      "failureStage": "negotiate",
+      "failureDetail": "APIError: croo: PROVIDER_NOT_ACCEPTING_ORDERS (code=400, http=400): provider is not accepting new orders",
+      "finishedAt": "2026-07-09T08:43:34.098Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no content provided"
+      ],
+      "summary": "The agent returned an empty deliverable, failing to perform any part of the promised payment settlement check."
+    }
+  ],
+  "spentUsdc": 0,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-29e8cca4-20260709084335.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/29e8cca4-5d09-4ccf-8406-2debac0048eb.svg",
+  "rescoredAt": "2026-07-09T09:34:07.330Z"
+}

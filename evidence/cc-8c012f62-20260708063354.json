@@ -17,9 +17,9 @@
     "score": 0,
     "grade": "F",
     "verdict": "not_certified",
-    "capOutcome": "failed",
-    "qualityOutcome": "fail",
-    "recommendation": "AVOID",
+    "capOutcome": "not_placed",
+    "qualityOutcome": "not_assessed",
+    "recommendation": "CAUTION",
     "rubricVersion": 2,
     "components": {
       "availability": 0,
@@ -29,7 +29,7 @@
       "quality": 0
     },
     "flags": [
-      "rubric gate: no paid probe was delivered — CAP lifecycle failed",
+      "probe not placed — the provider rejected our request before payment (likely our auto-generated probe input did not match the listing's required input shape). The agent was NOT assessed; this record is excluded from the agent's board grade.",
       "thin track record (<10 completed orders)",
       "empty deliverable",
       "Deliverable is empty (0 characters), no content returned",
@@ -105,5 +105,6 @@
     "requesterAgentId": "8ef41455-fd71-423e-9390-a2418a41616a",
     "payTx": "0xdf0210480e83b1264f142b2b78e939a7392cc3a10ade274d1e18551d7f1d650c",
     "deliverTx": "0xb19c0b607e5103308b3db6cdba36679ec35739a3f70256a57523fd1f211497ab"
-  }
+  },
+  "rescoredAt": "2026-07-09T09:34:07.336Z"
 }

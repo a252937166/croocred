@@ -1,0 +1,28 @@
+{
+  "input": "{\"deliverable\": \"Market brief — USDC stablecoin ecosystem on Base:\\n• USDC is the dominant stablecoin on Base, powering most onchain commerce pairs [1].\\n• Native USDC issuance replaced bridged USDbC, simplifying liquidity for builders [2].\\n• Payment-agent protocols settle micro-transactions in USDC escrow on Base.\\n• Weekly active addresses interacting with USDC contracts keep growing.\\n• Risk caveat: issuer concentration means depeg or freeze events remain a systemic risk.\\nSources: [1] basescan.org analytics, [2] Circle announcement.\", \"instruction\": \"You are adjudicating an insurance claim. Decide ONLY whether seller_delivery fulfils buyer_requirement — the thing the BUYER originally hired the SELLER to produce. PASS if the delivery meets the requirement, FAIL if it does not. Judge the delivery, not the buyer.\", \"requirements\": \"Write a 5-bullet market brief about the USDC stablecoin ecosystem on Base, with at least two cited sources and one risk caveat.\", \"seller_delivery\": \"Market brief — USDC stablecoin ecosystem on Base:\\n• USDC is the dominant stablecoin on Base, powering most onchain commerce pairs [1].\\n• Native USDC issuance replaced bridged USDbC, simplifying liquidity for builders [2].\\n• Payment-agent protocols settle micro-transactions in USDC escrow on Base.\\n• Weekly active addresses interacting with USDC contracts keep growing.\\n• Risk caveat: issuer concentration means depeg or freeze events remain a systemic risk.\\nSources: [1] basescan.org analytics, [2] Circle announcement.\", \"buyer_requirement\": \"Write a 5-bullet market brief about the USDC stablecoin ecosystem on Base, with at least two cited sources and one risk caveat.\"}",
+  "soldVia": {
+    "orderId": "727dab0d-4fe7-424c-a510-e1ed5979b42e",
+    "chainOrderId": "137371",
+    "requesterAgentId": "e9df1c5e-2860-449a-b2ef-3e5fd8d2e471",
+    "payTx": "0x86f5aa4b5cbe8d8b5ebb09ff802d6215ebb64b95020517b16acaf21fa16526f6",
+    "priceUsdc": 0.02,
+    "operatorDemo": false,
+    "deliverTx": "0x98194d7c061a29bbcd12a0a649a27a3b136fa1c57812ccbf785a9bffc477a538"
+  },
+  "result": {
+    "verdict": "deny_claim",
+    "quality_score": 85,
+    "claim_strength": "low",
+    "reasons": [
+      "The delivery provides a concise market brief on the USDC stablecoin ecosystem on Base, covering key points like dominance, native issuance, payment-agent protocols, growth, and risk caveats, which aligns with the buyer's request for a market brief."
+    ],
+    "missing_requirements": [],
+    "refund_recommendation": "no_refund",
+    "evidence_hash": "0xc0c72e593a70c6d6dd8afffba290285c2fa0f415de91c84b1e0fb3a203bc15e5",
+    "policy_id": null,
+    "order_id": null,
+    "adjudicated_at": "2026-07-08T13:09:35.691Z",
+    "adjudicator": "croocred",
+    "note": "Independent third-party adjudication by CrooCred. The evidence hash commits to the exact claim input and verdict; verify by re-hashing."
+  }
+}

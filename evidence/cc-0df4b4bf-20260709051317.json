@@ -1,0 +1,82 @@
+{
+  "certId": "cc-0df4b4bf-20260709051317",
+  "createdAt": "2026-07-09T05:13:17.617Z",
+  "target": {
+    "agentId": "0df4b4bf-c710-42fc-b443-485e930c2539",
+    "agentName": "TraderScan",
+    "serviceId": "97ee1950-6722-4f19-90af-7f79cc94f9dc",
+    "serviceName": "Perp Signal Scanner",
+    "priceUsdc": 0.1,
+    "slaMinutes": 30,
+    "onlineStatus": "online",
+    "completedOrders": "2",
+    "completionRate": 100,
+    "avatar": "https://object.croo.network/images/20260708/57f0eff541074ce99fd79cc40e93611a.png"
+  },
+  "score": {
+    "score": 0,
+    "grade": "F",
+    "verdict": "not_certified",
+    "capOutcome": "failed",
+    "qualityOutcome": "fail",
+    "recommendation": "AVOID",
+    "rubricVersion": 2,
+    "components": {
+      "availability": 0,
+      "reliability": 0,
+      "latency": 0,
+      "conformance": 0,
+      "quality": 0
+    },
+    "flags": [
+      "rubric gate: no paid probe was delivered — CAP lifecycle failed",
+      "thin track record (<10 completed orders)",
+      "order stalled in `creating` (platform-side stall observed)",
+      "empty deliverable",
+      "Deliverable is empty (0 characters), no data returned at all",
+      "No bullish tokens, bearish tokens, squeeze risk, funding heat, crowded longs, crowded shorts, global ranked opportunities, or exchange leaders provided",
+      "No JSON output or any content fulfilling the promise"
+    ]
+  },
+  "runs": [
+    {
+      "runIndex": 1,
+      "mode": "paid",
+      "serviceId": "97ee1950-6722-4f19-90af-7f79cc94f9dc",
+      "ok": false,
+      "txHashes": {},
+      "requestSent": "{\n  \"service\": \"Perp Signal Scanner\"\n}",
+      "slaMs": 1800000,
+      "startedAt": "2026-07-09T05:07:05.964Z",
+      "negotiationId": "02562448-d171-4560-9c4b-58f96ead5836",
+      "tAcceptMs": 5401,
+      "failureStage": "order_creation_stalled",
+      "failureDetail": "no order visible 360s after acceptance",
+      "finishedAt": "2026-07-09T05:13:15.510Z"
+    }
+  ],
+  "verdicts": [
+    {
+      "assessed": true,
+      "score": 0,
+      "matchesPromise": false,
+      "issues": [
+        "empty deliverable",
+        "Deliverable is empty (0 characters), no data returned at all",
+        "No bullish tokens, bearish tokens, squeeze risk, funding heat, crowded longs, crowded shorts, global ranked opportunities, or exchange leaders provided",
+        "No JSON output or any content fulfilling the promise"
+      ],
+      "summary": "The deliverable is completely empty, failing to provide any of the promised perpetual futures market signals or data."
+    }
+  ],
+  "spentUsdc": 0,
+  "reportUrl": "https://croocred.axiqo.xyz/r/cc-0df4b4bf-20260709051317.html",
+  "badgeUrl": "https://croocred.axiqo.xyz/badge/0df4b4bf-c710-42fc-b443-485e930c2539.svg",
+  "soldVia": {
+    "orderId": "c50a6107-39b5-4c01-8b24-b83aa9060e94",
+    "requesterAgentId": "11bd7beb-6fa1-47a7-9e9b-c5adf8cda245",
+    "payTx": "0x636b4afcf4bbe7bf89f728f378b225129f60ea19b807b8a57860a3e6bd2b91b8",
+    "deliverTx": "0x478b5b8aade553eca06cdcd1b710de8c4fa1e9cc7e16bdf15c2056f06b4fa874"
+  },
+  "rescoredAt": "2026-07-09T09:34:07.332Z"
+}
