@@ -3,7 +3,8 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { cfg, usdc } from "./config.js";
 import { log } from "./log.js";
-import { getPublicService } from "./publicApi.js";
+import { getPublicService, resolveNameToId } from "./publicApi.js";
+import { parseCertificationRequest, type CertificationRequest } from "./certreq.js";
 import { certify, deliverablePayload } from "./certify.js";
 import { judgeClaim, attachVerdictEvidence } from "./verdict.js";
 import { saveRecord } from "./report.js";
@@ -46,65 +47,32 @@ const acceptAttempts = new Map<string, number>();
 const MAX_ACCEPT_ATTEMPTS = 3;
 
 // ---------- request parsing --------------------------------------------------
-const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
-
-export interface CertificationRequest {
-  target: string;
-  runs?: number;
-  mode?: "liveness"; // buyers may downgrade to liveness; paid is balance-gated
-  note?: string;
-}
+// parseCertificationRequest lives in certreq.ts (pure, unit-tested). Names are
+// resolved against the Store here, where I/O belongs.
 
 /**
- * Parse whatever the buyer sent: {"target": "...", "runs": 2}, a raw UUID,
- * an Agent Store URL, or free text containing any of those. Requirements may
- * arrive double-JSON-encoded (the API requires JSON), so unwrap up to twice.
+ * Turn a parsed request whose target is a Store *name* into one with a UUID.
+ *  ok       — request is ready (name resolved, or it was already a UUID)
+ *  no-match — the name definitively matches nothing on the Store
+ * Throws on search-transport failure so a Store outage is never misread as
+ * "no such agent" (pipeline fails generically → buyer is auto-refunded).
  */
-export function parseCertificationRequest(requirements: string): CertificationRequest | null {
-  let text = (requirements ?? "").trim();
-  if (!text) return null;
-
-  let obj: Record<string, unknown> | null = null;
-  for (let i = 0; i < 2 && obj === null; i++) {
-    try {
-      const parsed: unknown = JSON.parse(text);
-      if (typeof parsed === "string") {
-        text = parsed.trim();
-      } else if (parsed && typeof parsed === "object") {
-        obj = parsed as Record<string, unknown>;
-      } else {
-        break;
-      }
-    } catch {
-      break;
-    }
+async function resolveRequestTarget(
+  req: CertificationRequest,
+  orderId: string,
+): Promise<{ kind: "ok"; req: CertificationRequest } | { kind: "no-match" }> {
+  if (!req.targetIsName) return { kind: "ok", req };
+  let resolved: string | null;
+  try {
+    resolved = await resolveNameToId(req.target);
+  } catch (err) {
+    throw new Error(`Store name search failed while resolving "${req.target}": ${String(err).slice(0, 80)}`);
   }
-
-  let target: string | null = null;
-  let runs: number | undefined;
-  let mode: CertificationRequest["mode"];
-  let note: string | undefined;
-
-  if (obj) {
-    for (const k of ["target", "target_id", "service_id", "serviceId", "agent_id", "agentId", "url"]) {
-      const v = obj[k];
-      if (typeof v === "string" && UUID_RE.test(v)) {
-        target = v.match(UUID_RE)![0];
-        break;
-      }
-    }
-    if (typeof obj.runs === "number" && Number.isFinite(obj.runs)) {
-      runs = Math.max(1, Math.min(3, Math.round(obj.runs)));
-    }
-    if (obj.mode === "liveness") mode = "liveness";
-    if (typeof obj.note === "string") note = obj.note.slice(0, 500);
-    if (typeof obj.notes === "string") note = obj.notes.slice(0, 500);
+  if (resolved) {
+    log.info(`order ${orderId}: resolved target name "${req.target}" → ${resolved}`);
+    return { kind: "ok", req: { ...req, target: resolved, targetIsName: undefined } };
   }
-  if (!target) {
-    const m = text.match(UUID_RE);
-    target = m ? m[0] : null;
-  }
-  return target ? { target, runs, mode, note } : null;
+  return { kind: "no-match" };
 }
 
 // ---------- provider flow ----------------------------------------------------
@@ -174,6 +142,25 @@ async function handleNegotiation(negotiationId: string): Promise<void> {
       // default to certifying the buyer's own agent (learned from a real
       // buyer's first order getting rejected, 2026-07-07).
       log.info(`negotiation ${negotiationId}: no parsable target — will default to the buyer's own agent`);
+    } else if (req.targetIsName === "key") {
+      // Cheapest place to catch a bad name: before the buyer pays. Only a
+      // definitive no-match rejects; a search outage lets the order proceed
+      // (it re-resolves at order time and auto-refunds on failure).
+      try {
+        const resolved = await resolveNameToId(req.target);
+        if (resolved) {
+          log.info(`negotiation ${negotiationId}: target name "${req.target}" → ${resolved}`);
+        } else {
+          await client.rejectNegotiation(
+            negotiationId,
+            `No Store agent named "${req.target.slice(0, 60)}" found. Check the exact name on the Agent Store, or send {"target":"<agent uuid>"}.`,
+          );
+          log.info(`negotiation ${negotiationId} rejected — unresolvable target name "${req.target}"`);
+          return;
+        }
+      } catch (err) {
+        log.warn(`negotiation ${negotiationId}: name search unavailable, deferring to order time`, String(err));
+      }
     }
   }
 
@@ -203,6 +190,7 @@ async function handleNegotiation(negotiationId: string): Promise<void> {
 async function processPaidOrder(orderId: string): Promise<void> {
   if (state.processedOrders.includes(orderId) || busy.has(orderId)) return;
   busy.add(orderId);
+  let defaultedToOwnAgent = false;
   try {
     const order = await client.getOrder(orderId);
     if (order.status !== "paid") return;
@@ -253,11 +241,32 @@ async function processPaidOrder(orderId: string): Promise<void> {
     }
 
     let req = parseCertificationRequest(neg.requirements);
+    if (req?.targetIsName) {
+      const resolution = await resolveRequestTarget(req, orderId);
+      if (resolution.kind === "ok") {
+        req = resolution.req;
+      } else if (req.targetIsName === "key") {
+        // The buyer explicitly named a target we can't find — certifying
+        // anything else would be delivering the wrong product. Honest reject.
+        await client.rejectOrder(
+          orderId,
+          `No Store agent named "${req.target.slice(0, 60)}" found. Check the exact name on the Agent Store, or send {"target":"<agent uuid>"}. Escrow refunded.`,
+        );
+        state.processedOrders.push(orderId);
+        persist();
+        log.info(`order ${orderId} rejected with refund — unresolvable target name "${req.target}"`);
+        return;
+      } else {
+        log.info(`order ${orderId}: bare token "${req.target}" matched no Store agent — using the default`);
+        req = null;
+      }
+    }
     if (!req) {
       // Target-less order: default to certifying the buyer's own agent —
       // that's the overwhelmingly common intent, and a paying customer
       // should never be bounced on a format technicality.
       req = { target: order.requesterAgentId, runs: undefined, mode: undefined, note: undefined };
+      defaultedToOwnAgent = true;
       log.info(`order ${orderId}: no parsable target — defaulting to the buyer's own agent ${order.requesterAgentId}`);
     }
 
@@ -315,8 +324,16 @@ async function processPaidOrder(orderId: string): Promise<void> {
     }
   } catch (err) {
     log.error(`order ${orderId} pipeline failed`, String(err));
+    // When we defaulted to the buyer's own agent and that agent isn't publicly
+    // listed, the generic error reads like OUR outage. Tell the buyer what
+    // actually happened and exactly how to re-order (learned from a real
+    // buyer failing twice on this, 2026-07-13/14).
+    const unlistedOwnAgent = defaultedToOwnAgent && /public\/agents\/.+HTTP 404/.test(String(err));
+    const reason = unlistedOwnAgent
+      ? `Your requirement had no target I could parse, so I tried your own agent — but it isn't publicly listed on the Store, so there was nothing to certify. Re-order with {"target":"<agent name or uuid>"}. Escrow refunded.`
+      : `Certification pipeline failed (${String(err).slice(0, 120)}); escrow refunded.`;
     try {
-      await client.rejectOrder(orderId, `Certification pipeline failed (${String(err).slice(0, 120)}); escrow refunded.`);
+      await client.rejectOrder(orderId, reason);
       state.processedOrders.push(orderId);
       persist();
       log.info(`order ${orderId} rejected with refund`);

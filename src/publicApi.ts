@@ -75,6 +75,22 @@ export async function listPublicServices(page = 1, pageSize = 50): Promise<Publi
   return d.items ?? [];
 }
 
+/**
+ * Resolve a Store agent *name* to its agentId. Exact case-insensitive name
+ * match wins; a single fuzzy hit is accepted (search is substring-based, so
+ * one hit is nearly always the intended agent). Returns null on a definitive
+ * no-match; throws on transport failure so callers can retry instead of
+ * misreading an outage as "no such agent".
+ */
+export async function resolveNameToId(name: string): Promise<string | null> {
+  const q = name.trim().toLowerCase();
+  const agents = await searchAgents(name.trim());
+  const exact = agents.filter((a) => (a.name ?? "").trim().toLowerCase() === q);
+  if (exact.length === 1) return exact[0].agentId;
+  if (exact.length === 0 && agents.length === 1) return agents[0].agentId;
+  return null;
+}
+
 /** Resolve a certification target: accepts a serviceId or an agentId. */
 export async function resolveTarget(
   id: string,
