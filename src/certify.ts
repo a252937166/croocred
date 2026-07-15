@@ -11,8 +11,15 @@ import {
   saveRecord,
   newCertId,
   deliverablePayload,
+  lastKnownGoodProbe,
   type CertRecord,
 } from "./report.js";
+
+/** The listing tells buyers to send structured data (a schema, or a text
+ *  hint that spells out JSON fields) — a generic prose probe would violate it. */
+function wantsStructuredInput(service: { requirementType: string; requirementText: string }): boolean {
+  return service.requirementType === "schema" || /json|schema|\{/i.test(service.requirementText ?? "");
+}
 
 /**
  * The full certification pipeline:
@@ -49,17 +56,45 @@ export async function certify(
     );
   }
 
-  const probeInput = opts.probeInput?.trim() || (await synthesizeProbeInput(agent, service));
-  log.info(`probe input${opts.probeInput ? " (buyer-supplied)" : ""}:`, probeInput.slice(0, 200));
+  // Probe input precedence: buyer-supplied > last known-good for this service
+  // (keeps re-check grades comparable and survives synthesis outages) > fresh
+  // LLM synthesis. The generic fallback is refused when the listing declares
+  // structured input — grading an agent on a contract-violating probe produces
+  // a false AVOID (real re-check order 872cecda, 2026-07-14).
+  let probeInput: string;
+  let provenance: CertRecord["probeProvenance"];
+  const reusable = opts.probeInput?.trim() ? null : lastKnownGoodProbe(service.serviceId);
+  if (opts.probeInput?.trim()) {
+    probeInput = opts.probeInput.trim();
+    provenance = "buyer";
+  } else if (reusable) {
+    probeInput = reusable.input;
+    provenance = "reused";
+    log.info(`probe input reused from ${reusable.fromCertId}`);
+  } else {
+    const synth = await synthesizeProbeInput(agent, service);
+    probeInput = synth.input;
+    provenance = synth.provenance;
+    if (provenance === "fallback" && wantsStructuredInput(service)) {
+      throw new Error(
+        `probe synthesis unavailable and "${service.name}" declares structured input — ` +
+          "refusing to grade on a contract-violating probe; re-order with a probe in \"note\" or retry later",
+      );
+    }
+  }
+  log.info(`probe input (${provenance}):`, probeInput.slice(0, 200));
 
   const runs: TestRun[] = [];
   const verdicts: QualityVerdict[] = [];
   for (let i = 0; i < runsWanted; i++) {
-    // Vary the input per probe (unless buyer-supplied): identical inputs make
-    // identical outputs uninformative — with distinct inputs, identical
-    // outputs are strong evidence of a canned response.
+    // Vary the input per probe (only when freshly synthesized): identical
+    // inputs make identical outputs uninformative — with distinct inputs,
+    // identical outputs are strong evidence of a canned response. Buyer and
+    // reused probes stay fixed so runs (and re-checks) are comparable.
     const input =
-      i === 0 || opts.probeInput?.trim() ? probeInput : await synthesizeProbeInput(agent, service);
+      i === 0 || provenance !== "synthesized"
+        ? probeInput
+        : (await synthesizeProbeInput(agent, service)).input;
     if (i > 0 && input !== probeInput) log.info(`probe input #${i + 1}:`, input.slice(0, 160));
     const run =
       mode === "paid"
@@ -86,6 +121,7 @@ export async function certify(
 
   const score = computeScore(agent, service, runs, verdicts);
   const rec = buildRecord(newCertId(agent.agentId), agent, service, runs, verdicts, score, opts.soldVia);
+  rec.probeProvenance = provenance;
   const file = saveRecord(rec);
   log.info(`certification done: ${rec.certId} grade=${score.grade} score=${score.score} spent=$${rec.spentUsdc.toFixed(2)} → ${file}`);
   return rec;

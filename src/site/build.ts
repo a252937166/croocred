@@ -470,16 +470,20 @@ function reportPage(rec: CertRecord, generatedAt: string): string {
     : meta.recommendation === "HIRE WITH REVIEW" ? "HIRE WITH REVIEW — both axes pass, but read the flags below before relying on it"
     : meta.recommendation === "CAUTION" ? "CAUTION — evidence is mixed; read the audit axes and flags"
     : "AVOID — failed live testing (hard gate triggered; see flags)";
+  const invalidBanner = rec.invalidated
+    ? `<div class="section" style="border-color:#e6584655;border-left:3px solid #e65846"><p style="margin:0;font:700 13px var(--mono);color:#e65846">INVALIDATED · GRADE RETRACTED — DO NOT USE</p><p class="mut" style="margin:6px 0 0">${esc(rec.invalidated.reason)}${rec.invalidated.supersededBy ? ` Superseded by <a href="./${esc(rec.invalidated.supersededBy)}.html" style="color:#9be15d">${esc(rec.invalidated.supersededBy)}</a>.` : ""} Retracted ${esc(rec.invalidated.at.slice(0, 10))}. The original record is kept below, unchanged, for audit — an auditor that cannot correct itself cannot be trusted.</p></div>`
+    : "";
   const body = `
-<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px">
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px${rec.invalidated ? ";opacity:.55" : ""}">
   ${rec.target.avatar ? `<img class="av" src="${esc(rec.target.avatar)}" alt=""/>` : ""}
   <div><h1 style="font:800 24px var(--mono)">${esc(rec.target.agentName)}</h1>
   <div class="mut">service: ${esc(rec.target.serviceName)} · $${rec.target.priceUsdc.toFixed(2)}/call · SLA ${rec.target.slaMinutes}min</div></div>
   <div style="margin-left:auto;text-align:right">
-    <div class="grade" style="color:${c};font-size:34px">${rec.score.grade}</div>
+    <div class="grade" style="color:${c};font-size:34px${rec.invalidated ? ";text-decoration:line-through" : ""}">${rec.score.grade}</div>
     <div class="mut">${rec.score.score}/100 · ${esc(rec.score.verdict)}</div>
   </div>
 </div>
+${invalidBanner}
 ${auditBlock}
 <div class="section"><h2>${paidCount ? "Live test evidence" : "Liveness check"}</h2>
 <p style="margin:0 0 10px">${evidenceLine}</p>
@@ -1364,6 +1368,8 @@ export async function buildSite(): Promise<string> {
           soldViaOrder: r.soldVia?.orderId ?? null,
           flags: r.score.flags, createdAt: r.createdAt,
           reportUrl: r.reportUrl, badgeUrl: r.badgeUrl,
+          probeProvenance: r.probeProvenance ?? null,
+          invalidated: r.invalidated ?? null,
         };
       }),
       null,

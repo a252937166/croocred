@@ -58,17 +58,20 @@ function extractJSON<T>(text: string | null): T | null {
   }
 }
 
-/** Build the probe input we send as `requirements` when test-buying. */
+/** Build the probe input we send as `requirements` when test-buying.
+ *  provenance "fallback" means the generic ask — callers must treat it as a
+ *  last resort: it violates any structured input contract the listing
+ *  declares (a false-AVOID on a real re-check taught us this, 2026-07-14). */
 export async function synthesizeProbeInput(
   agent: PublicAgent,
   service: PublicService,
-): Promise<string> {
+): Promise<{ input: string; provenance: "synthesized" | "fallback" }> {
   const schema = service.requirementSchema && service.requirementSchema !== "[]"
     ? service.requirementSchema
     : null;
 
   // Schema-typed service with an empty schema = expects an empty JSON object.
-  if (service.requirementType === "schema" && !schema) return "{}";
+  if (service.requirementType === "schema" && !schema) return { input: "{}", provenance: "synthesized" };
 
   const llm = await chat(
     [
@@ -99,17 +102,22 @@ export async function synthesizeProbeInput(
           "Generate the test request now.",
       },
     ],
-    500,
+    900,
   );
 
   if (llm) {
     const trimmed = llm.trim().replace(/^```(json)?\s*|\s*```$/g, "");
     if (schema) {
       const parsed = extractJSON<Record<string, unknown>>(trimmed);
-      if (parsed) return JSON.stringify(parsed);
-    } else if (trimmed.length > 0 && trimmed.length < 2000) {
-      return trimmed;
+      if (parsed) return { input: JSON.stringify(parsed), provenance: "synthesized" };
+      log.warn("probe synthesis: LLM reply had no extractable JSON — falling back");
+    } else if (trimmed.length > 0 && trimmed.length < 4000) {
+      return { input: trimmed, provenance: "synthesized" };
+    } else {
+      log.warn(`probe synthesis: LLM reply discarded (${trimmed.length} chars) — falling back`);
     }
+  } else {
+    log.warn("probe synthesis: LLM unavailable — falling back");
   }
 
   // Heuristic fallback: satisfy the schema minimally, or send a generic ask.
@@ -125,12 +133,15 @@ export async function synthesizeProbeInput(
           f.type === "object" ? {} :
           `test ${f.description ?? f.name}`.slice(0, 100);
       }
-      return JSON.stringify(obj);
+      return { input: JSON.stringify(obj), provenance: "synthesized" };
     } catch {
       /* fall through */
     }
   }
-  return `Please demonstrate your service "${service.name}" on a small, representative example. This is a genuine paid evaluation order.`;
+  return {
+    input: `Please demonstrate your service "${service.name}" on a small, representative example. This is a genuine paid evaluation order.`,
+    provenance: "fallback",
+  };
 }
 
 export interface QualityVerdict {

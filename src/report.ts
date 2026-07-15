@@ -35,6 +35,14 @@ export interface CertRecord {
     payTx?: string;
     deliverTx?: string;
   };
+  /** Where run#1's probe input came from (records without it predate v2). */
+  probeProvenance?: "buyer" | "reused" | "synthesized" | "fallback";
+  /**
+   * Set when the grade was retracted because the *test* was invalid (e.g. our
+   * probe violated the listing's declared input contract). The record stays
+   * public for audit; it never drives a badge or the board.
+   */
+  invalidated?: { at: string; reason: string; supersededBy?: string };
 }
 
 const CERTS_DIR = () => {
@@ -107,6 +115,7 @@ export function latestPerAgent(): Map<string, CertRecord> {
   // real board grade, so it is only used when an agent has no other record.
   for (const r of loadAllRecords()) {
     const aid = r.target.agentId;
+    if (r.invalidated) continue; // a retracted grade never drives a badge
     if ((r.score as { capOutcome?: string }).capOutcome === "not_placed") {
       if (!fallback.has(aid)) fallback.set(aid, r);
       continue;
@@ -115,6 +124,30 @@ export function latestPerAgent(): Map<string, CertRecord> {
   }
   for (const [aid, r] of fallback) if (!m.has(aid)) m.set(aid, r);
   return m;
+}
+
+/**
+ * The most recent probe input for this service that is known to have produced
+ * a *valid test* — buyer-supplied/reused provenance, or (for pre-v2 records
+ * with no provenance) a delivery the judge scored ≥4/10, i.e. the service
+ * engaged the task rather than erroring on a malformed probe. Re-checks reuse
+ * it so grades stay comparable across runs and immune to synthesis outages
+ * (learned from a false AVOID on a real re-check order, 2026-07-14).
+ */
+export function lastKnownGoodProbe(serviceId: string): { input: string; fromCertId: string } | null {
+  for (const r of loadAllRecords()) {
+    if (r.invalidated) continue;
+    if (r.target.serviceId !== serviceId) continue;
+    if ((r.score as { capOutcome?: string }).capOutcome === "not_placed") continue;
+    const input = r.runs?.[0]?.requestSent?.trim();
+    if (!input) continue;
+    if (r.probeProvenance === "fallback") continue;
+    const engaged = r.verdicts?.[0]?.assessed === true && (r.verdicts[0].score ?? 0) >= 4;
+    const trusted =
+      r.probeProvenance === "buyer" || r.probeProvenance === "reused" || engaged;
+    if (trusted) return { input, fromCertId: r.certId };
+  }
+  return null;
 }
 
 /** Compact JSON returned as the CAP deliverable (schema type). */
